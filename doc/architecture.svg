@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="1311px" preserveAspectRatio="none" style="width:1748px;height:1311px;background:#FFFFFF;" version="1.1" viewBox="0 0 1748 1311" width="1748px" zoomAndPan="magnify"><defs><filter height="300%" id="fq2g9xhgxvi04" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><path d="M80.7141,79.3893 C116.7578,36.058 150.2448,32.4454 183.7148,82.2362 C217.8964,26.1803 252.4009,26.7736 295.9504,71.8386 C332.7255,10.7132 376.0508,21.4892 413.7978,70.8015 C461.1608,20.3547 500.2205,25.0633 536.326,83.4728 C563.9192,32.6013 606.4157,27.4391 638.9765,78.4686 C673.3584,25.9617 731.9353,29.66 763.1426,82.2203 C782.4964,27.8213 831.3329,20.2944 868.5326,62.8147 C906.7627,12.1115 939.532,15.4363 976.3879,64.3033 C1011.7909,13.9747 1071.3708,6 1100.1383,71.3988 C1128.1326,14.7122 1181.0882,20.354 1211.7649,68.5436 C1249.2537,12.0959 1284.7654,14.8517 1322.6074,68.1871 C1358.053,6.9472 1406.8222,11.2838 1440.9546,69.4883 C1477.6176,18.6825 1534.3525,21.3063 1557.4516,83.4751 C1589.512,39.2748 1623.1001,23.5733 1661.8305,76.2917 C1667.0726,72.5452 1670.776,74.1996 1671.6318,80.5497 C1725.614,110.3587 1737.0248,150.6228 1683.3253,191.7549 C1735.3013,224.8005 1733.0796,263.5404 1685.8099,298.8876 C1736.8389,335.902 1720.6351,381.5553 1668.7339,401.4289 C1718.5936,431.2105 1721.5547,465.9739 1675.8137,502.4552 C1725.2109,532.5353 1722.4348,563.1978 1684.1656,600.7282 C1731.1582,627.9446 1741.1234,673.367 1686.0991,702.5211 C1737.0805,744.0471 1732.0978,789.8246 1668.1104,812.5551 C1707.3083,846.4947 1707.2223,888.7968 1654.8305,910.2917 C1658.5306,912.013 1658.6854,915.2726 1655.5767,917.6814 C1627.0045,965.9424 1589.1084,982.2008 1547.4508,932.0598 C1506.2796,993.5735 1456.2013,974.2131 1428.4063,918.4787 C1403.6103,973.6543 1358.6984,973.2286 1320.4701,933.8048 C1276.4512,978.4766 1235.7261,987.0332 1203.3447,921.4429 C1169.436,967.5463 1138.1908,968.7065 1103.857,921.8982 C1076.2491,987.3054 1029.2624,991.3357 989.747,932.867 C958.6767,985.3285 899.0678,986.3203 864.751,936.8479 C831.8889,990.3234 785.378,987.2885 751.7172,937.724 C703.5236,994.2545 668.6401,988.0147 635.3248,923.4264 C608.4112,985.9914 557.5578,990.3576 518.5742,935.4192 C485.3377,989.4121 441.7794,983.2447 409.1916,934.7271 C362.8668,990.3725 329.3897,978.6445 296.8411,921.0581 C262.0315,980.2645 214.1132,971.786 179.6517,920.6883 C137.6185,965.6337 81.3075,976.1856 55.8305,903.2917 C66.0047,902.8671 68.6885,910.7006 64.8338,918.5525 C19.7313,884.0696 7.5553,846.4165 65.0743,812.1656 C9.8538,775.2119 8.7876,733.3932 68.0347,699.446 C26.7689,676.2865 18.1619,632.9698 66.1742,607.9941 C20.2393,585.8789 11.337,540.5028 55.6984,508.847 C7.2604,464.7508 16.5636,428.2769 67.5581,394.4929 C13.5879,360.1838 10.8543,323.6307 68.0951,289.8927 C10.8189,263.2518 9.6285,210.0686 68.1002,183.4332 C6,147.7798 16.3776,109.9567 62.8305,69.2917 C72.276,64.8601 79.657,68.9644 80.7141,79.3893 " fill="#FFFFFF" filter="url(#fq2g9xhgxvi04)" style="stroke:#000000;stroke-width:1.5;"/><!--MD5=[dc97dd2d109d72099fe2802760251322]
+cluster Front-End--><polygon fill="#FFFFFF" filter="url(#fq2g9xhgxvi04)" points="71.8305,85.2917,150.8305,85.2917,157.8305,107.7799,1244.8305,107.7799,1244.8305,894.2917,71.8305,894.2917,71.8305,85.2917" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="71.8305" x2="157.8305" y1="107.7799" y2="107.7799"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="73" x="75.8305" y="100.8268">Front-End</text><!--MD5=[0d1efccdffd50bef89096ea366f2dacf]
+cluster Dashboard--><rect fill="#FFFFFF" filter="url(#fq2g9xhgxvi04)" height="287" style="stroke:#000000;stroke-width:1.5;" width="772" x="439.8305" y="136.2917"/><rect fill="#FFFFFF" height="10" style="stroke:#000000;stroke-width:1.5;" width="15" x="1191.8305" y="141.2917"/><rect fill="#FFFFFF" height="2" style="stroke:#000000;stroke-width:1.5;" width="4" x="1189.8305" y="143.2917"/><rect fill="#FFFFFF" height="2" style="stroke:#000000;stroke-width:1.5;" width="4" x="1189.8305" y="147.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="77" x="787.3305" y="162.8268">Dashboard</text><!--MD5=[c84e7d4ddacc4012772a41ecdb244b48]
+cluster Token Balance--><rect fill="#FFFFFF" filter="url(#fq2g9xhgxvi04)" height="204" style="stroke:#000000;stroke-width:1.5;" width="202" x="969.8305" y="187.2917"/><rect fill="#FFFFFF" height="10" style="stroke:#000000;stroke-width:1.5;" width="15" x="1151.8305" y="192.2917"/><rect fill="#FFFFFF" height="2" style="stroke:#000000;stroke-width:1.5;" width="4" x="1149.8305" y="194.2917"/><rect fill="#FFFFFF" height="2" style="stroke:#000000;stroke-width:1.5;" width="4" x="1149.8305" y="198.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="104" x="1018.8305" y="213.8268">Token Balance</text><!--MD5=[0be2d1da39bee53638b9df3afbeb4310]
+cluster Operation--><rect fill="#FFFFFF" filter="url(#fq2g9xhgxvi04)" height="374" style="stroke:#000000;stroke-width:1.5;" width="1109" x="103.8305" y="488.2917"/><rect fill="#FFFFFF" height="10" style="stroke:#000000;stroke-width:1.5;" width="15" x="1192.8305" y="493.2917"/><rect fill="#FFFFFF" height="2" style="stroke:#000000;stroke-width:1.5;" width="4" x="1190.8305" y="495.2917"/><rect fill="#FFFFFF" height="2" style="stroke:#000000;stroke-width:1.5;" width="4" x="1190.8305" y="499.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="72" x="622.3305" y="514.8268">Operation</text><!--MD5=[915f6a2b4bff9d90dc7327d570275f1b]
+cluster Configuration--><rect fill="#FFFFFF" filter="url(#fq2g9xhgxvi04)" height="259" style="stroke:#000000;stroke-width:1.5;" width="640" x="532.8305" y="555.2917"/><rect fill="#FFFFFF" height="10" style="stroke:#000000;stroke-width:1.5;" width="15" x="1152.8305" y="560.2917"/><rect fill="#FFFFFF" height="2" style="stroke:#000000;stroke-width:1.5;" width="4" x="1150.8305" y="562.2917"/><rect fill="#FFFFFF" height="2" style="stroke:#000000;stroke-width:1.5;" width="4" x="1150.8305" y="566.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="100" x="802.8305" y="581.8268">Configuration</text><!--MD5=[796d006f915deead5fee78d313009a70]
+cluster DepositManager--><rect fill="#FFFFFF" filter="url(#fq2g9xhgxvi04)" height="113" style="stroke:#000000;stroke-width:1.5;" width="262" x="238.8305" y="547.2917"/><rect fill="#FFFFFF" height="10" style="stroke:#000000;stroke-width:1.5;" width="15" x="480.8305" y="552.2917"/><rect fill="#FFFFFF" height="2" style="stroke:#000000;stroke-width:1.5;" width="4" x="478.8305" y="554.2917"/><rect fill="#FFFFFF" height="2" style="stroke:#000000;stroke-width:1.5;" width="4" x="478.8305" y="558.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="117" x="311.3305" y="573.8268">DepositManager</text><!--MD5=[309baca2b4b5c8a3a6e22904d929654e]
+cluster LoanManager--><rect fill="#FFFFFF" filter="url(#fq2g9xhgxvi04)" height="113" style="stroke:#000000;stroke-width:1.5;" width="303" x="197.8305" y="709.2917"/><rect fill="#FFFFFF" height="10" style="stroke:#000000;stroke-width:1.5;" width="15" x="480.8305" y="714.2917"/><rect fill="#FFFFFF" height="2" style="stroke:#000000;stroke-width:1.5;" width="4" x="478.8305" y="716.2917"/><rect fill="#FFFFFF" height="2" style="stroke:#000000;stroke-width:1.5;" width="4" x="478.8305" y="720.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="95" x="301.8305" y="735.8268">LoanManager</text><!--MD5=[43cda5394aebfa47ddb3fa61c1e08012]
+cluster Handler--><polygon fill="#FFFFFF" filter="url(#fq2g9xhgxvi04)" points="1268.8305,717.2917,1330.8305,717.2917,1337.8305,739.7799,1645.8305,739.7799,1645.8305,814.2917,1268.8305,814.2917,1268.8305,717.2917" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="1268.8305" x2="1337.8305" y1="739.7799" y2="739.7799"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="56" x="1272.8305" y="732.8268">Handler</text><!--MD5=[8cbf27d0aef99c66b94ff5fe884149f3]
+cluster Smart Contract--><polygon fill="#FFFFFF" filter="url(#fq2g9xhgxvi04)" points="1108.8305,967.2917,1222.8305,967.2917,1229.8305,989.7799,1640.8305,989.7799,1640.8305,1304.2917,1108.8305,1304.2917,1108.8305,967.2917" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="1108.8305" x2="1229.8305" y1="989.7799" y2="989.7799"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="108" x="1112.8305" y="982.8268">Smart Contract</text><path d="M1215.8305,1212.2917 C1215.8305,1202.2917 1301.8305,1202.2917 1301.8305,1202.2917 C1301.8305,1202.2917 1387.8305,1202.2917 1387.8305,1212.2917 L1387.8305,1270.2917 C1387.8305,1280.2917 1301.8305,1280.2917 1301.8305,1280.2917 C1301.8305,1280.2917 1215.8305,1280.2917 1215.8305,1270.2917 L1215.8305,1212.2917 " fill="#FFFFFF" filter="url(#fq2g9xhgxvi04)" style="stroke:#000000;stroke-width:1.5;"/><path d="M1215.8305,1212.2917 C1215.8305,1222.2917 1301.8305,1222.2917 1301.8305,1222.2917 C1301.8305,1222.2917 1387.8305,1222.2917 1387.8305,1212.2917 " fill="none" style="stroke:#000000;stroke-width:1.5;"/><!--MD5=[49c19ddcfd9ee66edd3fded52cdaa166]
+entity Total Loan Outstanding Balance--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="257" x="694.3305" y="222.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="931.3305" y="227.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="929.3305" y="229.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="929.3305" y="233.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="217" x="709.3305" y="255.8268">Total Loan Outstanding Balance</text><!--MD5=[a3fc8f38b0477b6d432c3d84b5ac0cf7]
+entity Total Borrowers Count--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="195" x="464.3305" y="222.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="639.3305" y="227.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="637.3305" y="229.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="637.3305" y="233.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="155" x="479.3305" y="255.8268">Total Borrowers Count</text><!--MD5=[6815a7c98912f1a3feb5ab6a43f68320]
+entity BTC--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="67" x="986.3305" y="222.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="1033.3305" y="227.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1031.3305" y="229.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1031.3305" y="233.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="27" x="1001.3305" y="255.8268">BTC</text><!--MD5=[9fe989ef344b73af3fedbd6fa89ff652]
+entity ETH--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="67" x="1088.3305" y="222.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="1135.3305" y="227.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1133.3305" y="229.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1133.3305" y="233.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="27" x="1103.3305" y="255.8268">ETH</text><!--MD5=[b15b5df52b4c751c5a3991a3786b2801]
+entity SGC--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="68" x="985.8305" y="329.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="1033.8305" y="334.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1031.8305" y="336.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1031.8305" y="340.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="28" x="1000.8305" y="362.8268">SGC</text><!--MD5=[a1f75b78333f1a29d6a61a3bbb101037]
+entity PAUSE--><rect fill="#FF0000" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="84" x="127.8305" y="590.2917"/><rect fill="#FF0000" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="191.8305" y="595.2917"/><rect fill="#FF0000" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="189.8305" y="597.2917"/><rect fill="#FF0000" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="189.8305" y="601.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="44" x="142.8305" y="623.8268">PAUSE</text><!--MD5=[10349907f03df1c09538f977f7a77363]
+entity Price Oracle--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="121" x="585.3305" y="590.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="686.3305" y="595.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="684.3305" y="597.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="684.3305" y="601.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="81" x="600.3305" y="623.8268">Price Oracle</text><!--MD5=[c9a8754a2b930bfc06554448621e52fa]
+entity Interest Model--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="138" x="741.8305" y="590.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="859.8305" y="595.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="857.8305" y="597.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="857.8305" y="601.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="98" x="756.8305" y="623.8268">Interest Model</text><!--MD5=[0b582bf65f7b38498a31bb4e46869df0]
+entity Interest Reserve Address--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="209" x="915.3305" y="590.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="1104.3305" y="595.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1102.3305" y="597.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1102.3305" y="601.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="169" x="930.3305" y="623.8268">Interest Reserve Address</text><!--MD5=[d80c4b9940c48f44f7042e425da46304]
+entity Protocol Reserve Ratio--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="193" x="549.3305" y="752.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="722.3305" y="757.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="720.3305" y="759.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="720.3305" y="763.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="153" x="564.3305" y="785.8268">Protocol Reserve Ratio</text><!--MD5=[6cc7e176320c5b03e8626081e1fb8e62]
+entity Max Distributor Fee Ratios--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="221" x="777.3305" y="752.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="978.3305" y="757.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="976.3305" y="759.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="976.3305" y="763.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="181" x="792.3305" y="785.8268">Max Distributor Fee Ratios</text><!--MD5=[5cfed9eb386c73e6effda8ce1ae29688]
+entity Balance Cap--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="123" x="1033.3305" y="752.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="1136.3305" y="757.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1134.3305" y="759.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1134.3305" y="763.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="83" x="1048.3305" y="785.8268">Balance Cap</text><!--MD5=[41ecd0a142c7e50932f19f67d0f42875]
+entity Term--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="76" x="400.8305" y="590.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="456.8305" y="595.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="454.8305" y="597.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="454.8305" y="601.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="36" x="415.8305" y="623.8268">Term</text><!--MD5=[439fd0432c25c04e35b3ecceb5911b7c]
+entity Token--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="83" x="282.3305" y="590.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="345.3305" y="595.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="343.3305" y="597.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="343.3305" y="601.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="43" x="297.3305" y="623.8268">Token</text><!--MD5=[6d9d26bacbbc49107b0a485e87d71ba3]
+entity LoanAndCollateralTokenPair--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="236" x="240.8305" y="752.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="456.8305" y="757.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="454.8305" y="759.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="454.8305" y="763.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="196" x="255.8305" y="785.8268">LoanAndCollateralTokenPair</text><!--MD5=[0879bd8af15b8ce5b2f36bd84a5f6d5e]
+entity eventsHandler--><rect fill="#ADFF2F" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="142" x="1487.8305" y="752.2917"/><rect fill="#ADFF2F" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="1609.8305" y="757.2917"/><rect fill="#ADFF2F" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1607.8305" y="759.2917"/><rect fill="#ADFF2F" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1607.8305" y="763.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="102" x="1502.8305" y="785.8268">Events Handler</text><!--MD5=[5fa2f81ca121a8e767e28432e2413c42]
+entity operationHandler--><rect fill="#FFA500" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="167" x="1285.3305" y="752.2917"/><rect fill="#FFA500" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="1432.3305" y="757.2917"/><rect fill="#FFA500" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1430.3305" y="759.2917"/><rect fill="#FFA500" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1430.3305" y="763.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="127" x="1300.3305" y="785.8268">Operation Handler</text><!--MD5=[af4a04b08d7e2640decdb0f7e99f09f2]
+entity protocol--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="97" x="1325.3305" y="1002.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="1402.3305" y="1007.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1400.3305" y="1009.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1400.3305" y="1013.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57" x="1340.3305" y="1035.8268">Protocol</text><!--MD5=[db9885a16ba2e95f19307b652bf43a45]
+entity depositManager--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="156" x="1124.8305" y="1109.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="1260.8305" y="1114.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1258.8305" y="1116.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1258.8305" y="1120.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="116" x="1139.8305" y="1142.8268">Deposit Manager</text><!--MD5=[503be0f646200f52944db3d5500b3cae]
+entity loanManager--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="137" x="1316.3305" y="1109.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="1433.3305" y="1114.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1431.3305" y="1116.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1431.3305" y="1120.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="97" x="1331.3305" y="1142.8268">Loan Manager</text><!--MD5=[89717f7b0ce17b618de64952eb7e30f0]
+entity configuration--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="136" x="1488.8305" y="1109.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="1604.8305" y="1114.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1602.8305" y="1116.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1602.8305" y="1120.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="96" x="1503.8305" y="1142.8268">Configuration</text><!--MD5=[20770f1b14b327a092d233039f102776]
+entity emitedEvents--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="135" x="1489.3305" y="1002.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="1604.3305" y="1007.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1602.3305" y="1009.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1602.3305" y="1013.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="95" x="1504.3305" y="1035.8268">Emited Events</text><!--MD5=[6b6339e737563062e5ec336ee1d36919]
+entity liquidityPools--><rect fill="#FEFECE" filter="url(#fq2g9xhgxvi04)" height="46.4883" style="stroke:#A80036;stroke-width:1.5;" width="139" x="1232.3305" y="1218.2917"/><rect fill="#FEFECE" height="10" style="stroke:#A80036;stroke-width:1.5;" width="15" x="1351.3305" y="1223.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1349.3305" y="1225.2917"/><rect fill="#FEFECE" height="2" style="stroke:#A80036;stroke-width:1.5;" width="4" x="1349.3305" y="1229.2917"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="99" x="1247.3305" y="1251.8268">Liquidity Pools</text><!--MD5=[0f955f948c7b6969e4728250fa667ad3]
+link DepositManager to LoanManager--><path d="M247.7039,660.5161 C247.6263,660.9372 247.5455,661.3578 247.4613,661.7777 C247.1248,663.4573 246.7349,665.1254 246.2858,666.7712 C245.3874,670.0629 244.2518,673.2654 242.8305,676.2917 C238.1505,686.2517 230.3205,683.7517 224.8305,693.2917 C222.5968,697.1729 220.6254,701.302 218.8855,705.5619 C218.4506,706.6269 218.0301,707.7001 217.6236,708.7796 C217.5728,708.9145 217.5222,709.0496 217.4718,709.1847 " fill="none" id="DepositManager-LoanManager" style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><!--MD5=[963aa75935e5bd9eee3c556d90656126]
+link Dashboard to Operation--><path d="M1204.3191,425.0847 C1204.3229,426.4918 1204.3267,427.8992 1204.3305,429.3067 C1204.3612,440.566 1204.3918,451.8253 1204.422,462.9141 C1204.437,468.4584 1204.452,473.9601 1204.4668,479.3979 C1204.4742,482.1168 1204.4816,484.8197 1204.4889,487.5039 " fill="none" id="Dashboard-Operation" style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><!--MD5=[7df3d71a89d58d26c1cea49003739494]
+link protocol to depositManager--><path d="M1337.9805,1048.3017 C1310.3705,1065.2517 1272.1905,1088.7017 1243.4505,1106.3517 " fill="none" id="protocol-to-depositManager" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1238.9205,1109.1317,1248.6831,1107.8306,1243.1813,1106.5152,1244.4967,1101.0134,1238.9205,1109.1317" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[ebff6ff3b93a9495f2dd06127b3494e7]
+link protocol to loanManager--><path d="M1376.1405,1048.3017 C1377.8305,1064.4317 1380.1305,1086.4417 1381.9405,1103.7417 " fill="none" id="protocol-to-loanManager" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1382.4905,1108.9517,1385.5166,1099.5792,1381.9619,1103.9797,1377.5614,1100.425,1382.4905,1108.9517" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[989bd2d0a406198d4e25ef4c54e1f7bb]
+link protocol to configuration--><path d="M1412.1905,1048.3017 C1441.8605,1065.3217 1482.9405,1088.8917 1513.7405,1106.5617 " fill="none" id="protocol-to-configuration" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1518.2005,1109.1317,1512.3765,1101.1893,1513.8611,1106.6479,1508.4025,1108.1324,1518.2005,1109.1317" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[33c5a45e47fdbbe1d133faa7556c880f]
+link depositManager to liquidityPools--><path d="M1223.3405,1155.4617 C1239.1405,1172.5317 1261.0205,1196.1817 1277.6605,1214.1717 " fill="none" id="depositManager-to-liquidityPools" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1281.3405,1218.1517,1278.1602,1208.8304,1277.9432,1214.4831,1272.2905,1214.2662,1281.3405,1218.1517" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[f5509ada7338694e85f0b75ce66aef4d]
+link loanManager to liquidityPools--><path d="M1367.6305,1155.4617 C1354.3905,1172.5317 1336.0505,1196.1817 1322.0905,1214.1717 " fill="none" id="loanManager-to-liquidityPools" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1319.0105,1218.1517,1327.6969,1213.5098,1322.0832,1214.2072,1321.3858,1208.5935,1319.0105,1218.1517" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[83390c1b90ca99aac8b189fb3d2b7cb0]
+link eventsHandler to Dashboard--><path d="M1544.0305,752.2717 C1510.7355,702.7517 1426.898,578.0592 1350.7855,464.8579 C1312.7293,408.2573 1276.6043,354.5295 1249.694,314.5074 C1236.2388,294.4964 1225.0873,277.9119 1217.15,266.1079 C1216.1578,264.6324 1215.2158,263.2316 1214.3259,261.9081 C1213.8809,261.2464 1213.4489,260.604 1213.0302,259.9812 C1212.8208,259.6699 1212.6147,259.3634 1212.412,259.0619 " fill="none" id="eventsHandler-to-Dashboard" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1212.412,259.0619,1214.1149,268.7625,1215.2021,263.2111,1220.7535,264.2983,1212.412,259.0619" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="45" x="1348.8305" y="460.86">display</text><!--MD5=[fc55a82dd0dab4d9ee12425ee10429c1]
+link emitedEvents to eventsHandler--><path d="M1557.0105,1001.9717 C1557.3805,956.4217 1558.2105,852.8717 1558.6105,803.4817 " fill="none" id="emitedEvents-to-eventsHandler" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1558.6505,798.3017,1554.5736,807.267,1558.6077,803.3015,1562.5733,807.3356,1558.6505,798.3017" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="35" x="1557.8305" y="947.86">listen</text><!--MD5=[98728998c583a4acb8a065d14ce5fbd6]
+link operationHandler to protocol--><path d="M1369.2705,798.3017 C1370.1905,843.5917 1372.2705,947.1417 1373.2805,996.7717 " fill="none" id="operationHandler-to-protocol" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1373.3805,1001.9717,1377.1998,992.8935,1373.2806,996.9727,1369.2014,993.0534,1373.3805,1001.9717" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="22" x="1372.8305" y="947.86">call</text><!--MD5=[a129cffc7a95582fb2c407fd53d65ec9]
+link Operation to operationHandler--><path d="M1213.0233,622.2875 C1213.2419,622.5007 1213.4644,622.7178 1213.6907,622.9386 C1214.1434,623.3802 1214.6113,623.8367 1215.094,624.3076 C1217.025,626.1915 1219.1928,628.3064 1221.5665,630.6221 C1231.0612,639.8851 1243.8493,652.361 1257.943,666.1104 C1286.1305,693.6092 1319.5405,726.2017 1342.2705,748.3717 " fill="none" id="Operation-to-operationHandler" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1345.9905,752.0117,1342.3623,742.8555,1342.4195,748.512,1336.7629,748.5692,1345.9905,752.0117" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[12f13dcb0602ae3a5657c1b5424ad77d]
+link BTC to ETH--><!--MD5=[e490571f590711d5b6e07c6fd23538d1]
+link BTC to SGC--><!--MD5=[60acde077994103fcf3ff3e780f6c162]
+link Price Oracle to Interest Model--><!--MD5=[338dd639d386e9eaa0f7603516795fea]
+link Interest Model to Interest Reserve Address--><!--MD5=[d2fb8d803effe7c7b4288ecfcf5891a6]
+link Price Oracle to Protocol Reserve Ratio--><!--MD5=[8dfa7566ecd2131aae3c829ddce555dd]
+link Protocol Reserve Ratio to Max Distributor Fee Ratios--><!--MD5=[3adbede777c70fcec2082587c0775b8a]
+link Max Distributor Fee Ratios to Balance Cap--><!--MD5=[ead8185abcbfbaa3d84bf105b4144861]
+@startuml
+' left to right direction
+cloud {
+    package "Front-End" {
+        component Dashboard {
+            component "Token Balance" {
+                [BTC]
+                [ETH]
+                [SGC]
+            }
+            [Total Loan Outstanding Balance]
+            [Total Borrowers Count]
+        }
+        component Operation {
+            [PAUSE] #red
+            component "Configuration" {
+                [Price Oracle]
+                [Interest Model]
+                [Interest Reserve Address]
+                [Protocol Reserve Ratio]
+                [Max Distributor Fee Ratios]
+                [Balance Cap]
+            }
+            component DepositManager {
+                [Term]
+                [Token]
+            } 
+            component LoanManager {
+                [LoanAndCollateralTokenPair]
+            }
+        }
+    }
+    package "Handler" {
+        [Events Handler] as eventsHandler #GreenYellow
+        [Operation Handler] as operationHandler #orange
+    }
+}
+DepositManager .down. LoanManager
+Dashboard ... Operation
+
+' Smart Contract
+package "Smart Contract" {
+    [Protocol] as protocol
+    [Deposit Manager] as depositManager
+    [Loan Manager] as loanManager
+    [Configuration] as configuration
+    database {
+        [Liquidity Pools] as liquidityPools
+    }
+    [Emited Events] as emitedEvents
+}
+' Smart Contract flow
+[protocol] - -> [depositManager]
+[protocol] - -> [loanManager]
+[protocol] - -> [configuration]
+[depositManager] - -> [liquidityPools]
+[loanManager] - -> [liquidityPools]
+
+' Handler flow
+[eventsHandler] - -> Dashboard : display
+[emitedEvents] - -> [eventsHandler] : listen
+[operationHandler] - -> [protocol] : call
+Operation - -> [operationHandler] 
+@enduml
+
+@startuml
+cloud {
+    package "Front-End" {
+        component Dashboard {
+            component "Token Balance" {
+                [BTC]
+                [ETH]
+                [SGC]
+            }
+            [Total Loan Outstanding Balance]
+            [Total Borrowers Count]
+        }
+        component Operation {
+            [PAUSE] #red
+            component "Configuration" {
+                [Price Oracle]
+                [Interest Model]
+                [Interest Reserve Address]
+                [Protocol Reserve Ratio]
+                [Max Distributor Fee Ratios]
+                [Balance Cap]
+            }
+            component DepositManager {
+                [Term]
+                [Token]
+            } 
+            component LoanManager {
+                [LoanAndCollateralTokenPair]
+            }
+        }
+    }
+    package "Handler" {
+        [Events Handler] as eventsHandler #GreenYellow
+        [Operation Handler] as operationHandler #orange
+    }
+}
+DepositManager .down. LoanManager
+Dashboard ... Operation
+
+package "Smart Contract" {
+    [Protocol] as protocol
+    [Deposit Manager] as depositManager
+    [Loan Manager] as loanManager
+    [Configuration] as configuration
+    database {
+        [Liquidity Pools] as liquidityPools
+    }
+    [Emited Events] as emitedEvents
+}
+[protocol] - -> [depositManager]
+[protocol] - -> [loanManager]
+[protocol] - -> [configuration]
+[depositManager] - -> [liquidityPools]
+[loanManager] - -> [liquidityPools]
+
+[eventsHandler] - -> Dashboard : display
+[emitedEvents] - -> [eventsHandler] : listen
+[operationHandler] - -> [protocol] : call
+Operation - -> [operationHandler] 
+@enduml
+
+PlantUML version 1.2022.0(Wed Jan 12 00:16:42 CST 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: CN
+--></g></svg>

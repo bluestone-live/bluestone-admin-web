@@ -1,0 +1,64 @@
+@startuml
+' left to right direction
+cloud {
+    package "Front-End" {
+        component Dashboard {
+            component "Token Balance" {
+                [BTC]
+                [ETH]
+                [SGC]
+            }
+            [Total Loan Outstanding Balance]
+            [Total Borrowers Count]
+        }
+        component Operation {
+            [PAUSE] #red
+            component "Configuration" {
+                [Price Oracle]
+                [Interest Model]
+                [Interest Reserve Address]
+                [Protocol Reserve Ratio]
+                [Max Distributor Fee Ratios]
+                [Balance Cap]
+            }
+            component DepositManager {
+                [Term]
+                [Token]
+            } 
+            component LoanManager {
+                [LoanAndCollateralTokenPair]
+            }
+        }
+    }
+    package "Handler" {
+        [Events Handler] as eventsHandler #GreenYellow
+        [Operation Handler] as operationHandler #orange
+    }
+}
+DepositManager .down. LoanManager
+Dashboard ... Operation
+
+' Smart Contract
+package "Smart Contract" {
+    [Protocol] as protocol
+    [Deposit Manager] as depositManager
+    [Loan Manager] as loanManager
+    [Configuration] as configuration
+    database {
+        [Liquidity Pools] as liquidityPools
+    }
+    [Emited Events] as emitedEvents
+}
+' Smart Contract flow
+[protocol] --> [depositManager]
+[protocol] --> [loanManager]
+[protocol] --> [configuration]
+[depositManager] --> [liquidityPools]
+[loanManager] --> [liquidityPools]
+
+' Handler flow
+[eventsHandler] --> Dashboard : display
+[emitedEvents] --> [eventsHandler] : listen
+[operationHandler] --> [protocol] : call
+Operation --> [operationHandler] 
+@enduml
