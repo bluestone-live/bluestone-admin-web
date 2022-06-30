@@ -1,23 +1,36 @@
 <template>
-  <va-accordion class="sidebar-accordion va-sidebar__menu__inner" v-model="accordionValue" multiply>
+  <va-accordion
+    class="sidebar-accordion va-sidebar__menu__inner"
+    v-model="accordionValue"
+    multiply
+  >
     <va-collapse v-for="(route, idx) in items" :key="idx">
       <template #header>
-        <va-sidebar-item :active="isRouteActive(route)" :to="route.children ? undefined : { name: route.name }">
+        <va-sidebar-item
+          :active="isRouteActive(route)"
+          :to="route.children ? undefined : { name: route.name }"
+        >
           <va-sidebar-item-content>
-            <va-icon :name="route.meta.icon" class="va-sidebar-item__icon"/>
+            <va-icon :name="route.meta.icon" class="va-sidebar-item__icon" />
 
             <va-sidebar-item-title>
               {{ $t(route.displayName) }}
             </va-sidebar-item-title>
 
-            <va-icon v-if="route.children" :name="accordionValue[idx] ? 'expand_less' : 'expand_more'" />
+            <va-icon
+              v-if="route.children"
+              :name="accordionValue[idx] ? 'expand_less' : 'expand_more'"
+            />
           </va-sidebar-item-content>
         </va-sidebar-item>
       </template>
       <template v-for="(child, index) in route.children" :key="index">
-        <va-sidebar-item :active="isRouteActive(child)" :to="{ name: child.name }">
+        <va-sidebar-item
+          :active="isRouteActive(child)"
+          :to="{ name: child.name }"
+        >
           <va-sidebar-item-content>
-            <div class="va-sidebar-item__icon"/>
+            <div class="va-sidebar-item__icon" />
 
             <va-sidebar-item-title>
               {{ $t(child.displayName) }}
@@ -30,18 +43,22 @@
 </template>
 
 <script>
+import { VaIcon } from "vuestic-ui";
 export default {
   name: "AppMenuAccordion",
+  components: {
+    VaIcon,
+  },
   props: {
-    items: { type: Array, default: () => [] }
+    items: { type: Array, default: () => [] },
   },
-  data () {
+  data() {
     return {
-      accordionValue: []
-    }
+      accordionValue: [],
+    };
   },
-  mounted () {
-    this.accordionValue = this.items.map(i => this.isItemExpanded(i));
+  mounted() {
+    this.accordionValue = this.items.map((i) => this.isItemExpanded(i));
   },
   methods: {
     isGroup(item) {
@@ -56,16 +73,15 @@ export default {
       }
 
       const isCurrentItemActive = this.isRouteActive(item);
-      const isChildActive = !!item.children.find(child =>
+      const isChildActive = !!item.children.find((child) =>
         child.children ? this.isItemExpanded(child) : this.isRouteActive(child)
       );
 
       return isCurrentItemActive || isChildActive;
-    }
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-
 </style>

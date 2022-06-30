@@ -5,10 +5,13 @@ import App from './App.vue'
 import store from './store'
 import router from './router'
 import vuesticGlobalConfig from './services/vuestic-ui/global-config'
+// import { createVuesticEssential, VaButton } from 'vuestic-ui'
+import 'vuestic-ui/css'
 
 const app = createApp(App)
 app.use(router)
 app.use(store)
 app.use(i18n)
 app.use(VuesticPlugin, vuesticGlobalConfig)
+// app.use(createVuesticEssential({ components: { VaButton } }));
 app.mount('#app')

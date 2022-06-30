@@ -6,7 +6,7 @@
           @click="isSidebarMinimized = !isSidebarMinimized"
           :class="{ 'x-flip': isSidebarMinimized }"
           class="va-navbar__item"
-          color="colors.primary"
+          :color="colors.primary"
         />
         <router-link to="/">
           <vuestic-logo class="logo" />
