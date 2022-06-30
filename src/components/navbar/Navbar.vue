@@ -17,7 +17,7 @@
         <h1>{{ $t("navbar.title") }}</h1>
       </template>
 
-      <template #right>
+      <template v-slot:right>
         <app-navbar-actions
           class="app-navbar__actions md5 lg4"
           :user-name="userName"

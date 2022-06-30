@@ -1,6 +1,5 @@
 import { ref, computed } from "vue"
-import {useGlobalConfig}  from 'vuestic-ui'
-import { useGlobalConfigSafe } from "vuestic-ui/dist/types/services/global-config/global-config"
+import { useGlobalConfig } from 'vuestic-ui'
 
 export const THEME_NAMES = {
   LIGHT: 'LIGHT',
@@ -160,6 +159,6 @@ export const useTheme = () => {
     useGlobalConfig().mergeGlobalConfig({ colors: theme.colors, components: theme.components })
   }
 
-  const theme = computed(() =>  COLOR_THEMES.find((theme) => theme.name === themeNameRef.value))
+  const theme = computed(() => COLOR_THEMES.find((theme) => theme.name === themeNameRef.value))
   return { setTheme, themeName: themeNameRef, theme }
 }

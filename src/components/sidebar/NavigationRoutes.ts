@@ -14,8 +14,9 @@ export default {
     {
       name: 'whitelist',
       displayName: 'menu.whitelist',
+      disabled: true,
       meta: {
-        icon: 'vuestic-iconset-dashboard',
+        icon: 'vuestic-iconset-forms',
       },
       children: [
         {
@@ -32,7 +33,7 @@ export default {
       name: 'loanlist',
       displayName: 'menu.loanlist',
       meta: {
-        icon: 'vuestic-iconset-dashboard',
+        icon: 'vuestic-iconset-tables',
       },
     }
   ],

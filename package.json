@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "flag-icon-css": "^3.5.0",
     "font-awesome": "^4.7.0",
     "ionicons": "^4.6.3",
     "node-sass": "^7.0.1",

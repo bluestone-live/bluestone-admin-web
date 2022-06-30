@@ -4,6 +4,10 @@
         "text": "If you feel that it’s not right, please send us a message at ",
         "back_button": "Back to dashboard"
     },
+    "language": {
+        "english": "English",
+        "simplified_chinese": "Simplified Chinese"
+    },
     "navbar": {
         "title": "Admin Platform"
     },
