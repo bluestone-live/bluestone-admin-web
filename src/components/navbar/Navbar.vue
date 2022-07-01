@@ -36,6 +36,7 @@ import VaIconMenuCollapsed from "@/components/icons/VaIconMenuCollapsed.vue";
 import AppNavbarActions from "./components/AppNavbarActions.vue";
 
 export default {
+  name: "Navbar",
   components: {
     VuesticLogo,
     VaIconMenuCollapsed,

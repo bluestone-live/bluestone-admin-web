@@ -17,5 +17,19 @@
         "lender": "Lender",
         "borrower": "Borrower",
         "loanlist": "Loan List"
+    },
+    "dashboard": {
+        "info": {
+            "componentRichTheme": "component-rich theme",
+            "totalLoabOutstandingBalance": "Total Loan Outstanding Balance",
+            "lenders": "lenders",
+            "borrowers": "borrowers",
+            "units": "units",
+            "exploreGallery": "Explore gallery",
+            "viewLibrary": "View Library",
+            "btc": "BTC",
+            "eth": "ETH",
+            "sgc": "SGC"
+        }
     }
 }
