@@ -17,7 +17,7 @@
       </div>
 
       <div class="row">
-        <div class="flex xs12 md6">
+        <div class="flex xs12 md4">
           <va-card>
             <va-card-content>
               <p class="display-2 mb-1" :style="{ color: theme.danger }">291</p>
@@ -27,11 +27,11 @@
             </va-card-content>
           </va-card>
         </div>
-        <div class="flex xs12 md6">
+        <div class="flex xs12 md8">
           <va-card>
             <va-card-content>
               <div class="row row-separated">
-                <div class="flex xs4">
+                <div class="flex xs3">
                   <p
                     class="display-2 mb-1 text--center"
                     :style="{ color: theme.primary }"
@@ -42,7 +42,7 @@
                     {{ $t("dashboard.info.lenders") }}
                   </p>
                 </div>
-                <div class="flex xs4">
+                <div class="flex xs3">
                   <p
                     class="display-2 mb-1 text--center"
                     :style="{ color: theme.info }"
@@ -53,15 +53,26 @@
                     {{ $t("dashboard.info.borrowers") }}
                   </p>
                 </div>
-                <div class="flex xs4">
+                <div class="flex xs3">
                   <p
                     class="display-2 mb-1 text--center"
                     :style="{ color: theme.warning }"
                   >
-                    91
+                    2
                   </p>
                   <p class="text--center mb-1">
-                    {{ $t("dashboard.info.units") }}
+                    {{ $t("dashboard.info.marginCall") }}
+                  </p>
+                </div>
+                <div class="flex xs3">
+                  <p
+                    class="display-2 mb-1 text--center"
+                    :style="{ color: theme.danger }"
+                  >
+                    0
+                  </p>
+                  <p class="text--center mb-1">
+                    {{ $t("dashboard.info.liquidable") }}
                   </p>
                 </div>
               </div>

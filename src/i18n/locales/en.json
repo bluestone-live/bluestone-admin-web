@@ -24,12 +24,15 @@
             "totalLoabOutstandingBalance": "Total Loan Outstanding Balance",
             "lenders": "lenders",
             "borrowers": "borrowers",
-            "units": "units",
-            "exploreGallery": "Explore gallery",
-            "viewLibrary": "View Library",
+            "marginCall": "margin call",
+            "liquidable": "liquidable",
             "btc": "BTC",
             "eth": "ETH",
             "sgc": "SGC"
+        },
+        "charts": {
+            "treasury": "Loan Treasury",
+            "status": "Loan Status"
         }
     }
 }
