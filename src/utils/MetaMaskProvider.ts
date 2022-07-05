@@ -1,4 +1,16 @@
 import { ethers } from "ethers";
+import protocolDeclareFile from "@/contracts/Protocol.json"
+
+interface ITokenDeclaration {
+    name: string;
+    symbol: string;
+    address: string;
+}
+
+interface INetworkFile {
+    contracts: { [key: string]: string };
+    tokens: { [key: string]: ITokenDeclaration };
+}
 
 export enum EventName {
     LoanSucceed = 'LoanSucceed',
@@ -16,10 +28,10 @@ export enum EventName {
  * Provider implementation
  */
 export class MetaMaskProvider {
-    private provider: any
-    private networkType: string
-    private protocolAddress: string
-    private protocolInstance: string
+    private ethersInstance?: ethers.providers.Web3Provider
+    private networkType?: string
+    private protocolAddress?: string
+    private protocolInstance?: ethers.Contract
 
     /**
      * Init protocolInstance by global Web3 provider and network configs
@@ -27,14 +39,15 @@ export class MetaMaskProvider {
     async init() {
         if ((window as any).ethereum) {
             const ethereum = (window as any).ethereum;
-            this.provider = new ethers.providers.Web3Provider(ethereum)
+            this.ethersInstance = new ethers.providers.Web3Provider(ethereum)
         } else {
             throw new Error(
                 'MetaMaskProvider init error: Require global web3 provider.'
             )
         }
 
-        const networkId = this.provider.getNetwork().chainId
+        const network = await this.ethersInstance.getNetwork()
+        const networkId = network.chainId
 
         switch (networkId) {
             case 1:
@@ -60,13 +73,44 @@ export class MetaMaskProvider {
         this.protocolAddress =
             networkFile.contracts[protocolDeclareFile.contractName];
 
-        this.protocolInstance = new this.web3Instance.eth.Contract(
-            protocolDeclareFile.abi as AbiItem[],
+        this.protocolInstance = new ethers.Contract(
             this.protocolAddress,
+            protocolDeclareFile.abi as ethers.ContractInterface,
+            this.ethersInstance
         );
     }
 
-    private async getNetworkFile(networkType: string) {
+    get ethers() {
+        if (!this.ethersInstance) {
+            throw new Error("MetaMaskProvider: Init Failed.")
+        } else {
+            return this.ethersInstance
+        }
+    }
+
+    get network() {
+        if (!this.networkType) {
+            throw new Error("MetaMaskProvider: Init Failed.")
+        } else {
+            return this.networkType
+        }
+    }
+    get protocolContractAddress() {
+        if (!this.protocolAddress) {
+            throw new Error("MetaMaskProvider: Init Failed.")
+        } else {
+            return this.protocolAddress
+        }
+    }
+    get protocolContractInstance() {
+        if (!this.protocolInstance) {
+            throw new Error("MetaMaskProvider: Init Failed.")
+        } else {
+            return this.protocolInstance
+        }
+    }
+
+    private async getNetworkFile(networkType: string): Promise<INetworkFile> {
         // Map web3 network type to that in network.json
         const currentNetwork =
             networkType === 'private' ? 'development' : networkType

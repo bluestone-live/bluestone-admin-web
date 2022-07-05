@@ -27,7 +27,7 @@
     "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.vue"
-  ],
+, "src/store/AccountStore.js", "src/store/MetaMaskStore.js", "src/store/MetaMaskStore.js"  ],
   "references": [
     {
       "path": "./tsconfig.node.json"
