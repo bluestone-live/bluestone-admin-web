@@ -16,6 +16,9 @@ export default defineComponent({
     DashboardInfoBlock,
     DashboardChart
   },
+  setup() {
+
+  }
 });
 </script>
 

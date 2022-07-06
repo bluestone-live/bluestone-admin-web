@@ -1,5 +1,5 @@
 import {defineStore} from 'pinia'
-import { useMetaMaskStore } from "./MetaMaskStore"
+import { useMetaMaskStore } from "./Common"
 
 export const useLoanStore = defineStore('LoanStore', {
     state: () => ({
@@ -7,10 +7,10 @@ export const useLoanStore = defineStore('LoanStore', {
         totalLoanOutstandingBalance: null,
     }),
     getters: {
-        whitelists(state) {
+        getWhitelists(state) {
             return state.whitelists
         },
-        totalLoanOutstandingBalance(state) {
+        getTotalLoanOutstandingBalance(state) {
             return state.totalLoanOutstandingBalance
         }
     },

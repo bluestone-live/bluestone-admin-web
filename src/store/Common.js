@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia'
+import utils from "@/utils"
 import { ethers } from "ethers"
+import { toRaw } from "@vue/reactivity"
 
-export const useMetaMaskStore = defineStore('MetaMaskStore', {
+export const useCommonStore = defineStore('CommonStore', {
     state: () => ({
         ethersInstance: null,
         networkType: null,
@@ -9,24 +11,41 @@ export const useMetaMaskStore = defineStore('MetaMaskStore', {
         protocolInstance: null
     }),
     getters: {
-        ethersInstance(state) {
-            return state.ethersInstance
+        getProvider(state) {
+            return toRaw(state.ethersInstance)
+        },
+        getNetwork(state) {
+            return state.networkType
+        },
+        getProtocolAddress(state) {
+            return state.protocolAddress
+        },
+        getProtocol(state) {
+            return state.protocolInstance
         }
     },
     actions: {
+        async init() {
+            this.initEthersInstance()
+            console.log("CommonStore: init provider success.")
+            await this.initNetworkType()
+            console.log("CommonStore: init network success.")
+            // await this.initProtocolAddressAndInstance()
+            console.log("CommonStore: init protocol address and instance success.")
+        },
+
         initEthersInstance() {
             if (window.ethereum) {
-                const ethereum = window.ethereum;
-                this.ethersInstance = new ethers.providers.Web3Provider(ethereum)
+                this.ethersInstance = new ethers.providers.Web3Provider(window.ethereum)
             } else {
                 throw new Error(
-                    'MetaMaskProvider init error: Require global web3 provider.'
+                    'Ethers Instance init error: Require global web3 provider.'
                 )
             }
         },
 
         async initNetworkType() {
-            const network = await this.ethersInstance.getNetwork()
+            const network = await this.getProvider.getNetwork()
             const networkId = network.chainId
 
             switch (networkId) {
@@ -51,15 +70,9 @@ export const useMetaMaskStore = defineStore('MetaMaskStore', {
 
         },
 
-        async getNetworkFile(networkType) {
-            // Map web3 network type to that in network.json
-            const currentNetwork =
-                networkType === 'private' ? 'development' : networkType
-            return import(`@/networks/${currentNetwork}.json`)
-        },
-
         async initProtocolAddressAndInstance() {
-            const networkFile = await this.getNetworkFile(this.networkType)
+            const networkFile = await utils.getNetworkFile(this.networkType)
+            console.log("networkFile=", networkFile)
             this.protocolAddress = networkFile.contracts[protocolDeclareFile.contractName]
             this.protocolInstance = new ethers.Contract(
                 this.protocolAddress,

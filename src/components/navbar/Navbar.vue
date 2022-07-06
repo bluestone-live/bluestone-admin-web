@@ -20,7 +20,7 @@
       <template v-slot:right>
         <app-navbar-actions
           class="app-navbar__actions md5 lg4"
-          :user-name="userName"
+          :user-name="accountAddress"
         />
       </template>
     </va-navbar>
@@ -28,12 +28,15 @@
 </template>
 
 <script>
-import { computed } from "vue";
+import { computed, onBeforeMount, onMounted } from "vue";
 import { useStore } from "vuex";
 import { useColors } from "vuestic-ui";
 import VuesticLogo from "@/components/vuestic-logo.vue";
 import VaIconMenuCollapsed from "@/components/icons/VaIconMenuCollapsed.vue";
 import AppNavbarActions from "./components/AppNavbarActions.vue";
+
+import { useAccountStore } from "@/store/Account";
+// const accountStore = useAccountStore();
 
 export default {
   name: "Navbar",
@@ -50,11 +53,18 @@ export default {
       get: () => store.state.isSidebarMinimized,
       set: (value) => store.commit("updateSidebarCollapsedState", value),
     });
-    const userName = computed(() => store.state.userName);
+    const accountStore = useAccoutStore();
+    const accountAddress = accountStore.getAccount();
+    // const userName = computed(() => store.state.userName);
+    onBeforeMount(async () => {
+      await accountStore.init();
+    });
+
     return {
       colors,
       isSidebarMinimized,
-      userName,
+      // userName,
+      accountAddress,
     };
   },
 };

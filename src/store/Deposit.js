@@ -1,8 +1,9 @@
 import {defineStore} from 'pinia'
-import { useMetaMaskStore } from "./MetaMaskStore"
+import { useCommonStore } from "./Common"
 
 export const useDepositStore = defineStore('DepositStore', {
     state: () => ({
+        commonState: useCommonStore(),
         whitelists: []
     }),
     getters: {
@@ -11,7 +12,11 @@ export const useDepositStore = defineStore('DepositStore', {
         }
     },
     actions: {
-        initWhitelists() {
+        async init() {
+            await this.initWhitelists()
+        },
+
+        async initWhitelists() {
             // return useMetaMaskStore
         }
     }
