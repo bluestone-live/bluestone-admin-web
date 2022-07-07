@@ -8,7 +8,8 @@ export const useCommonStore = defineStore('CommonStore', {
         ethersInstance: null,
         networkType: null,
         protocolAddress: null,
-        protocolInstance: null
+        protocolInstance: null,
+        tokens: null,
     }),
     getters: {
         getProvider(state) {
@@ -22,6 +23,9 @@ export const useCommonStore = defineStore('CommonStore', {
         },
         getProtocol(state) {
             return state.protocolInstance
+        },
+        getTokens(state) {
+            return state.tokens
         }
     },
     actions: {
@@ -30,7 +34,7 @@ export const useCommonStore = defineStore('CommonStore', {
             console.log("CommonStore: init provider success.")
             await this.initNetworkType()
             console.log("CommonStore: init network success.")
-            // await this.initProtocolAddressAndInstance()
+            // await this.initContractsAndToken()
             console.log("CommonStore: init protocol address and instance success.")
         },
 
@@ -70,14 +74,15 @@ export const useCommonStore = defineStore('CommonStore', {
 
         },
 
-        async initProtocolAddressAndInstance() {
+        async readFromNetworkFile() {
             const networkFile = await utils.getNetworkFile(this.networkType)
             console.log("networkFile=", networkFile)
             this.protocolAddress = networkFile.contracts[protocolDeclareFile.contractName]
+            this.tokens = networkFile.tokens
             this.protocolInstance = new ethers.Contract(
                 this.protocolAddress,
                 protocolDeclareFile.abi,
-                this.ethersInstance
+                this.getProvider
             )
         }
     },

@@ -12,14 +12,16 @@ interface INetworkFile {
     tokens: { [key: string]: ITokenDeclaration };
 }
 
-// export default class utils {
-// }
 const utils = {
     async getNetworkFile(networkType: string): Promise<INetworkFile> {
         // Map web3 network type to that in network.json
         const currentNetwork =
             networkType === 'private' ? 'development' : networkType
         return import(`../networks/${currentNetwork}.json`)
+    },
+
+    shortenAddress(address: string): string {
+        return address.substring(0, 5) + "..." + address.substring(38)
     }
 }
 

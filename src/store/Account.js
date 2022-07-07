@@ -6,7 +6,7 @@ export const useAccountStore = defineStore('AccountStore', {
   state: () => ({
     // provider: new MetaMaskProvider(),
     commonStore: useCommonStore(),
-    accounts: null,
+    accounts: [],
   }),
   getters: {
     getAccounts(state) {
@@ -18,11 +18,12 @@ export const useAccountStore = defineStore('AccountStore', {
     }
   },
   actions: {
-    init() {
-      this.initAccounts()
+    async init() {
+      await this.initAccounts()
+      console.log("Account: init Account success.")
     },
-    initAccounts() {
-      this.accounts = this.commonStore.getProvider.send("eth_requestAccounts", [])
+    async initAccounts() {
+      this.accounts = await this.commonStore.getProvider.send("eth_requestAccounts", [])
     }
   },
 })

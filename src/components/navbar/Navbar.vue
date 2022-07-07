@@ -20,7 +20,7 @@
       <template v-slot:right>
         <app-navbar-actions
           class="app-navbar__actions md5 lg4"
-          :user-name="accountAddress"
+          :user-name="userName"
         />
       </template>
     </va-navbar>
@@ -34,6 +34,7 @@ import { useColors } from "vuestic-ui";
 import VuesticLogo from "@/components/vuestic-logo.vue";
 import VaIconMenuCollapsed from "@/components/icons/VaIconMenuCollapsed.vue";
 import AppNavbarActions from "./components/AppNavbarActions.vue";
+import utils from "@/utils";
 
 import { useAccountStore } from "@/store/Account";
 // const accountStore = useAccountStore();
@@ -53,18 +54,21 @@ export default {
       get: () => store.state.isSidebarMinimized,
       set: (value) => store.commit("updateSidebarCollapsedState", value),
     });
-    const accountStore = useAccoutStore();
-    const accountAddress = accountStore.getAccount();
-    // const userName = computed(() => store.state.userName);
-    onBeforeMount(async () => {
-      await accountStore.init();
-    });
+    const accountStore = useAccountStore();
+    const userName = computed(() => {
+      if (accountStore.getAccount) {
+        return utils.shortenAddress(accountStore.getAccount)
+      } else {
+        return "Connect Wallet"
+      }
+    }
+    );
 
     return {
       colors,
       isSidebarMinimized,
-      // userName,
-      accountAddress,
+      userName,
+      // accountAddress,
     };
   },
 };

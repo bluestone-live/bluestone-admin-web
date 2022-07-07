@@ -7,6 +7,7 @@ import { defineComponent, onBeforeMount } from "vue";
 import { useAccountStore } from "@/store/Account.js";
 import { useCommonStore } from "@/store/Common.js";
 
+
 export default defineComponent({
   name: "App",
   setup() {
@@ -15,7 +16,7 @@ export default defineComponent({
     onBeforeMount(async () => {
       try {
         await commonStore.init();
-        await accountStore.initAccounts();
+        await accountStore.init();
       } catch (err) {
         console.error("App: ", err);
       }
