@@ -10,7 +10,9 @@ export const useLoanStore = defineStore('LoanStore', {
         btcBalance: 0,
         ethBalance: 0,
         borrowers: [],
-        borrowersLoanRecords: [],
+        activeBorrowers: [],
+        borrowersLoanRecords: Map,
+        marginCallBorrowers: [],
     }),
     getters: {
         getWhitelists(state) {
@@ -30,6 +32,12 @@ export const useLoanStore = defineStore('LoanStore', {
         },
         getBorrowers(state) {
             return state.borrowers
+        },
+        getActiveBorrowers(state) {
+            return state.borrowers
+        },
+        getMarginCallBorrowers(state) {
+            return state.marginCallBorrowers
         }
     },
     actions: {
@@ -67,12 +75,25 @@ export const useLoanStore = defineStore('LoanStore', {
         },
 
         async initBorrowersLoanRecord() {
-            let tempArr = []
-            await Promise.all(this.borrowers.map(async (borrowerAddress)=>{
+            let tempMap = new Map()
+            await Promise.all(this.borrowers.map(async (borrowerAddress) => {
                 let tempData = await this.commonState.getProtocol.getLoanRecordsByAccount(borrowerAddress)
-                tempArr.push(tempData)
+                tempMap.set(borrowerAddress, tempData)
             }))
-            this.borrowersLoanRecords = tempArr
+            this.borrowersLoanRecords = tempMap
+        },
+
+        initActiveBorrowers() {
+            let tempArr = []
+            this.borrowersLoanRecords.forEach((value, key) => {
+                if(!value.isClosed) {
+                    tempArr.push(key)
+                }
+            })
+        },
+
+        initMarginCallBorrowers() {
+            
         }
     }
 })

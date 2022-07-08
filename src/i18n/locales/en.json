@@ -21,14 +21,14 @@
     "dashboard": {
         "info": {
             "componentRichTheme": "component-rich theme",
-            "totalLoabOutstandingBalance": "Total Loan Outstanding Balance",
-            "lenders": "lenders",
-            "borrowers": "borrowers",
-            "marginCall": "margin call",
-            "liquidable": "liquidable",
-            "btc": "BTC",
-            "eth": "ETH",
-            "sgc": "SGC"
+            "totalLoanOutstandingBalance": "Total Loans Outstanding Balance",
+            "activeLoans": "Active Loans",
+            "totalLoans": "Total Loans",
+            "marginCall": "Margin Call",
+            "liquidable": "Liquidated",
+            "btc": "BTC Balance",
+            "eth": "ETH Balance",
+            "sgc": "SGC Balance"
         },
         "charts": {
             "treasury": "Loan Treasury",

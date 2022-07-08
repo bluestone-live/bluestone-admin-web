@@ -2,7 +2,11 @@
   <div class="row row-equal">
     <div class="flex xl12 xs12">
       <div class="row">
-        <div class="flex xs12 sm4" v-for="(info, idx) in infoTiles" :key="idx">
+        <div
+          class="flex xs12 sm4"
+          v-for="(info, idx) in balanceInfoTiles"
+          :key="idx"
+        >
           <va-card class="mb-4" :color="info.color" gradient>
             <va-card-content>
               <p class="display-2 mb-0" style="color: white">
@@ -14,65 +18,24 @@
             </va-card-content>
           </va-card>
         </div>
-      </div>
 
-      <div class="row">
-        <div class="flex xs12 md4">
-          <va-card>
-            <va-card-content>
-              <p class="display-2 mb-1" :style="{ color: theme.danger }">291</p>
-              <p class="no-wrap">
-                {{ $t("dashboard.info.totalLoabOutstandingBalance") }}
-              </p>
-            </va-card-content>
-          </va-card>
-        </div>
         <div class="flex xs12 md8">
           <va-card>
             <va-card-content>
               <div class="row row-separated">
-                <div class="flex xs3">
+                <div
+                  class="flex xs3"
+                  v-for="(info, idx) in statusInfoTiles"
+                  :key="idx"
+                >
                   <p
                     class="display-2 mb-1 text--center"
-                    :style="{ color: theme.primary }"
+                    :style="{ color: info.color }"
                   >
-                    3
+                    {{ info.value }}
                   </p>
                   <p class="text--center mb-1">
-                    {{ $t("dashboard.info.lenders") }}
-                  </p>
-                </div>
-                <div class="flex xs3">
-                  <p
-                    class="display-2 mb-1 text--center"
-                    :style="{ color: theme.info }"
-                  >
-                    24
-                  </p>
-                  <p class="text--center no-wrap mb-1">
-                    {{ $t("dashboard.info.borrowers") }}
-                  </p>
-                </div>
-                <div class="flex xs3">
-                  <p
-                    class="display-2 mb-1 text--center"
-                    :style="{ color: theme.warning }"
-                  >
-                    2
-                  </p>
-                  <p class="text--center mb-1">
-                    {{ $t("dashboard.info.marginCall") }}
-                  </p>
-                </div>
-                <div class="flex xs3">
-                  <p
-                    class="display-2 mb-1 text--center"
-                    :style="{ color: theme.danger }"
-                  >
-                    0
-                  </p>
-                  <p class="text--center mb-1">
-                    {{ $t("dashboard.info.liquidable") }}
+                    {{ $t("dashboard.info." + info.text) }}
                   </p>
                 </div>
               </div>
@@ -85,48 +48,85 @@
 </template>
 
 <script>
+import { computed } from "vue";
 import { useGlobalConfig } from "vuestic-ui";
+import { useLoanStore } from "@/store/Loan";
+import { useDepositStore } from "@/store/Deposit";
 
 export default {
   name: "DashboardInfoBlock",
-  data() {
-    return {
-      infoTiles: [
-        {
-          color: "primary",
-          value: "803",
-          text: "btc",
-          icon: "",
-        },
-        {
-          color: "primary",
-          value: "57",
-          text: "eth",
-          icon: "",
-        },
-        {
-          color: "danger",
-          value: "5",
-          text: "sgc",
-          icon: "",
-        },
-      ],
-      modal: false,
-      currentImageIndex: 0,
-      images: [
-        "https://i.imgur.com/qSykGko.jpg",
-        "https://i.imgur.com/jYwT08D.png",
-        "https://i.imgur.com/9930myH.jpg",
-        "https://i.imgur.com/2JxhWD6.jpg",
-        "https://i.imgur.com/MpiOWbM.jpg",
-      ],
-    };
-  },
-  methods: {},
-  computed: {
-    theme() {
+  setup() {
+    const loanStore = useLoanStore();
+    const depositStore = useDepositStore();
+
+    const btcBalance = loanStore.getBtcBalance;
+    const ethBalance = loanStore.getEthBalance;
+    const sgcBalance = depositStore.getSgcBalance;
+    const totalLoanOutstandingBalance =
+      depositStore.getTotalLoanOutstandingBalance;
+    const activeLoans = loanStore.getActiveBorrowers.length;
+    const totalLoans = loanStore.getBorrowers.length;
+    const marginCall = loanStore.getMarginCallBorrowers.length;
+    const liquidable = 0;
+
+    const balanceInfoTiles = [
+      {
+        color: "primary",
+        value: btcBalance,
+        text: "btc",
+        icon: "",
+      },
+      {
+        color: "primary",
+        value: ethBalance,
+        text: "eth",
+        icon: "",
+      },
+      {
+        color: "danger",
+        value: sgcBalance,
+        text: "sgc",
+        icon: "",
+      },
+      {
+        color: "secondary",
+        value: totalLoanOutstandingBalance,
+        text: "totalLoanOutstandingBalance",
+        icon: "",
+      },
+    ];
+
+    const statusInfoTiles = [
+      {
+        color: "#3d9209",
+        value: activeLoans,
+        text: "activeLoans",
+      },
+      {
+        color: "#2c82e0",
+        value: totalLoans,
+        text: "totalLoans",
+      },
+      {
+        color: "#ffd43a",
+        value: marginCall,
+        text: "marginCall",
+      },
+      {
+        color: "#e42222",
+        value: liquidable,
+        text: "liquidable",
+      },
+    ];
+
+    const theme = computed(() => {
       return useGlobalConfig().getGlobalConfig().colors || {};
-    },
+    });
+    return {
+      balanceInfoTiles,
+      statusInfoTiles,
+      theme,
+    };
   },
 };
 </script>

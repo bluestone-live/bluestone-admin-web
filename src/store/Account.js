@@ -1,10 +1,8 @@
 import { defineStore } from 'pinia'
-// import { MetaMaskProvider } from './MetaMaskStore'
 import { useCommonStore } from "./Common"
 
 export const useAccountStore = defineStore('AccountStore', {
   state: () => ({
-    // provider: new MetaMaskProvider(),
     commonStore: useCommonStore(),
     accounts: [],
   }),

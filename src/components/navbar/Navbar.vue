@@ -57,12 +57,11 @@ export default {
     const accountStore = useAccountStore();
     const userName = computed(() => {
       if (accountStore.getAccount) {
-        return utils.shortenAddress(accountStore.getAccount)
+        return utils.shortenAddress(accountStore.getAccount);
       } else {
-        return "Connect Wallet"
+        return "Connect Wallet";
       }
-    }
-    );
+    });
 
     return {
       colors,
