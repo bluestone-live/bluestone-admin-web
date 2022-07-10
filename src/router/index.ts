@@ -2,9 +2,11 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 // import AuthLayout from '@/layout/auth-layout.vue'
 import AppLayout from '@/layout/app-layout.vue'
 import Page404Layout from '@/layout/page-404-layout.vue'
-
+import { useCommonStore } from "@/store/Common.js"
 import RouteViewComponent from './route-view.vue'
 // import UIRoute from '@/pages/admin/ui/route'
+import { createPinia } from "pinia"
+export const pinia = createPinia()
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -62,6 +64,14 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   //  mode: process.env.VUE_APP_ROUTER_MODE_HISTORY === 'true' ? 'history' : 'hash',
   routes
+})
+
+router.beforeEach(async () => {
+  const commonStore = useCommonStore(pinia)
+  // we wanted to use the store here
+  if (!commonStore.isInited) { 
+    await commonStore.init()
+  }
 })
 
 export default router

@@ -4,23 +4,23 @@
 
 <script lang="ts">
 import { defineComponent, onBeforeMount } from "vue";
-import { useAccountStore } from "@/store/Account.js";
-import { useCommonStore } from "@/store/Common.js";
+// import { useAccountStore } from "@/store/Account.js";
+// import { useCommonStore } from "@/store/Common.js";
 
 
 export default defineComponent({
   name: "App",
   setup() {
-    const commonStore = useCommonStore();
-    const accountStore = useAccountStore();
-    onBeforeMount(async () => {
-      try {
-        await commonStore.init();
-        await accountStore.init();
-      } catch (err) {
-        console.error("App: ", err);
-      }
-    });
+    // const commonStore = useCommonStore();
+    // const accountStore = useAccountStore();
+    // onBeforeMount(async () => {
+    //   try {
+    //     // await commonStore.init();
+    //     await accountStore.init();
+    //   } catch (err) {
+    //     console.error("App: ", err);
+    //   }
+    // });
   },
 });
 </script>

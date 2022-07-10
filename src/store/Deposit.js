@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useCommonStore } from "./Common"
+import { BigNumber } from "ethers"
 
 export const useDepositStore = defineStore('DepositStore', {
     state: () => ({
@@ -7,8 +8,8 @@ export const useDepositStore = defineStore('DepositStore', {
         whitelists: [],
         sgcAddress: "",
         sgcPools: [],
-        sgcBalance: 0,
-        totalLoanOutstandingBalance: 0,
+        sgcBalance: BigNumber,
+        totalLoanOutstandingBalance: BigNumber,
     }),
     getters: {
         getWhitelists(state) {
@@ -21,15 +22,19 @@ export const useDepositStore = defineStore('DepositStore', {
             return state.sgcAddress
         },
         getSgcBalance(state) {
-            return state.sgcBalance
+            return state.sgcBalance.toNumber()
         },
         getTotalLoanOutstandingBalance(state) {
-            return state.totalLoanOutstandingBalance
+            return state.totalLoanOutstandingBalance.toNumber()
         },
     },
     actions: {
         async init() {
-            await this.initWhitelists()
+            // await this.initWhitelists()
+            this.initSgcAddress()
+            await this.initSgcPools()
+            this.initSgcBalance()
+            this.initTotalLoanOutstandingBalance()
         },
 
         async initWhitelists() {
@@ -37,31 +42,28 @@ export const useDepositStore = defineStore('DepositStore', {
         },
 
         initSgcAddress() {
-            this.sgcAddress = this.commonState.getTokens.USDT.address
+            this.sgcAddress = this.commonState.getTokens.SGC.address
         },
 
         async initSgcPools() {
             this.sgcPools = await this.commonState.getProtocol.getPoolsByToken(this.sgcAddress)
+            console.log("sgcPools=", this.sgcPools)
         },
 
         initSgcBalance() {
-            // const depositIndexTokenAddress = this.commonState.getProtocol.filters.DepositSuccessed(null, this.getSgcAddress)
-            // const depositEvents = await this.commonState.getProtocol.queryFilter(depositIndexTokenAddress)
-
-            // const withdrawIndexTokenAddress = this.commonState.getProtocol.filters.DepositSuccessed(null, this.getSgcAddress)
-            // const withdrawEvents = await this.commonState.getProtocol.queryFilter(withdrawIndexTokenAddress)
-            let totalBalance = 0
+            let totalBalance = BigNumber.from(0)
             this.sgcPools.forEach((pool) => {
-                totalBalance += pool.availableAmount
+                totalBalance.add(pool.availableAmount)
             })
             this.sgcBalance = totalBalance
         },
 
         initTotalLoanOutstandingBalance() {
-            let totalBalance = 0
+            let totalBalance = BigNumber.from(0)
             this.sgcPools.forEach((pool) => {
-                totalBalance += pool.depositAmount - pool.availableAmount
+                totalBalance.add(pool.depositAmount.sub(pool.availableAmount))
             })
+            this.totalLoanOutstandingBalance = totalBalance
         }
     }
 })

@@ -7,6 +7,7 @@
           v-for="(info, idx) in balanceInfoTiles"
           :key="idx"
         >
+        <va-inner-loading loading>
           <va-card class="mb-4" :color="info.color" gradient>
             <va-card-content>
               <p class="display-2 mb-0" style="color: white">
@@ -17,9 +18,12 @@
               </p>
             </va-card-content>
           </va-card>
+          </va-inner-loading>
         </div>
 
         <div class="flex xs12 md8">
+        <va-inner-loading loading>
+
           <va-card>
             <va-card-content>
               <div class="row row-separated">
@@ -41,6 +45,8 @@
               </div>
             </va-card-content>
           </va-card>
+        </va-inner-loading>
+
         </div>
       </div>
     </div>
@@ -50,26 +56,18 @@
 <script lang="ts">
 import { computed, defineComponent } from "vue";
 import { useGlobalConfig } from "vuestic-ui";
-import { useLoanStore } from "@/store/Loan";
-import { useDepositStore } from "@/store/Deposit";
 
 export default defineComponent({
-  name: "DashboardInfoBlock",
-  async setup() {
-    const loanStore = useLoanStore();
-    const depositStore = useDepositStore();
-
-    await loanStore.init();
-    await depositStore.init();
-    const btcBalance = loanStore.getBtcBalance;
-    const ethBalance = loanStore.getEthBalance;
-    const sgcBalance = depositStore.getSgcBalance;
-    const totalLoanOutstandingBalance =
-      depositStore.getTotalLoanOutstandingBalance;
-    const activeLoans = loanStore.getActiveLoansCount;
-    const totalLoans = loanStore.getTotalLoansCount;
-    const marginCall = loanStore.getMarginCallLoansCount;
-    const liquidable = loanStore.getLiquidatedLoansCount;
+  name: "DashboardInfoLoading",
+  setup() {
+    const btcBalance = 0;
+    const ethBalance = 0;
+    const sgcBalance = 0;
+    const totalLoanOutstandingBalance = 0;
+    const activeLoans = 0;
+    const totalLoans = 0;
+    const marginCall = 0;
+    const liquidable = 0;
 
     const balanceInfoTiles = [
       {

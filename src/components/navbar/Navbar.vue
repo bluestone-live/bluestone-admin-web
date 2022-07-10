@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { computed, onBeforeMount, onMounted } from "vue";
+import { computed, onMounted, onBeforeMount } from "vue";
 import { useStore } from "vuex";
 import { useColors } from "vuestic-ui";
 import VuesticLogo from "@/components/vuestic-logo.vue";
@@ -50,11 +50,15 @@ export default {
     const { getColors } = useColors();
     const colors = computed(() => getColors());
     const store = useStore();
+    const accountStore = useAccountStore();
     const isSidebarMinimized = computed({
       get: () => store.state.isSidebarMinimized,
       set: (value) => store.commit("updateSidebarCollapsedState", value),
     });
-    const accountStore = useAccountStore();
+    // const accountStore = useAccountStore();
+    onMounted(async()=>{
+      await accountStore.init()
+    })
     const userName = computed(() => {
       if (accountStore.getAccount) {
         return utils.shortenAddress(accountStore.getAccount);

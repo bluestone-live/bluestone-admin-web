@@ -2,9 +2,11 @@ import { defineStore } from 'pinia'
 import utils from "@/utils"
 import { ethers } from "ethers"
 import { toRaw } from "@vue/reactivity"
+import protocolDeclareFile from "@/contracts/Protocol.json"
 
 export const useCommonStore = defineStore('CommonStore', {
     state: () => ({
+        isInited: false,
         ethersInstance: null,
         networkType: null,
         protocolAddress: null,
@@ -12,6 +14,9 @@ export const useCommonStore = defineStore('CommonStore', {
         tokens: null,
     }),
     getters: {
+        getInitStatus() {
+            return this.isInited
+        },  
         getProvider(state) {
             return toRaw(state.ethersInstance)
         },
@@ -22,20 +27,25 @@ export const useCommonStore = defineStore('CommonStore', {
             return state.protocolAddress
         },
         getProtocol(state) {
-            return state.protocolInstance
+            return toRaw(state.protocolInstance)
         },
         getTokens(state) {
-            return state.tokens
+            return toRaw(state.tokens)
         }
     },
     actions: {
         async init() {
-            this.initEthersInstance()
-            console.log("CommonStore: init provider success.")
-            await this.initNetworkType()
-            console.log("CommonStore: init network success.")
-            // await this.initContractsAndToken()
-            console.log("CommonStore: init protocol address and instance success.")
+            try {
+                this.initEthersInstance()
+                console.log("CommonStore: init provider success.")
+                await this.initNetworkType()
+                console.log("CommonStore: init network success.")
+                await this.initProtocolRelated()
+                console.log("CommonStore: init protocol address and instance success.", this.getProtocol)
+                this.isInited = true
+            } catch (error) {
+                console.error(error)
+            }
         },
 
         initEthersInstance() {
@@ -74,11 +84,13 @@ export const useCommonStore = defineStore('CommonStore', {
 
         },
 
-        async readFromNetworkFile() {
+        async initProtocolRelated() {
             const networkFile = await utils.getNetworkFile(this.networkType)
             console.log("networkFile=", networkFile)
             this.protocolAddress = networkFile.contracts[protocolDeclareFile.contractName]
             this.tokens = networkFile.tokens
+            console.log("this.tokens=", this.tokens)
+            console.log("this.getTokens=", this.getTokens)
             this.protocolInstance = new ethers.Contract(
                 this.protocolAddress,
                 protocolDeclareFile.abi,
