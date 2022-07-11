@@ -1,7 +1,7 @@
 <template>
   <div class="row row-equal">
-    <div class="flex xl12 xs12">
-      <div class="row">
+    <!-- <div class="flex xl12 xs12">
+      <div class="row"> -->
         <div
           class="flex xs12 sm4"
           v-for="(info, idx) in balanceInfoTiles"
@@ -42,7 +42,23 @@
             </va-card-content>
           </va-card>
         </div>
-      </div>
+      <!-- </div>
+    </div> -->
+
+    <div class="flex xs12 md12 xl12">
+      <va-card class="d-flex">
+        <va-card-title>
+          <h1>{{ $t("dashboard.pools.title") }}</h1>
+        </va-card-title>
+        <va-card-content>
+          <va-data-table :items="items" :columns="columns">
+            <template #colgroup>
+              <col span="5" />
+              <col class="table-example--slots" />
+            </template>
+          </va-data-table>
+        </va-card-content>
+      </va-card>
     </div>
   </div>
 </template>
@@ -70,6 +86,15 @@ export default defineComponent({
     const totalLoans = loanStore.getTotalLoansCount;
     const marginCall = loanStore.getMarginCallLoansCount;
     const liquidable = loanStore.getLiquidatedLoansCount;
+
+    const users = depositStore.getAvailableSgcPools;
+    const columns = [
+      { key: "poolId" },
+      { key: "availableAmount" },
+      { key: "depositAmount" },
+      { key: "loanInterest" },
+      { key: "totalDepositWeight" },
+    ];
 
     const balanceInfoTiles = [
       {
@@ -128,6 +153,8 @@ export default defineComponent({
       balanceInfoTiles,
       statusInfoTiles,
       theme,
+      items: users,
+      columns,
     };
   },
 });

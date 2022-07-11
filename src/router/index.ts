@@ -66,8 +66,9 @@ const router = createRouter({
   routes
 })
 
+const commonStore = useCommonStore(pinia)
+
 router.beforeEach(async () => {
-  const commonStore = useCommonStore(pinia)
   // we wanted to use the store here
   if (!commonStore.isInited) { 
     await commonStore.init()

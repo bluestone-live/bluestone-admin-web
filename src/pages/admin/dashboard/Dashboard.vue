@@ -8,7 +8,10 @@
 
       <dashboard-info-block />
     </Suspense>
+    <!-- <dashboard-pools-status /> -->
     <!-- <dashboard-chart /> -->
+    <!-- <SusPense> -->
+    <!-- </SusPense> -->
   </div>
 </template>
 
@@ -22,7 +25,7 @@ export default defineComponent({
   name: "Dashboard",
   components: {
     DashboardInfoBlock,
-    DashboardInfoLoading
+    DashboardInfoLoading,
     // DashboardChart,
   },
   setup() {},

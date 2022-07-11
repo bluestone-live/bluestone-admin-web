@@ -7,10 +7,12 @@ import { toRaw } from "@vue/reactivity"
 
 export const useLoanStore = defineStore('LoanStore', {
     state: () => ({
+        isInited: false,
         commonState: useCommonStore(),
         whitelists: [],
         btcAddress: "",
         ethAddress: "",
+        exp: BigNumber.from("10").pow(18),
         btcBalance: BigNumber,
         ethBalance: BigNumber,
         totalLoansCount: 0,
@@ -19,11 +21,15 @@ export const useLoanStore = defineStore('LoanStore', {
         liquidatedLoans: 0,
         borrowers: [],
         borrowersLoanRecords: Map,
+        handledLoanRecords: Map,
         activeBorrowers: [],
         marginCallLoansCount: 0,
         liquidatedLoansCount: 0
     }),
     getters: {
+        getInitStatus(state) {
+            return state.isInited
+        },
         getWhitelists(state) {
             return state.whitelists
         },
@@ -34,10 +40,10 @@ export const useLoanStore = defineStore('LoanStore', {
             return state.ethAddress
         },
         getBtcBalance(state) {
-            return state.btcBalance.toNumber()
+            return state.btcBalance.div(this.exp).toNumber()
         },
         getEthBalance(state) {
-            return state.ethBalance.toNumber()
+            return state.ethBalance.div(this.exp).toNumber()
         },
         getTotalLoansCount(state) {
             return state.totalLoansCount
@@ -51,6 +57,9 @@ export const useLoanStore = defineStore('LoanStore', {
         getBorrowersLoanRecords(state) {
             return toRaw(state.borrowersLoanRecords)
         },
+        getHandledLoanRecords(state) {
+            return toRaw(state.handledLoanRecords)
+        },
         getActiveBorrowers(state) {
             return toRaw(state.activeBorrowers)
         },
@@ -63,15 +72,21 @@ export const useLoanStore = defineStore('LoanStore', {
     },
     actions: {
         async init() {
-            this.initBtcAddress()
-            this.initBtcBalance()
-            this.initEthAddress()
-            this.initEthBalance()
-            await this.initBorrowersAndTotalLoansCount()
-            await this.initBorrowersLoanRecords()
-            this.initLiquidatedLoansCount()
-            this.initActiveBorrowersAndActiveLoansCount()
-            // this.initMarginCallLoansCount()
+            try {
+                this.initBtcAddress()
+                this.initBtcBalance()
+                this.initEthAddress()
+                this.initEthBalance()
+                await this.initBorrowersAndTotalLoansCount()
+                await this.initBorrowersLoanRecords()
+                this.initHandledLoanRecords()
+                this.initLiquidatedLoansCount()
+                this.initActiveBorrowersAndActiveLoansCount()
+                // this.initMarginCallLoansCount()
+                this.isInited = true
+            } catch (error) {
+                console.error(error)
+            }
         },
         async initWhitelists() {
             // TODO
@@ -90,7 +105,7 @@ export const useLoanStore = defineStore('LoanStore', {
             console.log("btcPools=", btcPools)
             let totalBalance = BigNumber.from(0)
             btcPools.forEach((pool) => {
-                totalBalance.add(pool.availableAmount)
+                totalBalance = totalBalance.add(pool.availableAmount)
             })
             this.btcBalance = totalBalance
             console.log("btcBalance=", this.btcBalance)
@@ -101,7 +116,7 @@ export const useLoanStore = defineStore('LoanStore', {
             console.log("ethPools=", ethPools)
             let totalBalance = BigNumber.from(0)
             ethPools.forEach((pool) => {
-                totalBalance.add(pool.availableAmount)
+                totalBalance = totalBalance.add(pool.availableAmount)
             })
             this.ethBalance = totalBalance
             console.log("ethBalance=", this.ethBalance)
@@ -130,6 +145,38 @@ export const useLoanStore = defineStore('LoanStore', {
             }))
             this.borrowersLoanRecords = tempMap
             console.log("borrowersRecord=", this.borrowersLoanRecords)
+        },
+
+        initHandledLoanRecords() {
+            let tempMap = new Map()
+            this.getBorrowersLoanRecords.forEach((loanRecords, address) => {
+                let tempRecords = []
+                loanRecords.forEach((loanRecord)=>{
+                    let tempRecord = {
+                        isClosed: loanRecord.isClosed,
+                        loanId: loanRecord.loanId,
+                        loanTokenAddress: loanRecord.loanTokenAddress,
+                        collateralTokenAddress: loanRecord.collateralTokenAddress,
+                        loanAmount: loanRecord.loanAmount.div(this.exp).toNumber(),
+                        collateralAmount: loanRecord.collateralAmount.div(this.exp).toNumber(),
+                        loanTerm: loanRecord.loanTerm.toNumber(),
+                        annualInterestRate: loanRecord.annualInterestRate.div(this.exp).toNumber(),
+                        interest: loanRecord.interest.div(this.exp).toNumber(),
+                        collateralCoverageRatio: loanRecord.collateralCoverageRatio.div(this.exp).toNumber(),
+                        minCollateralCoverageRatio: loanRecord.minCollateralCoverageRatio.div(this.exp).toNumber(),
+                        alreadyPaidAmount: loanRecord.alreadyPaidAmount.div(this.exp).toNumber(),
+                        liquidatedAmount: loanRecord.liquidatedAmount.div(this.exp).toNumber(),
+                        soldCollateralAmount: loanRecord.soldCollateralAmount.div(this.exp).toNumber(),
+                        createdAt: loanRecord.createdAt.toNumber(),
+                        dueAt: loanRecord.dueAt.toNumber(),
+                        remainingDebt: loanRecord.remainingDebt.div(this.exp).toNumber()
+                    }
+                    tempRecords.push(tempRecord)
+                })
+                tempMap.set(address, tempRecords)
+            })
+            this.handledLoanRecords = tempMap
+            console.log("handledLoanRecords=", this.handledLoanRecords)
         },
 
         initActiveBorrowersAndActiveLoansCount() {

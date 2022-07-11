@@ -21,7 +21,7 @@
     "dashboard": {
         "info": {
             "componentRichTheme": "component-rich theme",
-            "totalLoanOutstandingBalance": "Total Loans Outstanding Balance",
+            "totalLoanOutstandingBalance": "Total Loans Outstanding SGC Balance",
             "activeLoans": "Active Loans",
             "totalLoans": "Total Loans",
             "marginCall": "Margin Call",
@@ -29,6 +29,9 @@
             "btc": "BTC Balance",
             "eth": "ETH Balance",
             "sgc": "SGC Balance"
+        },
+        "pools": {
+            "title": "Pools Status"
         },
         "charts": {
             "treasury": "Loan Treasury",

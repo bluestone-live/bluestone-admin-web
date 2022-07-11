@@ -7,48 +7,64 @@
           v-for="(info, idx) in balanceInfoTiles"
           :key="idx"
         >
-        <va-inner-loading loading>
-          <va-card class="mb-4" :color="info.color" gradient>
-            <va-card-content>
-              <p class="display-2 mb-0" style="color: white">
-                {{ info.value }}
-              </p>
-              <p style="color: white">
-                {{ $t("dashboard.info." + info.text) }}
-              </p>
-            </va-card-content>
-          </va-card>
+          <va-inner-loading loading>
+            <va-card class="mb-4" :color="info.color" gradient>
+              <va-card-content>
+                <p class="display-2 mb-0" style="color: white">
+                  {{ info.value }}
+                </p>
+                <p style="color: white">
+                  {{ $t("dashboard.info." + info.text) }}
+                </p>
+              </va-card-content>
+            </va-card>
           </va-inner-loading>
         </div>
 
         <div class="flex xs12 md8">
-        <va-inner-loading loading>
-
-          <va-card>
-            <va-card-content>
-              <div class="row row-separated">
-                <div
-                  class="flex xs3"
-                  v-for="(info, idx) in statusInfoTiles"
-                  :key="idx"
-                >
-                  <p
-                    class="display-2 mb-1 text--center"
-                    :style="{ color: info.color }"
+          <va-inner-loading loading>
+            <va-card>
+              <va-card-content>
+                <div class="row row-separated">
+                  <div
+                    class="flex xs3"
+                    v-for="(info, idx) in statusInfoTiles"
+                    :key="idx"
                   >
-                    {{ info.value }}
-                  </p>
-                  <p class="text--center mb-1">
-                    {{ $t("dashboard.info." + info.text) }}
-                  </p>
+                    <p
+                      class="display-2 mb-1 text--center"
+                      :style="{ color: info.color }"
+                    >
+                      {{ info.value }}
+                    </p>
+                    <p class="text--center mb-1">
+                      {{ $t("dashboard.info." + info.text) }}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </va-card-content>
-          </va-card>
-        </va-inner-loading>
-
+              </va-card-content>
+            </va-card>
+          </va-inner-loading>
         </div>
       </div>
+    </div>
+
+    <div class="flex xs12 md12 xl12">
+      <va-inner-loading loading>
+        <va-card class="d-flex">
+          <va-card-title>
+            <h1>{{ $t("dashboard.pools.title") }}</h1>
+          </va-card-title>
+          <va-card-content>
+            <va-data-table :items="items" :columns="columns">
+              <template #colgroup>
+                <col span="5" />
+                <col class="table-example--slots" />
+              </template>
+            </va-data-table>
+          </va-card-content>
+        </va-card>
+      </va-inner-loading>
     </div>
   </div>
 </template>
@@ -119,6 +135,15 @@ export default defineComponent({
       },
     ];
 
+    const users: any = [];
+    const columns = [
+      { key: "poolId" },
+      { key: "availableAmount" },
+      { key: "depositAmount" },
+      { key: "loanInterest" },
+      { key: "totalDepositWeight" },
+    ];
+
     const theme = computed(() => {
       return useGlobalConfig().getGlobalConfig().colors || {};
     });
@@ -126,6 +151,8 @@ export default defineComponent({
       balanceInfoTiles,
       statusInfoTiles,
       theme,
+      items: users,
+      columns,
     };
   },
 });
