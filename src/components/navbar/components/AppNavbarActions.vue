@@ -1,19 +1,18 @@
 <template>
   <div class="app-navbar-actions">
-    <language-dropdown class="app-navbar-actions__item"/>
-    &nbsp;&nbsp;
+    <!-- <language-dropdown class="app-navbar-actions__item"/> -->
     <va-button>{{userName}}</va-button>
   </div>
 </template>
 
 <script>
-import LanguageDropdown from './dropdowns/LanguageDropdown.vue';
+// import LanguageDropdown from './dropdowns/LanguageDropdown.vue';
 
 export default {
   name: 'app-navbar-actions',
 
   components: {
-    LanguageDropdown
+    // LanguageDropdown
   },
 
   props: {

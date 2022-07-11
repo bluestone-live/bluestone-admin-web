@@ -28,14 +28,19 @@
 </template>
 
 <script>
-import { computed } from "vue";
+import { computed, onMounted, onBeforeMount } from "vue";
 import { useStore } from "vuex";
 import { useColors } from "vuestic-ui";
 import VuesticLogo from "@/components/vuestic-logo.vue";
 import VaIconMenuCollapsed from "@/components/icons/VaIconMenuCollapsed.vue";
 import AppNavbarActions from "./components/AppNavbarActions.vue";
+import utils from "@/utils";
+
+import { useAccountStore } from "@/store/Account";
+// const accountStore = useAccountStore();
 
 export default {
+  name: "Navbar",
   components: {
     VuesticLogo,
     VaIconMenuCollapsed,
@@ -45,15 +50,28 @@ export default {
     const { getColors } = useColors();
     const colors = computed(() => getColors());
     const store = useStore();
+    const accountStore = useAccountStore();
     const isSidebarMinimized = computed({
       get: () => store.state.isSidebarMinimized,
       set: (value) => store.commit("updateSidebarCollapsedState", value),
     });
-    const userName = computed(() => store.state.userName);
+    // const accountStore = useAccountStore();
+    onMounted(async()=>{
+      await accountStore.init()
+    })
+    const userName = computed(() => {
+      if (accountStore.getAccount) {
+        return utils.shortenAddress(accountStore.getAccount);
+      } else {
+        return "Connect Wallet";
+      }
+    });
+
     return {
       colors,
       isSidebarMinimized,
       userName,
+      // accountAddress,
     };
   },
 };
