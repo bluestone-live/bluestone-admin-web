@@ -3,7 +3,7 @@
     <Suspense>
       <template #fallback>
         <!-- <div>loading</div> -->
-        <dashboard-info-loading />
+        <dashboard-loading />
       </template>
 
       <dashboard-info-block />
@@ -18,14 +18,14 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import DashboardInfoBlock from "./DashboardInfoBlock.vue";
-import DashboardInfoLoading from "@/components/loading/DashboardInfoLoading.vue"
+import DashboardLoading from "@/components/loading/DashboardLoading.vue"
 // import DashboardChart from "./DashboardChart.vue";
 
 export default defineComponent({
   name: "Dashboard",
   components: {
     DashboardInfoBlock,
-    DashboardInfoLoading,
+    DashboardLoading,
     // DashboardChart,
   },
   setup() {},

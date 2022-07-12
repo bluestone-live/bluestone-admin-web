@@ -74,7 +74,7 @@ import { computed, defineComponent } from "vue";
 import { useGlobalConfig } from "vuestic-ui";
 
 export default defineComponent({
-  name: "DashboardInfoLoading",
+  name: "DashboardLoading",
   setup() {
     const btcBalance = 0;
     const ethBalance = 0;
