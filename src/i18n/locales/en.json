@@ -26,9 +26,9 @@
             "totalLoans": "Total Loans",
             "marginCall": "Margin Call",
             "liquidable": "Liquidated",
-            "btc": "BTC Balance",
-            "eth": "ETH Balance",
-            "sgc": "SGC Balance"
+            "btc": "BTC",
+            "eth": "ETH",
+            "sgc": "SGC"
         },
         "pools": {
             "title": "Pools Status"
