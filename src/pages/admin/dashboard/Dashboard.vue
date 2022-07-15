@@ -2,16 +2,10 @@
   <div class="dashboard">
     <Suspense>
       <template #fallback>
-        <!-- <div>loading</div> -->
         <dashboard-loading />
       </template>
-
       <dashboard-info-block />
     </Suspense>
-    <!-- <dashboard-pools-status /> -->
-    <!-- <dashboard-chart /> -->
-    <!-- <SusPense> -->
-    <!-- </SusPense> -->
   </div>
 </template>
 
@@ -19,14 +13,12 @@
 import { defineComponent } from "vue";
 import DashboardInfoBlock from "./DashboardInfoBlock.vue";
 import DashboardLoading from "@/components/loading/DashboardLoading.vue"
-// import DashboardChart from "./DashboardChart.vue";
 
 export default defineComponent({
   name: "Dashboard",
   components: {
     DashboardInfoBlock,
     DashboardLoading,
-    // DashboardChart,
   },
   setup() {},
 });

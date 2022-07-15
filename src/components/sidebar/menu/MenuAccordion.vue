@@ -8,6 +8,7 @@
       <template #header>
         <va-sidebar-item
           :active="isRouteActive(route)"
+          active-color="info"
           :to="route.children ? undefined : { name: route.name }"
         >
           <va-sidebar-item-content>
@@ -27,6 +28,7 @@
       <template v-for="(child, index) in route.children" :key="index">
         <va-sidebar-item
           :active="isRouteActive(child)"
+          active-color="info"
           :to="{ name: child.name }"
         >
           <va-sidebar-item-content>

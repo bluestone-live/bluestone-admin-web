@@ -1,7 +1,5 @@
 <template>
   <div class="row row-equal">
-    <!-- <div class="flex xs12 md12 xl12">
-      <div class="row"> -->
     <div
       class="flex xs12 sm12"
       v-for="(loanDetail, borrowersIdx) in loanRecords"
@@ -14,11 +12,20 @@
             {{ loanDetail[0] }}
           </h1>
           <div class="text-right">
-            <va-badge size="small" color="success" text="On Whitelist"></va-badge>
+            <va-badge
+              size="small"
+              :color="
+                whitelist.indexOf(loanDetail[0]) >= 0 ? 'success' : 'danger'
+              "
+              :text="
+                whitelist.indexOf(loanDetail[0]) >= 0
+                  ? 'On Whitelist'
+                  : 'Out Whitelist'
+              "
+            ></va-badge>
           </div>
         </va-card-title>
         <va-card-content>
-          <!-- <va-accordion v-model="loanDetail[1]" popout solid> -->
           <va-collapse
             v-for="(loanRecord, index) in loanDetail[1]"
             :key="index"
@@ -32,24 +39,12 @@
             color-all
             icon="timer"
           >
-            <!-- <div class="pa-3"> -->
-            <!-- <p class="display-3">LOANED: {{ loanRecord.loanAmount }}</p> -->
-            <!-- <div>
-                    Already Paid Amount: {{loanRecord.alreadyPaidAmount}}
-                    
-                </div> -->
             <va-list>
               <va-list-label> Loan Record </va-list-label>
               <va-list-item
                 v-for="(valueRecord, keyRecord) in loanRecord"
                 :key="keyRecord"
               >
-                <!-- <va-list-item-section avatar>
-                      <va-avatar>
-                        <img :src="contact.img" />
-                      </va-avatar>
-                    </va-list-item-section> -->
-
                 <va-list-item-section>
                   <va-list-item-label>
                     {{ keyRecord }}
@@ -59,20 +54,12 @@
                     {{ valueRecord }}
                   </va-list-item-label>
                 </va-list-item-section>
-
-                <!-- <va-list-item-section icon>
-                      <va-icon name="remove_red_eye" color="gray" />
-                    </va-list-item-section> -->
               </va-list-item>
             </va-list>
-            <!-- </div> -->
           </va-collapse>
-          <!-- </va-accordion> -->
         </va-card-content>
       </va-card>
     </div>
-    <!-- </div>
-    </div> -->
   </div>
 </template>
 
@@ -95,12 +82,16 @@ export default defineComponent({
     const loanRecords = loanStore.getHandledLoanRecords;
     console.log("loanRecords=", loanRecords);
 
+    const whitelist = loanStore.getWhitelist;
+
     const theme = computed(() => {
       return useGlobalConfig().getGlobalConfig().colors || {};
     });
 
     const formatTimestamp = utils.formatTimestamp;
     return {
+      theme,
+      whitelist,
       loanRecords,
       formatTimestamp,
       collapseControl: false,

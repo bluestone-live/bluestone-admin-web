@@ -1,15 +1,17 @@
 import { defineStore } from 'pinia'
 import { useCommonStore } from "./Common"
 import { marginLimit } from "@/margin"
-import { BigNumber } from "ethers"
+import { BigNumber, ethers } from "ethers"
 import { toRaw } from "@vue/reactivity"
+import borrowerWhitelistDeclareFile from "@/contracts/BorrowersWhitelist.json"
 
 
 export const useLoanStore = defineStore('LoanStore', {
     state: () => ({
         isInited: false,
         commonState: useCommonStore(),
-        whitelists: [],
+        whitelistInstance: null,
+        whitelist: [],
         btcAddress: "",
         ethAddress: "",
         exp: BigNumber.from("10").pow(18),
@@ -30,8 +32,11 @@ export const useLoanStore = defineStore('LoanStore', {
         getInitStatus(state) {
             return state.isInited
         },
-        getWhitelists(state) {
-            return state.whitelists
+        getWhitelistInstance(state) {
+            return toRaw(state.whitelistInstance)
+        },
+        getWhitelist(state) {
+            return state.whitelist
         },
         getBtcAddress(state) {
             return state.btcAddress
@@ -52,7 +57,7 @@ export const useLoanStore = defineStore('LoanStore', {
             return state.activeLoansCount
         },
         getBorrowers(state) {
-            return state.borrowers
+            return toRaw(state.borrowers)
         },
         getBorrowersLoanRecords(state) {
             return toRaw(state.borrowersLoanRecords)
@@ -73,6 +78,8 @@ export const useLoanStore = defineStore('LoanStore', {
     actions: {
         async init() {
             try {
+                this.initWhitelistInstance()
+                await this.initWhitelist()
                 this.initBtcAddress()
                 this.initBtcBalance()
                 this.initEthAddress()
@@ -88,10 +95,27 @@ export const useLoanStore = defineStore('LoanStore', {
                 console.error(error)
             }
         },
-        async initWhitelists() {
-            // TODO
+        initWhitelistInstance() {
+            const whitelistAddress = this.commonState.getNetworkFile.contracts[borrowerWhitelistDeclareFile.contractName]
+            this.whitelistInstance = new ethers.Contract(
+                whitelistAddress,
+                borrowerWhitelistDeclareFile.abi,
+                this.commonState.getProvider.getSigner()
+            )
         },
-
+        async initWhitelist() {
+            let tempArr = []
+            let filter = this.getWhitelistInstance.filters.AddWhitelisted()
+            const addedEvents = await this.getWhitelistInstance.queryFilter(filter)
+            console.log("addedEvents=", addedEvents)
+            addedEvents.forEach(async(event)=>{
+                let flag = await this.getWhitelistInstance.isWhitelisted(event.args.account)
+                if(flag) {
+                    tempArr.push(event.args.account)
+                }
+            })
+            this.whitelist = tempArr
+        },
         initBtcAddress() {
             console.log("Loan: getTokens=", this.commonState.getTokens)
             this.btcAddress = this.commonState.getTokens.xBTC.address
@@ -183,16 +207,16 @@ export const useLoanStore = defineStore('LoanStore', {
             let tempArr = []
             let tempCount = 0
             this.getBorrowersLoanRecords.forEach((loanRecordsArr, borrowerAddress) => {
-                // let idxArr = []
+                let activeFlag = false
                 loanRecordsArr.forEach((loanRecord, loanIdx) => {
                     if (!loanRecord.isClosed) {
-                        // idxArr.push(loanIdx)
                         tempCount++
+                        activeFlag = true
                     }
                 })
-                // tempCount += idxArr.length
-                // tempMap.set(borrowerAddress, tempArr)
-                tempArr.push(borrowerAddress)
+                if(activeFlag === true) {
+                    tempArr.push(borrowerAddress)
+                }
             })
             this.activeBorrowers = tempArr
             this.activeLoansCount = tempCount
@@ -210,15 +234,9 @@ export const useLoanStore = defineStore('LoanStore', {
         },
 
         async initLiquidatedLoansCount() {
-            // let tempArr = []
             let filter = this.commonState.getProtocol.filters.LiquidateLoanSucceed()
             const liquidateEvents = await this.commonState.getProtocol.queryFilter(filter)
             console.log("liquidate events=", liquidateEvents)
-            // liquidateEvents.forEach((event) => {
-            //     tempArr.push(event.args.accountAddress)
-            // })
-            // this.liquidatedBorrowers = tempArr
-            // console.log("liquidatedBorrowers=", this.liquidatedBorrowers)
             this.liquidatedLoansCount = liquidateEvents.length
         }
     }

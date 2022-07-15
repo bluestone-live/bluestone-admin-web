@@ -9,6 +9,7 @@ export const useCommonStore = defineStore('CommonStore', {
         isInited: false,
         ethersInstance: null,
         networkType: null,
+        networkFile: null,
         protocolAddress: null,
         protocolInstance: null,
         tokens: null,
@@ -22,6 +23,9 @@ export const useCommonStore = defineStore('CommonStore', {
         },
         getNetwork(state) {
             return state.networkType
+        },
+        getNetworkFile(state) {
+            return state.networkFile
         },
         getProtocolAddress(state) {
             return state.protocolAddress
@@ -85,16 +89,16 @@ export const useCommonStore = defineStore('CommonStore', {
         },
 
         async initProtocolRelated() {
-            const networkFile = await utils.getNetworkFile(this.networkType)
-            console.log("networkFile=", networkFile)
-            this.protocolAddress = networkFile.contracts[protocolDeclareFile.contractName]
-            this.tokens = networkFile.tokens
-            console.log("this.tokens=", this.tokens)
-            console.log("this.getTokens=", this.getTokens)
+            this.networkFile = await utils.getNetworkFile(this.networkType)
+            console.log("networkFile=", this.networkFile)
+            this.protocolAddress = this.networkFile.contracts[protocolDeclareFile.contractName]
+            this.tokens = this.networkFile.tokens
+            // console.log("this.tokens=", this.tokens)
+            // console.log("this.getTokens=", this.getTokens)
             this.protocolInstance = new ethers.Contract(
                 this.protocolAddress,
                 protocolDeclareFile.abi,
-                this.getProvider
+                this.getProvider.getSigner()
             )
         }
     },
