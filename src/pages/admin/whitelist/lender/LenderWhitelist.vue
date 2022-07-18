@@ -2,26 +2,26 @@
   <div class="flex xs12 md12 xl12">
     <va-card class="mb-4">
       <va-card-title>
-        <h1>{{ $t("whitelist.borrower.newTitle") }}</h1></va-card-title
+        <h1>{{ $t("whitelist.lender.newTitle") }}</h1></va-card-title
       >
       <va-card-content>
         <va-input
           class="mb-4"
           v-model="newBorrowerAddress"
-          label="Borrower Address"
+          label="Lender Address"
           placeholder="0x..."
           :disabled="isAddLoading"
         />
         <va-button
           @click="addWhitelist(newBorrowerAddress)"
           :loading="isAddLoading"
-          >{{ $t("whitelist.borrower.newButton") }}</va-button
+          >{{ $t("whitelist.lender.newButton") }}</va-button
         >
       </va-card-content>
     </va-card>
     <va-card class="d-flex" stripe stripe-color="info">
       <va-card-title>
-        <h1>{{ $t("whitelist.borrower.addedTitle") }}</h1>
+        <h1>{{ $t("whitelist.lender.addedTitle") }}</h1>
       </va-card-title>
       <va-card-content>
         <div class="row">
@@ -67,7 +67,7 @@
 
         <va-alert class="mt-3" color="info" outline>
           <span>
-            {{$t("whitelist.borrower.filteredCount")}}
+            {{ $t("whitelist.lender.filteredCount") }}
             <va-chip>{{ filteredCount }}</va-chip>
           </span>
         </va-alert>
@@ -81,7 +81,7 @@ import { computed, defineComponent, ref, getCurrentInstance } from "vue";
 import { useLoanStore } from "@/store/Loan";
 
 export default defineComponent({
-  name: "BorrowerWhitelist",
+  name: "LenderWhitelist",
   components: {},
   async setup() {
     const instance = getCurrentInstance();

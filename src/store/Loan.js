@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { useCommonStore } from "./Common"
-import { marginLimit } from "@/margin"
+import { marginCollateralCoverageRatio } from "@/margin"
 import { BigNumber, ethers } from "ethers"
 import { toRaw } from "@vue/reactivity"
 import borrowerWhitelistDeclareFile from "@/contracts/BorrowersWhitelist.json"
@@ -19,7 +19,6 @@ export const useLoanStore = defineStore('LoanStore', {
         ethBalance: BigNumber,
         totalLoansCount: 0,
         activeLoansCount: 0,
-        marginCallLoansCount: 0,
         liquidatedLoans: 0,
         borrowers: [],
         borrowersLoanRecords: Map,
@@ -108,9 +107,9 @@ export const useLoanStore = defineStore('LoanStore', {
             let filter = this.getWhitelistInstance.filters.AddWhitelisted()
             const addedEvents = await this.getWhitelistInstance.queryFilter(filter)
             console.log("addedEvents=", addedEvents)
-            addedEvents.forEach(async(event)=>{
+            addedEvents.forEach(async (event) => {
                 let flag = await this.getWhitelistInstance.isWhitelisted(event.args.account)
-                if(flag) {
+                if (flag) {
                     tempArr.push(event.args.account)
                 }
             })
@@ -173,9 +172,10 @@ export const useLoanStore = defineStore('LoanStore', {
 
         initHandledLoanRecords() {
             let tempMap = new Map()
+            let date = new Date()
             this.getBorrowersLoanRecords.forEach((loanRecords, address) => {
                 let tempRecords = []
-                loanRecords.forEach((loanRecord)=>{
+                loanRecords.forEach((loanRecord) => {
                     let tempRecord = {
                         isClosed: loanRecord.isClosed,
                         loanId: loanRecord.loanId,
@@ -193,7 +193,9 @@ export const useLoanStore = defineStore('LoanStore', {
                         soldCollateralAmount: loanRecord.soldCollateralAmount.div(this.exp).toNumber(),
                         createdAt: loanRecord.createdAt.toNumber(),
                         dueAt: loanRecord.dueAt.toNumber(),
-                        remainingDebt: loanRecord.remainingDebt.div(this.exp).toNumber()
+                        remainingDebt: loanRecord.remainingDebt.div(this.exp).toNumber(),
+                        isMarginCall: (!loanRecord.isClosed) && loanRecord.collateralCoverageRatio.lt(marginCollateralCoverageRatio),
+                        isLiquidable: (!loanRecord.isClosed) && (loanRecord.collateralCoverageRatio.lt(loanRecord.minCollateralCoverageRatio) || loanRecord.dueAt.mul(1000) >= BigNumber.from(date.getTime()))
                     }
                     tempRecords.push(tempRecord)
                 })
@@ -214,7 +216,7 @@ export const useLoanStore = defineStore('LoanStore', {
                         activeFlag = true
                     }
                 })
-                if(activeFlag === true) {
+                if (activeFlag === true) {
                     tempArr.push(borrowerAddress)
                 }
             })

@@ -1,3 +1,4 @@
 import { BigNumber } from "ethers"
 
-export const marginLimit = BigNumber.from(1000)
+const exp = BigNumber.from(10).pow(18)
+export const marginCollateralCoverageRatio = BigNumber.from(2).mul(exp)

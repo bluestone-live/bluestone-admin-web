@@ -35,12 +35,29 @@
               ' ~ ' +
               formatTimestamp(loanRecord.dueAt)
             "
-            :color="loanRecord.isClosed ? 'gray' : 'background'"
+            :color="getCollapseColor(loanRecord)"
             color-all
             icon="timer"
           >
             <va-list>
-              <va-list-label> Loan Record </va-list-label>
+              <va-list-label>
+                <h1>{{ $t("loanList.loanDetailTitle") }}</h1>
+              </va-list-label>
+              <span>
+                <va-button
+                  class="mr-4 mb-2"
+                  :disabled="!loanRecord.isMarginCall"
+                  color="warning"
+                  >Margin Call</va-button
+                >
+                <va-button
+                  class="mr-4 mb-2"
+                  :disabled="!loanRecord.isLiquidable"
+                  color="danger"
+                  >Liquidate</va-button
+                >
+              </span>
+              <va-divider />
               <va-list-item
                 v-for="(valueRecord, keyRecord) in loanRecord"
                 :key="keyRecord"
@@ -68,21 +85,59 @@ import { computed, defineComponent } from "vue";
 import { useGlobalConfig } from "vuestic-ui";
 import { useLoanStore } from "@/store/Loan";
 import utils from "@/utils";
-// import { useDepositStore } from "@/store/Deposit";
 
 export default defineComponent({
   name: "LoanListCards",
   async setup() {
     const loanStore = useLoanStore();
-    // const depositStore = useDepositStore();
-
     await loanStore.init();
-    // await depositStore.init();
 
     const loanRecords = loanStore.getHandledLoanRecords;
     console.log("loanRecords=", loanRecords);
 
     const whitelist = loanStore.getWhitelist;
+
+    function getCollapseColor(loanDetail: any) {
+      if (loanDetail.isClosed) {
+        return "gray";
+      } else {
+        if (loanDetail.isLiquidable) {
+          return "danger";
+        } else if (loanDetail.isMarginCall) {
+          return "warning";
+        } else {
+          return "background";
+        }
+      }
+    }
+
+    async function liquidateLoan() {
+      
+    }
+
+    // const columns = [
+    //   { key: "isClosed" },
+    //   { key: "loanId" },
+    //   { key: "loanTokenAddress" },
+    //   { key: "collateralTokenAddress" },
+    //   { key: "loanAmount" },
+    //   { key: "collateralAmount" },
+    //   { key: "loanTerm" },
+    //   { key: "annualInterestRate" },
+    //   { key: "interest" },
+    //   { key: "collateralCoverageRatio" },
+    //   { key: "minCollateralCoverageRatio" },
+    //   { key: "alreadyPaidAmount" },
+    //   { key: "liquidatedAmount" },
+    //   { key: "soldCollateralAmount" },
+    //   { key: "createdAt" },
+    //   { key: "dueAt" },
+    //   { key: "remainingDebt" },
+    //   { key: "isMarginCall" },
+    //   { key: "isLiquidable" },
+    // ];
+
+    // const columns = [{ key: "key" }, { key: "value" }];
 
     const theme = computed(() => {
       return useGlobalConfig().getGlobalConfig().colors || {};
@@ -91,9 +146,11 @@ export default defineComponent({
     const formatTimestamp = utils.formatTimestamp;
     return {
       theme,
+      // columns,
       whitelist,
       loanRecords,
       formatTimestamp,
+      getCollapseColor,
       collapseControl: false,
     };
   },

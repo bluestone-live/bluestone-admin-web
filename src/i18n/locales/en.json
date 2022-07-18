@@ -1,7 +1,7 @@
 {
     "404": {
-        "title": "This page’s gone fishing.",
-        "text": "If you feel that it’s not right, please send us a message at ",
+        "title": "This page's gone fishing.",
+        "text": "If you feel that it's not right, please send us a message at ",
         "back_button": "Back to dashboard"
     },
     "language": {
@@ -9,7 +9,7 @@
         "simplified_chinese": "Simplified Chinese"
     },
     "navbar": {
-        "title": "Admin Platform"
+        "title": "BlueStone Administrator Platform"
     },
     "menu": {
         "dashboard": "Dashboard",
@@ -25,7 +25,7 @@
             "activeLoans": "Active Loans",
             "totalLoans": "Total Loans",
             "marginCall": "Margin Call",
-            "liquidable": "Liquidated",
+            "liquidable": "Liquidable",
             "btc": "BTC",
             "eth": "ETH",
             "sgc": "SGC"
@@ -40,11 +40,19 @@
     },
     "whitelist": {
         "lender":{
-            "title": "Lenders Whitelist"
+            "newTitle": "Add New Lender",
+            "newButton": "Add To Whitelist",
+            "addedTitle": "Lenders Whitelist",
+            "filteredCount": "Number of filtered items:"
         },
         "borrower": {
             "newTitle": "Add New Borrower",
-            "addedTitle": "Borrowers Whitelist"
+            "newButton": "Add To Whitelist",
+            "addedTitle": "Borrowers Whitelist",
+            "filteredCount": "Number of filtered items:"
         }
+    },
+    "loanList": {
+        "loanDetailTitle": "Loan Record"
     }
 }
