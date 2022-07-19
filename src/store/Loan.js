@@ -19,13 +19,13 @@ export const useLoanStore = defineStore('LoanStore', {
         ethBalance: BigNumber,
         totalLoansCount: 0,
         activeLoansCount: 0,
-        liquidatedLoans: 0,
+        liquidableLoans: 0,
         borrowers: [],
         borrowersLoanRecords: Map,
         handledLoanRecords: Map,
         activeBorrowers: [],
         marginCallLoansCount: 0,
-        liquidatedLoansCount: 0
+        liquidableLoansCount: 0
     }),
     getters: {
         getInitStatus(state) {
@@ -70,11 +70,14 @@ export const useLoanStore = defineStore('LoanStore', {
         getMarginCallLoansCount(state) {
             return state.marginCallLoansCount
         },
-        getLiquidatedLoansCount(state) {
-            return toRaw(state.liquidatedLoansCount)
+        getLiquidableLoansCount(state) {
+            return state.liquidableLoansCount
         }
     },
     actions: {
+        async init2() {
+            await this.initWhitelist()
+        },
         async init() {
             try {
                 this.initWhitelistInstance()
@@ -86,9 +89,8 @@ export const useLoanStore = defineStore('LoanStore', {
                 await this.initBorrowersAndTotalLoansCount()
                 await this.initBorrowersLoanRecords()
                 this.initHandledLoanRecords()
-                this.initLiquidatedLoansCount()
                 this.initActiveBorrowersAndActiveLoansCount()
-                // this.initMarginCallLoansCount()
+                this.initMarginCallAndLiquidableLoansCount()
                 this.isInited = true
             } catch (error) {
                 console.error(error)
@@ -104,16 +106,11 @@ export const useLoanStore = defineStore('LoanStore', {
         },
         async initWhitelist() {
             let tempArr = []
-            let filter = this.getWhitelistInstance.filters.AddWhitelisted()
-            const addedEvents = await this.getWhitelistInstance.queryFilter(filter)
-            console.log("addedEvents=", addedEvents)
-            addedEvents.forEach(async (event) => {
-                let flag = await this.getWhitelistInstance.isWhitelisted(event.args.account)
-                if (flag) {
-                    tempArr.push(event.args.account)
-                }
-            })
+            tempArr = await this.getWhitelistInstance.getWhitelistedAccounts()
             this.whitelist = tempArr
+            console.log("[Loan]: tempArr", tempArr)
+            console.log("[Loan]: getWhitelist", this.getWhitelist)
+            console.log("[Loan]: whitelist", this.whitelist)
         },
         initBtcAddress() {
             console.log("Loan: getTokens=", this.commonState.getTokens)
@@ -194,7 +191,7 @@ export const useLoanStore = defineStore('LoanStore', {
                         createdAt: loanRecord.createdAt.toNumber(),
                         dueAt: loanRecord.dueAt.toNumber(),
                         remainingDebt: loanRecord.remainingDebt.div(this.exp).toNumber(),
-                        isMarginCall: (!loanRecord.isClosed) && loanRecord.collateralCoverageRatio.lt(marginCollateralCoverageRatio),
+                        isMarginCall: (!loanRecord.isClosed) && loanRecord.collateralCoverageRatio.lte(marginCollateralCoverageRatio),
                         isLiquidable: (!loanRecord.isClosed) && (loanRecord.collateralCoverageRatio.lt(loanRecord.minCollateralCoverageRatio) || loanRecord.dueAt.mul(1000) >= BigNumber.from(date.getTime()))
                     }
                     tempRecords.push(tempRecord)
@@ -225,21 +222,30 @@ export const useLoanStore = defineStore('LoanStore', {
             console.log("activeBorrowers=", this.activeBorrowers)
         },
 
-        initMarginCallLoansCount() {
-            let tempArr = []
-            this.getActiveBorrowers.forEach((loanArrIdx, borrowerAddress) => {
-                if (this.getBorrowersLoanRecords[borrowerAddress][loanArrIdx].remainingDebt.lte(marginLimit)) {
-                    tempArr.push(borrowerAddress)
-                }
+        initMarginCallAndLiquidableLoansCount() {
+            let tempMarginCallCount = 0
+            let tempLiquidableCount = 0
+            this.getHandledLoanRecords.forEach((loanRecords, address) => {
+                loanRecords.forEach((loanRecord) => {
+                    if (loanRecord.isMarginCall) {
+                        tempMarginCallCount++
+                    }
+                    if (loanRecord.isLiquidable) {
+                        tempLiquidableCount++
+                    }
+                })
             })
-            this.marginCallBorrowers = tempArr
+            this.marginCallLoansCount = tempMarginCallCount
+            this.liquidableLoansCount = tempLiquidableCount
         },
 
-        async initLiquidatedLoansCount() {
-            let filter = this.commonState.getProtocol.filters.LiquidateLoanSucceed()
-            const liquidateEvents = await this.commonState.getProtocol.queryFilter(filter)
-            console.log("liquidate events=", liquidateEvents)
-            this.liquidatedLoansCount = liquidateEvents.length
-        }
+        // async initLiquidableLoansCount() {
+        //     // let filter = this.commonState.getProtocol.filters.LiquidateLoanSucceed()
+        //     // const liquidateEvents = await this.commonState.getProtocol.queryFilter(filter)
+        //     // console.log("liquidate events=", liquidateEvents)
+        //     // this.liquidatedLoansCount = liquidateEvents.length
+        //     let tempCount = 0
+        //     this.get
+        // }
     }
 })

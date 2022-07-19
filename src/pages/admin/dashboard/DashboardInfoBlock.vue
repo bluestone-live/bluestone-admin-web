@@ -84,10 +84,10 @@ export default defineComponent({
     await oracleStore.init();
     const btcBalance = loanStore.getBtcBalance;
     const ethBalance = loanStore.getEthBalance;
-    const activeLoans = loanStore.getActiveLoansCount;
-    const totalLoans = loanStore.getTotalLoansCount;
-    const marginCall = loanStore.getMarginCallLoansCount;
-    const liquidable = loanStore.getLiquidatedLoansCount;
+    const activeLoansCount = loanStore.getActiveLoansCount;
+    const totalLoansCount = loanStore.getTotalLoansCount;
+    const marginCallCount = loanStore.getMarginCallLoansCount;
+    const liquidableCount = loanStore.getLiquidableLoansCount;
     const sgcBalance = depositStore.getSgcBalance;
     const users = depositStore.getAvailableSgcPools;
     const totalLoanOutstandingBalance =
@@ -142,22 +142,22 @@ export default defineComponent({
     const statusInfoTiles = [
       {
         color: "#3d9209",
-        value: activeLoans,
+        value: activeLoansCount,
         text: "activeLoans",
       },
       {
         color: "#2c82e0",
-        value: totalLoans,
+        value: totalLoansCount,
         text: "totalLoans",
       },
       {
         color: "#ffd43a",
-        value: marginCall,
+        value: marginCallCount,
         text: "marginCall",
       },
       {
         color: "#e42222",
-        value: liquidable,
+        value: liquidableCount,
         text: "liquidable",
       },
     ];
