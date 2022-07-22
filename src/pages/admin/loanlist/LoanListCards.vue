@@ -1,5 +1,23 @@
 <template>
   <div class="row row-equal">
+    <div class="xs12 sm12 loanList-select">
+      <va-input
+        class="flex md4"
+        label="Borrower Address"
+        placeholder="Filter..."
+        v-model="filterInput"
+      >
+        <template #prependInner>
+          <va-icon name="user" />
+        </template>
+      </va-input>
+      <va-button-toggle
+        flat
+        v-model="toggleValue"
+        :options="toggleOptions"
+        class="mt-2"
+      />
+    </div>
     <div
       class="flex xs12 sm12"
       v-for="(loanDetail, borrowersIdx) in loanRecords"
@@ -8,7 +26,7 @@
       <va-card class="mb-4">
         <va-card-title class="flex">
           <h1>
-            <va-icon class="mr-1" name="user" size="small" />
+            <!-- <va-icon class="mr-1" name="user" size="small" /> -->
             {{ loanDetail[0] }}
           </h1>
           <div class="text-right">
@@ -36,7 +54,6 @@
               formatTimestamp(loanRecord.dueAt)
             "
             :color="getCollapseColor(loanRecord)"
-            color-all
             icon="timer"
           >
             <va-list>
@@ -47,12 +64,25 @@
                 <va-button
                   class="mr-4 mb-2"
                   :disabled="!loanRecord.isMarginCall"
+                  :loading="
+                    borrowersIdx === marginCallLoadingId[0] &&
+                    index === marginCallLoadingId[1]
+                  "
+                  @click="marginCall([borrowersIdx, index])"
                   color="warning"
                   >Margin Call</va-button
                 >
                 <va-button
                   class="mr-4 mb-2"
                   :disabled="!loanRecord.isLiquidable"
+                  :loading="index === liquidateLoadingId"
+                  @click="
+                    liquidateLoan(
+                      loanRecord.loanId,
+                      loanRecord.remainingDebt,
+                      index
+                    )
+                  "
                   color="danger"
                   >Liquidate</va-button
                 >
@@ -81,21 +111,109 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from "vue";
+import { computed, watch, ref, defineComponent } from "vue";
 import { useGlobalConfig } from "vuestic-ui";
 import { useLoanStore } from "@/store/Loan";
+import { useCommonStore } from "@/store/Common";
+import { BigNumber, ethers } from "ethers";
 import utils from "@/utils";
 
 export default defineComponent({
   name: "LoanListCards",
   async setup() {
+    const toggleOptions = [
+      { label: "All", value: "all" },
+      { label: "Active", value: "active" },
+      { label: "Margin", value: "marginCall" },
+      { label: "Liquidable", value: "liquidable" },
+    ];
+    let toggleValue = ref("all");
+
+    const commonStore = useCommonStore();
+
     const loanStore = useLoanStore();
     await loanStore.init();
 
-    const loanRecords = loanStore.getHandledLoanRecords;
-    console.log("loanRecords=", loanRecords);
+    const handledLoanRecords = loanStore.getHandledLoanRecords;
+    console.log("loanRecords=", handledLoanRecords);
 
     const whitelist = loanStore.getWhitelist;
+
+    let marginCallLoadingId = ref([-1, -1]);
+    let liquidateLoadingId = ref(-1);
+
+    let filterInput = ref("");
+    let filteredList = ref(handledLoanRecords);
+
+    watch(filterInput, (newValue) => {
+      console.log("input changed");
+      filterByInput(newValue);
+    });
+
+    watch(toggleValue, () => {
+      console.log("select changed.");
+      filterByToggle();
+    });
+
+    function filterByInput(newInputValue: string) {
+      let tempMap = new Map();
+      handledLoanRecords.forEach((loanRecords: any, address: string) => {
+        if (address.toLowerCase().search(newInputValue.toLowerCase()) !== -1) {
+          tempMap.set(address, loanRecords);
+        }
+      });
+      filteredList.value = tempMap;
+    }
+
+    function filterByToggle() {
+      switch (toggleValue.value) {
+        case "all":
+          filteredList.value = handledLoanRecords;
+          break;
+        case "active": {
+          let tempMap = new Map();
+          handledLoanRecords.forEach((loanRecords: any, address: string) => {
+            let tempRecords: any[] = [];
+            loanRecords.forEach((loanRecord: any) => {
+              if (!loanRecord.isClosed) {
+                tempRecords.push(loanRecord);
+              }
+            });
+            tempMap.set(address, tempRecords);
+          });
+          filteredList.value = tempMap;
+          break;
+        }
+        case "margin": {
+          let tempMap = new Map();
+          handledLoanRecords.forEach((loanRecords: any, address: string) => {
+            let tempRecords: any[] = [];
+            loanRecords.forEach((loanRecord: any) => {
+              if (loanRecord.isMarginCall) {
+                tempRecords.push(loanRecord);
+              }
+            });
+            tempMap.set(address, tempRecords);
+          });
+          filteredList.value = tempMap;
+          break;
+        }
+        case "liquidable": {
+          let tempMap = new Map();
+          handledLoanRecords.forEach((loanRecords: any, address: string) => {
+            let tempRecords: any[] = [];
+            loanRecords.forEach((loanRecord: any) => {
+              if (loanRecord.isLiquidable) {
+                tempRecords.push(loanRecord);
+              }
+            });
+            tempMap.set(address, tempRecords);
+          });
+          filteredList.value = tempMap;
+          break;
+        }
+      }
+    }
 
     function getCollapseColor(loanDetail: any) {
       if (loanDetail.isClosed) {
@@ -111,8 +229,36 @@ export default defineComponent({
       }
     }
 
-    async function liquidateLoan() {
-      
+    async function marginCall(idxArr: number[]) {
+      try {
+        marginCallLoadingId.value = idxArr;
+        console.log("Margin Call where idx = ", idxArr);
+      } catch (error) {
+        marginCallLoadingId.value = [-1, -1];
+        console.error(error);
+      }
+    }
+
+    async function liquidateLoan(loanId: string, amount: number, idx: number) {
+      try {
+        liquidateLoadingId.value = idx;
+        console.log("loanId=", loanId);
+        console.log("length of loanId=", loanId.length);
+        // console.log("ethers.utils.parseBytes32String=", ethers.utils.parseBytes32String(loanId))
+        let liquidateAmount = BigNumber.from(amount).mul(loanStore.getExp);
+        // let liquidateLoanId = ethers.utils.formatBytes32String(loanId);
+        // console.log("liquidateLoanId=", liquidateLoanId);
+        console.log("liquidateAmount=", liquidateAmount);
+        let result = await commonStore.getProtocol.liquidateLoan(
+          loanId,
+          liquidateAmount
+        );
+        console.log(result);
+        liquidateLoadingId.value = -1;
+      } catch (error) {
+        console.error(error);
+        liquidateLoadingId.value = -1;
+      }
     }
 
     // const columns = [
@@ -137,8 +283,6 @@ export default defineComponent({
     //   { key: "isLiquidable" },
     // ];
 
-    // const columns = [{ key: "key" }, { key: "value" }];
-
     const theme = computed(() => {
       return useGlobalConfig().getGlobalConfig().colors || {};
     });
@@ -146,11 +290,17 @@ export default defineComponent({
     const formatTimestamp = utils.formatTimestamp;
     return {
       theme,
-      // columns,
+      toggleOptions,
+      toggleValue,
+      filterInput,
       whitelist,
-      loanRecords,
+      loanRecords: filteredList,
       formatTimestamp,
       getCollapseColor,
+      marginCall,
+      liquidateLoan,
+      marginCallLoadingId,
+      liquidateLoadingId,
       collapseControl: false,
     };
   },
@@ -170,30 +320,11 @@ export default defineComponent({
   // }
 }
 
-.rich-theme-card-text {
-  line-height: 24px;
-}
-
-.dashboard {
-  .va-card__header--over {
-    // @include media-breakpoint-up(md) {
-    //   padding-top: 0 !important;
-    // }
-  }
-
-  .va-card__image {
-    // @include media-breakpoint-up(md) {
-    //   padding-bottom: 0 !important;
-    // }
-  }
-  // .image-card {
-  //   position: relative;
-  //   .va-button {
-  //     position: absolute;
-  //   }
-  // }
-  .text-right {
-    text-align: right;
-  }
+.loanList-select {
+  display: flex;
+  justify-content: space-between;
+  // background-color: white;
+  width: 100%;
+  height: 100%;
 }
 </style>

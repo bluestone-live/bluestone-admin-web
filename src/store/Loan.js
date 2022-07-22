@@ -31,6 +31,9 @@ export const useLoanStore = defineStore('LoanStore', {
         getInitStatus(state) {
             return state.isInited
         },
+        getExp(state) {
+            return state.exp
+        },
         getWhitelistInstance(state) {
             return toRaw(state.whitelistInstance)
         },
@@ -75,9 +78,6 @@ export const useLoanStore = defineStore('LoanStore', {
         }
     },
     actions: {
-        async init2() {
-            await this.initWhitelist()
-        },
         async init() {
             try {
                 this.initWhitelistInstance()
@@ -192,7 +192,7 @@ export const useLoanStore = defineStore('LoanStore', {
                         dueAt: loanRecord.dueAt.toNumber(),
                         remainingDebt: loanRecord.remainingDebt.div(this.exp).toNumber(),
                         isMarginCall: (!loanRecord.isClosed) && loanRecord.collateralCoverageRatio.lte(marginCollateralCoverageRatio),
-                        isLiquidable: (!loanRecord.isClosed) && (loanRecord.collateralCoverageRatio.lt(loanRecord.minCollateralCoverageRatio) || loanRecord.dueAt.mul(1000) >= BigNumber.from(date.getTime()))
+                        isLiquidable: (!loanRecord.isClosed) && (loanRecord.collateralCoverageRatio.lt(loanRecord.minCollateralCoverageRatio) || loanRecord.dueAt.mul(1000).lt(BigNumber.from(date.getTime())))
                     }
                     tempRecords.push(tempRecord)
                 })

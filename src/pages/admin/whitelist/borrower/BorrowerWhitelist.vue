@@ -59,7 +59,7 @@
             ><va-button
               size="small"
               color="danger"
-              :loading="rowIndex === removeLoadingId ? true : false"
+              :loading="rowIndex === removeLoadingId"
               @click="removeWhitelist(whitelist[rowIndex].address, rowIndex)"
               >{{ value }}</va-button
             ></template
@@ -78,8 +78,9 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, getCurrentInstance } from "vue";
+import { defineComponent, ref, getCurrentInstance, onMounted } from "vue";
 import { useLoanStore } from "@/store/Loan";
+import utils from "@/utils";
 class WhiteListItem {
   address: string;
   status: string;
@@ -100,26 +101,22 @@ export default defineComponent({
     const _this = instance?.appContext.config.globalProperties;
 
     const loanStore = useLoanStore();
-    // await loanStore.init();
-    // console.log("loanStore.getWhitelist=", loanStore.getWhitelist)
+    await loanStore.init();
+    console.log("loanStore.getWhitelist=", loanStore.getWhitelist);
 
-    // const borrowersOnWhitelists = loanStore.getWhitelist;
-    // const activeBorrowers = loanStore.getActiveBorrowers;
-    let borrowersOnWhitelists: [];
-    let activeBorrowers: [];
+    const borrowersOnWhitelists = loanStore.getWhitelist;
+    const activeBorrowers = loanStore.getActiveBorrowers;
     let whitelist = ref(Array<WhiteListItem>());
 
-    // console.log("borrowers whitelist=", borrowersOnWhitelists);
-
-    // borrowersOnWhitelists.forEach((borrowerAddress) => {
-    //   let borrowerStatus =
-    //     activeBorrowers.indexOf(borrowerAddress) >= 0 ? "active" : "inactive";
-    //   whitelist.push({
-    //     address: borrowerAddress,
-    //     status: borrowerStatus,
-    //     option: "Remove",
-    //   });
-    // });
+    borrowersOnWhitelists.forEach((borrowerAddress) => {
+      let borrowerStatus =
+        activeBorrowers.indexOf(borrowerAddress) >= 0 ? "active" : "inactive";
+      whitelist.value.push({
+        address: borrowerAddress,
+        status: borrowerStatus,
+        option: "Remove",
+      });
+    });
     const columns = [
       { key: "id" },
       { key: "address" },
@@ -135,16 +132,12 @@ export default defineComponent({
     let isTableLoading = ref(false);
     let removeLoadingId = ref(-1);
 
-    await initPageWhitelist();
-
-    async function initPageWhitelist() {
+    async function reloadTable() {
       try {
         isTableLoading.value = true;
-        await loanStore.init();
         let tempWhitelist: Array<WhiteListItem> = [];
-        borrowersOnWhitelists = loanStore.getWhitelist;
-        console.log("getWhitelist=", borrowersOnWhitelists);
-        activeBorrowers = loanStore.getActiveBorrowers;
+        await loanStore.initWhitelist();
+        let borrowersOnWhitelists = loanStore.getWhitelist;
         borrowersOnWhitelists.forEach((borrowerAddress) => {
           let borrowerStatus =
             activeBorrowers.indexOf(borrowerAddress) >= 0
@@ -155,11 +148,10 @@ export default defineComponent({
           );
         });
         whitelist.value = tempWhitelist;
-        console.log("whitelist=", whitelist.value);
-        console.log("filterCount=", filteredCount)
         isTableLoading.value = false;
       } catch (error) {
         isTableLoading.value = false;
+        console.error(error);
       }
     }
 
@@ -167,20 +159,32 @@ export default defineComponent({
       try {
         console.log("idx=", idx);
         removeLoadingId.value = idx;
-        // isRemoveLoading.value = true;
-        console.log("removeLoadingId=", removeLoadingId.value);
-        const result = await loanStore.getWhitelistInstance.removeWhitelisted(
+        const tx = await loanStore.getWhitelistInstance.removeWhitelisted(
           address
         );
-        console.log(result);
-        await initPageWhitelist();
-        openNotification("Remove address from whitelist success.", "success");
-        // isRemoveLoading.value = false;
+        openNotification(
+          "Wait for the [Remove] transaction to be mined...",
+          "primary"
+        );
+        console.log(tx);
+        const result = await tx.wait();
+        console.log("remove result: ", result);
         removeLoadingId.value = -1;
+        reloadTable();
+        openNotification(
+          "Remove account [" +
+            utils.shortenAddress(address) +
+            "] from whitelist success.",
+          "success"
+        );
       } catch (error) {
         console.error(error);
-        openNotification("Remove address from whitelist failed.", "danger");
-        // isRemoveLoading.value = false;
+        openNotification(
+          "Remove account [" +
+            utils.shortenAddress(address) +
+            "] from whitelist failed.",
+          "danger"
+        );
         removeLoadingId.value = -1;
       }
     }
@@ -188,17 +192,31 @@ export default defineComponent({
     async function addWhitelist(address: string) {
       try {
         isAddLoading.value = true;
-        const result = await loanStore.getWhitelistInstance.addWhitelisted(
-          address
+        const tx = await loanStore.getWhitelistInstance.addWhitelisted(address);
+        console.log(tx);
+        openNotification(
+          "Wait for the [Add] transaction to be mined...",
+          "primary"
         );
-        console.log(result);
-        await initPageWhitelist();
-        openNotification("Add to whitelist success.", "success");
+        const result = await tx.wait();
+        console.log("add result: ", result);
         isAddLoading.value = false;
         newBorrowerAddress.value = "";
+        reloadTable();
+        openNotification(
+          "Add account [" +
+            utils.shortenAddress(address) +
+            "] to whitelist success.",
+          "success"
+        );
       } catch (error) {
         console.error(error);
-        openNotification("Add to whitelist failed.", "danger");
+        openNotification(
+          "Add account [" +
+            utils.shortenAddress(address) +
+            "] to whitelist failed.",
+          "danger"
+        );
         isAddLoading.value = false;
       }
     }
@@ -213,6 +231,35 @@ export default defineComponent({
         fullWidth: false,
       });
     };
+
+    // onMounted(async () => {
+    //   loanStore.getWhitelistInstance.on(
+    //     "AddWhitelisted",
+    //     async (account: string) => {
+    //       await reloadTable();
+    //       console.log("Add ", account, " success.");
+    //       openNotification(
+    //         "Add account [" +
+    //           utils.shortenAddress(account) +
+    //           "] to whitelist success.",
+    //         "success"
+    //       );
+    //     }
+    //   );
+    //   loanStore.getWhitelistInstance.on(
+    //     "RemoveWhitelisted",
+    //     async (account: string) => {
+    //       await reloadTable();
+    //       console.log("Remove ", account, " success.");
+    //       openNotification(
+    //         "Remove account [" +
+    //           utils.shortenAddress(account) +
+    //           "] from whitelist success.",
+    //         "success"
+    //       );
+    //     }
+    //   );
+    // });
 
     return {
       whitelist,
