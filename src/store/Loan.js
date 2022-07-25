@@ -174,7 +174,6 @@ export const useLoanStore = defineStore('LoanStore', {
                 let tempRecords = []
                 loanRecords.forEach((loanRecord) => {
                     let tempRecord = {
-                        isClosed: loanRecord.isClosed,
                         loanId: loanRecord.loanId,
                         loanTokenAddress: loanRecord.loanTokenAddress,
                         collateralTokenAddress: loanRecord.collateralTokenAddress,
@@ -191,6 +190,7 @@ export const useLoanStore = defineStore('LoanStore', {
                         createdAt: loanRecord.createdAt.toNumber(),
                         dueAt: loanRecord.dueAt.toNumber(),
                         remainingDebt: loanRecord.remainingDebt.div(this.exp).toNumber(),
+                        isClosed: loanRecord.isClosed,
                         isMarginCall: (!loanRecord.isClosed) && loanRecord.collateralCoverageRatio.lte(marginCollateralCoverageRatio),
                         isLiquidable: (!loanRecord.isClosed) && (loanRecord.collateralCoverageRatio.lt(loanRecord.minCollateralCoverageRatio) || loanRecord.dueAt.mul(1000).lt(BigNumber.from(date.getTime())))
                     }

@@ -8,11 +8,12 @@
         v-model="filterInput"
       >
         <template #prependInner>
-          <va-icon name="user" />
+          <va-icon name="search" />
         </template>
       </va-input>
       <va-button-toggle
         flat
+        gradient
         v-model="toggleValue"
         :options="toggleOptions"
         class="mt-2"
@@ -28,6 +29,20 @@
           <h1>
             <!-- <va-icon class="mr-1" name="user" size="small" /> -->
             {{ loanDetail[0] }}
+            <va-popover
+              class="mr-2 mb-2"
+              icon="library_add_check"
+              message="Copied"
+              trigger="click"
+              placement="right"
+            >
+              <va-icon
+                name="content_copy"
+                size="0.8rem"
+                @click="copyToClipboard(loanDetail[0])"
+                color="gray"
+              />
+            </va-popover>
           </h1>
           <div class="text-right">
             <va-badge
@@ -60,48 +75,87 @@
               <va-list-label>
                 <h1>{{ $t("loanList.loanDetailTitle") }}</h1>
               </va-list-label>
-              <span>
-                <va-button
-                  class="mr-4 mb-2"
-                  :disabled="!loanRecord.isMarginCall"
-                  :loading="
-                    borrowersIdx === marginCallLoadingId[0] &&
-                    index === marginCallLoadingId[1]
-                  "
-                  @click="marginCall([borrowersIdx, index])"
-                  color="warning"
-                  >Margin Call</va-button
-                >
-                <va-button
-                  class="mr-4 mb-2"
-                  :disabled="!loanRecord.isLiquidable"
-                  :loading="index === liquidateLoadingId"
-                  @click="
-                    liquidateLoan(
-                      loanRecord.loanId,
-                      loanRecord.remainingDebt,
-                      index
-                    )
-                  "
-                  color="danger"
-                  >Liquidate</va-button
-                >
-              </span>
-              <va-divider />
-              <va-list-item
-                v-for="(valueRecord, keyRecord) in loanRecord"
+              <template
+                v-for="(valueRecord, keyRecord, itemIndex) in loanRecord"
                 :key="keyRecord"
               >
-                <va-list-item-section>
-                  <va-list-item-label>
-                    {{ keyRecord }}
-                  </va-list-item-label>
-
+                <va-list-item>
+                  <va-list-item-section avatar>
+                    <va-avatar icon="label" size="small">
+                      <!-- <va-icon name="label_outline" size="2rem" color="gray" /> -->
+                    </va-avatar>
+                  </va-list-item-section>
+                  <va-list-item-section>
+                    <va-list-item-label>
+                      {{ formatObjectKey(keyRecord) }}
+                    </va-list-item-label>
+                  </va-list-item-section>
                   <va-list-item-label caption>
                     {{ valueRecord }}
                   </va-list-item-label>
-                </va-list-item-section>
-              </va-list-item>
+                  <va-list-item-section icon>
+                    <div
+                      v-if="
+                        keyRecord == 'loanId' ||
+                        keyRecord == 'loanTokenAddress' ||
+                        keyRecord == 'collateralTokenAddress'
+                      "
+                    >
+                      <va-popover
+                        class="mr-2 mb-2"
+                        message="Copied"
+                        icon="library_add_check"
+                        trigger="click"
+                        placement="top"
+                        color="primary"
+                      >
+                        <va-icon
+                          name="content_copy"
+                          size="1rem"
+                          @click="copyToClipboard(valueRecord)"
+                          color="gray"
+                        />
+                      </va-popover>
+                    </div>
+                    <div v-else>
+                      <va-icon name="eye" size="1rem" color="gray" />
+                    </div>
+                  </va-list-item-section>
+                </va-list-item>
+                <va-list-separator
+                  v-if="itemIndex <= 18"
+                  :key="'separator' + keyRecord"
+                />
+              </template>
+              <div class="loanDetail-buttons">
+                <span>
+                  <va-button
+                    class="mr-4 mb-2"
+                    :disabled="!loanRecord.isMarginCall"
+                    :loading="
+                      borrowersIdx === marginCallLoadingId[0] &&
+                      index === marginCallLoadingId[1]
+                    "
+                    @click="marginCall([borrowersIdx, index])"
+                    color="warning"
+                    >Margin Call</va-button
+                  >
+                  <va-button
+                    class="mr-4 mb-2"
+                    :disabled="!loanRecord.isLiquidable"
+                    :loading="index === liquidateLoadingId"
+                    @click="
+                      liquidateLoan(
+                        loanRecord.loanId,
+                        loanRecord.remainingDebt,
+                        index
+                      )
+                    "
+                    color="danger"
+                    >Liquidate</va-button
+                  >
+                </span>
+              </div>
             </va-list>
           </va-collapse>
         </va-card-content>
@@ -184,7 +238,7 @@ export default defineComponent({
           filteredList.value = tempMap;
           break;
         }
-        case "margin": {
+        case "marginCall": {
           let tempMap = new Map();
           handledLoanRecords.forEach((loanRecords: any, address: string) => {
             let tempRecords: any[] = [];
@@ -245,11 +299,11 @@ export default defineComponent({
         console.log("loanId=", loanId);
         console.log("length of loanId=", loanId.length);
         // console.log("ethers.utils.parseBytes32String=", ethers.utils.parseBytes32String(loanId))
-        let liquidateAmount = BigNumber.from(amount).mul(loanStore.getExp);
-        // let liquidateLoanId = ethers.utils.formatBytes32String(loanId);
+        const liquidateAmount = BigNumber.from(amount).mul(loanStore.getExp);
+        // const liquidateLoanId = ethers.utils.formatBytes32String(loanId);
         // console.log("liquidateLoanId=", liquidateLoanId);
         console.log("liquidateAmount=", liquidateAmount);
-        let result = await commonStore.getProtocol.liquidateLoan(
+        const result = await commonStore.getProtocol.liquidateLoan(
           loanId,
           liquidateAmount
         );
@@ -261,33 +315,25 @@ export default defineComponent({
       }
     }
 
-    // const columns = [
-    //   { key: "isClosed" },
-    //   { key: "loanId" },
-    //   { key: "loanTokenAddress" },
-    //   { key: "collateralTokenAddress" },
-    //   { key: "loanAmount" },
-    //   { key: "collateralAmount" },
-    //   { key: "loanTerm" },
-    //   { key: "annualInterestRate" },
-    //   { key: "interest" },
-    //   { key: "collateralCoverageRatio" },
-    //   { key: "minCollateralCoverageRatio" },
-    //   { key: "alreadyPaidAmount" },
-    //   { key: "liquidatedAmount" },
-    //   { key: "soldCollateralAmount" },
-    //   { key: "createdAt" },
-    //   { key: "dueAt" },
-    //   { key: "remainingDebt" },
-    //   { key: "isMarginCall" },
-    //   { key: "isLiquidable" },
-    // ];
-
     const theme = computed(() => {
       return useGlobalConfig().getGlobalConfig().colors || {};
     });
 
-    const formatTimestamp = utils.formatTimestamp;
+    function copyToClipboard(copyValue: string) {
+      //创建一个新组件
+      let oInput = document.createElement("input");
+      //给新组件赋值
+      oInput.value = copyValue;
+      //添加新节点到页面body中
+      document.body.appendChild(oInput);
+      //选择对象
+      oInput.select();
+      //对选择对象的值进行复制到浏览器中
+      document.execCommand("Copy");
+      //删除新节点(重置操作)
+      document.body.removeChild(oInput);
+    }
+
     return {
       theme,
       toggleOptions,
@@ -295,10 +341,12 @@ export default defineComponent({
       filterInput,
       whitelist,
       loanRecords: filteredList,
-      formatTimestamp,
+      formatTimestamp: utils.formatTimestamp,
+      formatObjectKey: utils.formatObjectKey,
       getCollapseColor,
       marginCall,
       liquidateLoan,
+      copyToClipboard,
       marginCallLoadingId,
       liquidateLoadingId,
       collapseControl: false,
@@ -326,5 +374,10 @@ export default defineComponent({
   // background-color: white;
   width: 100%;
   height: 100%;
+}
+.loanDetail-buttons {
+  display: flex;
+  justify-content: right;
+  margin-top: 40px;
 }
 </style>
