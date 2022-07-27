@@ -77,10 +77,10 @@ export const useDepositStore = defineStore('DepositStore', {
                 }
                 if (pool.availableAmount.gt(BigNumber.from(0))) {
                     modifiedPool.poolId = pool.poolId.toNumber()
-                    modifiedPool.availableAmount = pool.availableAmount.div(this.exp).toNumber()
-                    modifiedPool.depositAmount = pool.depositAmount.div(this.exp).toNumber()
-                    modifiedPool.loanInterest = pool.loanInterest.div(this.exp).toNumber()
-                    modifiedPool.totalDepositWeight = pool.totalDepositWeight.div(this.exp).toNumber()
+                    modifiedPool.availableAmount = pool.availableAmount.div(this.exp).toNumber() + " SGC"
+                    modifiedPool.depositAmount = pool.depositAmount.div(this.exp).toNumber() + " SGC"
+                    modifiedPool.loanInterest = pool.loanInterest.div(this.exp).toNumber() + " SGC"
+                    modifiedPool.totalDepositWeight = pool.totalDepositWeight.div(this.exp).toNumber() + " SGC*Days"
                     tempArr.push(modifiedPool)
                 }
             })

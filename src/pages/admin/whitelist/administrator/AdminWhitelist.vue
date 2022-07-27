@@ -78,7 +78,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, getCurrentInstance } from "vue";
+import { defineComponent, ref, getCurrentInstance, onMounted } from "vue";
 import { useLoanStore } from "@/store/Loan";
 import utils from "@/utils";
 class WhiteListItem {
@@ -94,7 +94,7 @@ class WhiteListItem {
 }
 
 export default defineComponent({
-  name: "BorrowerWhitelist",
+  name: "AdminWhitelist",
   components: {},
   async setup() {
     const instance = getCurrentInstance();
@@ -162,7 +162,6 @@ export default defineComponent({
         const tx = await loanStore.getWhitelistInstance.removeWhitelisted(
           address
         );
-        removeLoadingId.value = -1;
         openNotification(
           "Wait for the [Remove] transaction to be mined...",
           "primary"
@@ -170,6 +169,7 @@ export default defineComponent({
         console.log(tx);
         const result = await tx.wait();
         console.log("remove result: ", result);
+        removeLoadingId.value = -1;
         reloadTable();
         openNotification(
           "Remove account [" +
@@ -193,8 +193,6 @@ export default defineComponent({
       try {
         isAddLoading.value = true;
         const tx = await loanStore.getWhitelistInstance.addWhitelisted(address);
-        isAddLoading.value = false;
-        newBorrowerAddress.value = "";
         console.log(tx);
         openNotification(
           "Wait for the [Add] transaction to be mined...",
@@ -202,6 +200,8 @@ export default defineComponent({
         );
         const result = await tx.wait();
         console.log("add result: ", result);
+        isAddLoading.value = false;
+        newBorrowerAddress.value = "";
         reloadTable();
         openNotification(
           "Add account [" +

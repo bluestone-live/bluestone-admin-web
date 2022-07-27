@@ -1,5 +1,6 @@
 <template>
   <div class="row row-equal">
+    <va-modal v-model="showModal" message="This is message" title="Overview" />
     <div class="xs12 sm12 loanList-select">
       <va-input
         class="flex md4"
@@ -63,11 +64,7 @@
             v-for="(loanRecord, index) in loanDetail[1]"
             :key="index"
             class="mb-4"
-            :header="
-              formatTimestamp(loanRecord.createdAt) +
-              ' ~ ' +
-              formatTimestamp(loanRecord.dueAt)
-            "
+            :header="loanRecord.createdAt + ' ~ ' + loanRecord.dueAt"
             :color="getCollapseColor(loanRecord)"
             icon="timer"
           >
@@ -81,7 +78,10 @@
               >
                 <va-list-item>
                   <va-list-item-section avatar>
-                    <va-avatar icon="label" size="small">
+                    <va-avatar
+                      :icon="loanRecordsKeyIcon[itemIndex]"
+                      size="small"
+                    >
                       <!-- <va-icon name="label_outline" size="2rem" color="gray" /> -->
                     </va-avatar>
                   </va-list-item-section>
@@ -183,14 +183,35 @@ export default defineComponent({
     ];
     let toggleValue = ref("all");
 
+    let showModal = ref(false);
+
     const commonStore = useCommonStore();
 
     const loanStore = useLoanStore();
     await loanStore.init();
 
+    const loanRecordsKeyIcon = [
+      "label",
+      "label",
+      "label",
+      "paid",
+      "paid",
+      "date_range",
+      "donut_small",
+      "paid",
+      "donut_small",
+      "donut_small",
+      "paid",
+      "paid",
+      "paid",
+      "date_range",
+      "date_range",
+      "paid",
+      "priority_high",
+      "priority_high",
+      "priority_high",
+    ];
     const handledLoanRecords = loanStore.getHandledLoanRecords;
-    console.log("loanRecords=", handledLoanRecords);
-
     const whitelist = loanStore.getWhitelist;
 
     let marginCallLoadingId = ref([-1, -1]);
@@ -285,21 +306,26 @@ export default defineComponent({
 
     async function marginCall(idxArr: number[]) {
       try {
-        marginCallLoadingId.value = idxArr;
-        console.log("Margin Call where idx = ", idxArr);
+        showModal.value = true
+        // marginCallLoadingId.value = idxArr;
       } catch (error) {
-        marginCallLoadingId.value = [-1, -1];
+        // marginCallLoadingId.value = [-1, -1];
         console.error(error);
       }
     }
 
-    async function liquidateLoan(loanId: string, amount: number, idx: number) {
+    async function liquidateLoan(loanId: string, amount: string, idx: number) {
       try {
         liquidateLoadingId.value = idx;
         console.log("loanId=", loanId);
         console.log("length of loanId=", loanId.length);
+        console.log("amount=", amount);
+        const remainingDebt = amount.slice(0, amount.length - 4);
+        console.log("remainingDebt=", remainingDebt);
         // console.log("ethers.utils.parseBytes32String=", ethers.utils.parseBytes32String(loanId))
-        const liquidateAmount = BigNumber.from(amount).mul(loanStore.getExp);
+        const liquidateAmount = BigNumber.from(remainingDebt).mul(
+          loanStore.getExp
+        );
         // const liquidateLoanId = ethers.utils.formatBytes32String(loanId);
         // console.log("liquidateLoanId=", liquidateLoanId);
         console.log("liquidateAmount=", liquidateAmount);
@@ -320,28 +346,29 @@ export default defineComponent({
     });
 
     function copyToClipboard(copyValue: string) {
-      //创建一个新组件
+      //create new element
       let oInput = document.createElement("input");
-      //给新组件赋值
+      //assign value
       oInput.value = copyValue;
-      //添加新节点到页面body中
+      //add new element to body
       document.body.appendChild(oInput);
-      //选择对象
+      //select object
       oInput.select();
-      //对选择对象的值进行复制到浏览器中
+      //execute copy method
       document.execCommand("Copy");
-      //删除新节点(重置操作)
+      //delete new element
       document.body.removeChild(oInput);
     }
 
     return {
       theme,
+      showModal,
+      loanRecordsKeyIcon,
       toggleOptions,
       toggleValue,
       filterInput,
       whitelist,
       loanRecords: filteredList,
-      formatTimestamp: utils.formatTimestamp,
       formatObjectKey: utils.formatObjectKey,
       getCollapseColor,
       marginCall,

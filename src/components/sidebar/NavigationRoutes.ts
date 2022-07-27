@@ -20,6 +20,10 @@ export default {
       },
       children: [
         {
+          name: "administrator",
+          displayName: 'menu.administrator',
+        },
+        {
           name: 'lender',
           displayName: 'menu.lender'
         },

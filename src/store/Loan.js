@@ -3,6 +3,7 @@ import { useCommonStore } from "./Common"
 import { marginCollateralCoverageRatio } from "@/margin"
 import { BigNumber, ethers } from "ethers"
 import { toRaw } from "@vue/reactivity"
+import utils from "@/utils"
 import borrowerWhitelistDeclareFile from "@/contracts/BorrowersWhitelist.json"
 
 
@@ -177,19 +178,19 @@ export const useLoanStore = defineStore('LoanStore', {
                         loanId: loanRecord.loanId,
                         loanTokenAddress: loanRecord.loanTokenAddress,
                         collateralTokenAddress: loanRecord.collateralTokenAddress,
-                        loanAmount: loanRecord.loanAmount.div(this.exp).toNumber(),
-                        collateralAmount: loanRecord.collateralAmount.div(this.exp).toNumber(),
-                        loanTerm: loanRecord.loanTerm.toNumber(),
-                        annualInterestRate: loanRecord.annualInterestRate.div(this.exp).toNumber(),
-                        interest: loanRecord.interest.div(this.exp).toNumber(),
-                        collateralCoverageRatio: loanRecord.collateralCoverageRatio.div(this.exp).toNumber(),
-                        minCollateralCoverageRatio: loanRecord.minCollateralCoverageRatio.div(this.exp).toNumber(),
-                        alreadyPaidAmount: loanRecord.alreadyPaidAmount.div(this.exp).toNumber(),
-                        liquidatedAmount: loanRecord.liquidatedAmount.div(this.exp).toNumber(),
-                        soldCollateralAmount: loanRecord.soldCollateralAmount.div(this.exp).toNumber(),
-                        createdAt: loanRecord.createdAt.toNumber(),
-                        dueAt: loanRecord.dueAt.toNumber(),
-                        remainingDebt: loanRecord.remainingDebt.div(this.exp).toNumber(),
+                        loanAmount: loanRecord.loanAmount.div(this.exp).toNumber() + " SGC",
+                        collateralAmount: loanRecord.collateralAmount.div(this.exp).toNumber() + " SGC",
+                        loanTerm: loanRecord.loanTerm.toNumber() + " Days",
+                        annualInterestRate: loanRecord.annualInterestRate.div(this.exp).mul(100).toNumber() + "%",
+                        interest: loanRecord.interest.div(this.exp).toNumber() + " SGC",
+                        collateralCoverageRatio: loanRecord.collateralCoverageRatio.div(this.exp).mul(100).toNumber() + "%",
+                        minCollateralCoverageRatio: loanRecord.minCollateralCoverageRatio.div(this.exp).mul(100).toNumber() + "%",
+                        alreadyPaidAmount: loanRecord.alreadyPaidAmount.div(this.exp).toNumber() + " SGC",
+                        liquidatedAmount: loanRecord.liquidatedAmount.div(this.exp).toNumber() + " SGC",
+                        soldCollateralAmount: loanRecord.soldCollateralAmount.div(this.exp).toNumber() + " SGC",
+                        createdAt: utils.formatTimestamp(loanRecord.createdAt.toNumber()),
+                        dueAt: utils.formatTimestamp(loanRecord.dueAt.toNumber()),
+                        remainingDebt: loanRecord.remainingDebt.div(this.exp).toNumber() + " SGC",
                         isClosed: loanRecord.isClosed,
                         isMarginCall: (!loanRecord.isClosed) && loanRecord.collateralCoverageRatio.lte(marginCollateralCoverageRatio),
                         isLiquidable: (!loanRecord.isClosed) && (loanRecord.collateralCoverageRatio.lt(loanRecord.minCollateralCoverageRatio) || loanRecord.dueAt.mul(1000).lt(BigNumber.from(date.getTime())))
@@ -238,14 +239,5 @@ export const useLoanStore = defineStore('LoanStore', {
             this.marginCallLoansCount = tempMarginCallCount
             this.liquidableLoansCount = tempLiquidableCount
         },
-
-        // async initLiquidableLoansCount() {
-        //     // let filter = this.commonState.getProtocol.filters.LiquidateLoanSucceed()
-        //     // const liquidateEvents = await this.commonState.getProtocol.queryFilter(filter)
-        //     // console.log("liquidate events=", liquidateEvents)
-        //     // this.liquidatedLoansCount = liquidateEvents.length
-        //     let tempCount = 0
-        //     this.get
-        // }
     }
 })

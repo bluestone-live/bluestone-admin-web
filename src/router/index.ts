@@ -29,6 +29,11 @@ const routes: Array<RouteRecordRaw> = [
         component: RouteViewComponent,
         children: [
           {
+            name: 'administrator',
+            path: 'administrator',
+            component: () => import('@/pages/admin/whitelist/administrator/Admin.vue')
+          },
+          {
             name: 'lender',
             path: 'lender',
             component: () => import('@/pages/admin/whitelist/lender/Lender.vue')

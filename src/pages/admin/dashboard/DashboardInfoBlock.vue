@@ -89,7 +89,7 @@ export default defineComponent({
     const marginCallCount = loanStore.getMarginCallLoansCount;
     const liquidableCount = loanStore.getLiquidableLoansCount;
     const sgcBalance = depositStore.getSgcBalance;
-    const users = depositStore.getAvailableSgcPools;
+    const availableSgcPools = depositStore.getAvailableSgcPools;
     const totalLoanOutstandingBalance =
       depositStore.getTotalLoanOutstandingBalance;
     const btcPrice = oracleStore.getBtcPrice;
@@ -169,7 +169,7 @@ export default defineComponent({
       balanceInfoTiles,
       statusInfoTiles,
       theme,
-      items: users,
+      items: availableSgcPools,
       columns,
     };
   },
