@@ -1,9 +1,13 @@
 <template>
   <div class="row row-equal">
-    <va-modal v-model="showModal" message="This is message" title="Overview" />
+    <va-modal
+      v-model="showModal"
+      message="Please contact the borrower to add more collaterals."
+      title="Margin Call"
+    />
     <div class="xs12 sm12 loanList-select">
       <va-input
-        class="flex md4"
+        class="flex md4 mt-1"
         label="Borrower Address"
         placeholder="Filter..."
         v-model="filterInput"
@@ -17,7 +21,7 @@
         gradient
         v-model="toggleValue"
         :options="toggleOptions"
-        class="mt-2"
+        class="mt-3"
       />
     </div>
     <div
@@ -90,7 +94,7 @@
                       {{ formatObjectKey(keyRecord) }}
                     </va-list-item-label>
                   </va-list-item-section>
-                  <va-list-item-label caption>
+                  <va-list-item-label style="color: gray">
                     {{ valueRecord }}
                   </va-list-item-label>
                   <va-list-item-section icon>
@@ -167,8 +171,12 @@
 <script lang="ts">
 import { computed, watch, ref, defineComponent } from "vue";
 import { useGlobalConfig } from "vuestic-ui";
+
 import { useLoanStore } from "@/store/Loan";
 import { useCommonStore } from "@/store/Common";
+import { useAccountStore } from "@/store/Account";
+import { usePendingStore } from "@/store/Pending";
+
 import { BigNumber, ethers } from "ethers";
 import utils from "@/utils";
 
@@ -186,6 +194,8 @@ export default defineComponent({
     let showModal = ref(false);
 
     const commonStore = useCommonStore();
+    const accountStore = useAccountStore();
+    const pendingStore = usePendingStore();
 
     const loanStore = useLoanStore();
     await loanStore.init();
@@ -254,7 +264,9 @@ export default defineComponent({
                 tempRecords.push(loanRecord);
               }
             });
-            tempMap.set(address, tempRecords);
+            if (tempRecords.length > 0) {
+              tempMap.set(address, tempRecords);
+            }
           });
           filteredList.value = tempMap;
           break;
@@ -268,7 +280,9 @@ export default defineComponent({
                 tempRecords.push(loanRecord);
               }
             });
-            tempMap.set(address, tempRecords);
+            if (tempRecords.length > 0) {
+              tempMap.set(address, tempRecords);
+            }
           });
           filteredList.value = tempMap;
           break;
@@ -282,7 +296,9 @@ export default defineComponent({
                 tempRecords.push(loanRecord);
               }
             });
-            tempMap.set(address, tempRecords);
+            if (tempRecords.length > 0) {
+              tempMap.set(address, tempRecords);
+            }
           });
           filteredList.value = tempMap;
           break;
@@ -306,7 +322,7 @@ export default defineComponent({
 
     async function marginCall(idxArr: number[]) {
       try {
-        showModal.value = true
+        showModal.value = true;
         // marginCallLoadingId.value = idxArr;
       } catch (error) {
         // marginCallLoadingId.value = [-1, -1];
@@ -315,25 +331,42 @@ export default defineComponent({
     }
 
     async function liquidateLoan(loanId: string, amount: string, idx: number) {
+      if (false) {
+        const mintTx = await commonStore.getERC20.mint(
+          accountStore.getAccount,
+          BigNumber.from(2000000).mul(loanStore.getExp)
+        );
+        const res = await mintTx.wait();
+        console.log("mint result:", res);
+      }
+      if (false) {
+        const approveAmount = BigNumber.from(2).pow(256).sub(1);
+        const approveTx = await commonStore.getERC20.approve(
+          commonStore.getProtocolAddress,
+          approveAmount
+        );
+        const result = await approveTx.wait();
+        console.log("Approve result:", result);
+      }
+      let tx;
+      let result;
       try {
-        liquidateLoadingId.value = idx;
-        console.log("loanId=", loanId);
-        console.log("length of loanId=", loanId.length);
-        console.log("amount=", amount);
         const remainingDebt = amount.slice(0, amount.length - 4);
-        console.log("remainingDebt=", remainingDebt);
-        // console.log("ethers.utils.parseBytes32String=", ethers.utils.parseBytes32String(loanId))
         const liquidateAmount = BigNumber.from(remainingDebt).mul(
           loanStore.getExp
         );
-        // const liquidateLoanId = ethers.utils.formatBytes32String(loanId);
-        // console.log("liquidateLoanId=", liquidateLoanId);
-        console.log("liquidateAmount=", liquidateAmount);
-        const result = await commonStore.getProtocol.liquidateLoan(
+        tx = await commonStore.getProtocol.liquidateLoan(
           loanId,
           liquidateAmount
         );
-        console.log(result);
+        liquidateLoadingId.value = idx;
+      } catch (error) {
+        console.error(error);
+        return;
+      }
+      try {
+        result = await tx.wait();
+        console.log("liquidateLoan result:", result);
         liquidateLoadingId.value = -1;
       } catch (error) {
         console.error(error);

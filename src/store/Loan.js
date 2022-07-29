@@ -109,12 +109,8 @@ export const useLoanStore = defineStore('LoanStore', {
             let tempArr = []
             tempArr = await this.getWhitelistInstance.getWhitelistedAccounts()
             this.whitelist = tempArr
-            console.log("[Loan]: tempArr", tempArr)
-            console.log("[Loan]: getWhitelist", this.getWhitelist)
-            console.log("[Loan]: whitelist", this.whitelist)
         },
         initBtcAddress() {
-            console.log("Loan: getTokens=", this.commonState.getTokens)
             this.btcAddress = this.commonState.getTokens.xBTC.address
         },
         initEthAddress() {
@@ -123,24 +119,20 @@ export const useLoanStore = defineStore('LoanStore', {
 
         async initBtcBalance() {
             const btcPools = await this.commonState.getProtocol.getPoolsByToken(this.btcAddress)
-            console.log("btcPools=", btcPools)
             let totalBalance = BigNumber.from(0)
             btcPools.forEach((pool) => {
                 totalBalance = totalBalance.add(pool.availableAmount)
             })
             this.btcBalance = totalBalance
-            console.log("btcBalance=", this.btcBalance)
         },
 
         async initEthBalance() {
             const ethPools = await this.commonState.getProtocol.getPoolsByToken(this.ethAddress)
-            console.log("ethPools=", ethPools)
             let totalBalance = BigNumber.from(0)
             ethPools.forEach((pool) => {
                 totalBalance = totalBalance.add(pool.availableAmount)
             })
             this.ethBalance = totalBalance
-            console.log("ethBalance=", this.ethBalance)
         },
 
         async initBorrowersAndTotalLoansCount() {
@@ -148,7 +140,6 @@ export const useLoanStore = defineStore('LoanStore', {
             let filter = this.commonState.getProtocol.filters.LoanSucceed()
             const loanEvents = await this.commonState.getProtocol.queryFilter(filter)
             this.totalLoansCount = loanEvents.length
-            console.log("loanEvents=", loanEvents)
             loanEvents.forEach((event) => {
                 tempArr.push(event.args.accountAddress)
             })

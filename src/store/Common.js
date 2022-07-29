@@ -3,11 +3,13 @@ import utils from "@/utils"
 import { ethers } from "ethers"
 import { toRaw } from "@vue/reactivity"
 import protocolDeclareFile from "@/contracts/Protocol.json"
+import erc20DeclareFile from "@/contracts/ERC20Mock.json"
 
 export const useCommonStore = defineStore('CommonStore', {
     state: () => ({
         isInited: false,
         ethersInstance: null,
+        erc20Instance: null,
         networkType: null,
         networkFile: null,
         protocolAddress: null,
@@ -17,7 +19,7 @@ export const useCommonStore = defineStore('CommonStore', {
     getters: {
         getInitStatus() {
             return this.isInited
-        },  
+        },
         getProvider(state) {
             return toRaw(state.ethersInstance)
         },
@@ -33,6 +35,9 @@ export const useCommonStore = defineStore('CommonStore', {
         getProtocol(state) {
             return toRaw(state.protocolInstance)
         },
+        getERC20(state) {
+            return toRaw(state.erc20Instance)
+        },
         getTokens(state) {
             return toRaw(state.tokens)
         }
@@ -46,6 +51,7 @@ export const useCommonStore = defineStore('CommonStore', {
                 console.log("CommonStore: init network success.")
                 await this.initProtocolRelated()
                 console.log("CommonStore: init protocol address and instance success.", this.getProtocol)
+                this.initERC20Instance()
                 this.isInited = true
             } catch (error) {
                 console.error(error)
@@ -93,13 +99,21 @@ export const useCommonStore = defineStore('CommonStore', {
             console.log("networkFile=", this.networkFile)
             this.protocolAddress = this.networkFile.contracts[protocolDeclareFile.contractName]
             this.tokens = this.networkFile.tokens
-            // console.log("this.tokens=", this.tokens)
-            // console.log("this.getTokens=", this.getTokens)
+
             this.protocolInstance = new ethers.Contract(
                 this.protocolAddress,
                 protocolDeclareFile.abi,
                 this.getProvider.getSigner()
             )
-        }
+        },
+
+        initERC20Instance() {
+            const sgcAddress = this.getTokens.SGC.address
+            this.erc20Instance = new ethers.Contract(
+                sgcAddress,
+                erc20DeclareFile.abi,
+                this.getProvider.getSigner()
+            )
+        },
     },
 })

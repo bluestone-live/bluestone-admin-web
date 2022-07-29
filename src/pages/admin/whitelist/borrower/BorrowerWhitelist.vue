@@ -59,8 +59,8 @@
             ><va-button
               size="small"
               color="danger"
-              :loading="rowIndex === removeLoadingId"
-              @click="removeWhitelist(whitelist[rowIndex].address, rowIndex)"
+              :loading="isLoadingMap[whitelist[rowIndex].address]"
+              @click="removeWhitelist(whitelist[rowIndex].address)"
               >{{ value }}</va-button
             ></template
           >
@@ -80,6 +80,7 @@
 <script lang="ts">
 import { defineComponent, ref, getCurrentInstance } from "vue";
 import { useLoanStore } from "@/store/Loan";
+import { usePendingStore } from "@/store/Pending";
 import utils from "@/utils";
 class WhiteListItem {
   address: string;
@@ -96,19 +97,21 @@ class WhiteListItem {
 export default defineComponent({
   name: "BorrowerWhitelist",
   components: {},
-  async setup() {
+  async setup(props, ctx) {
     const instance = getCurrentInstance();
     const _this = instance?.appContext.config.globalProperties;
 
+    const pendingStore = usePendingStore();
+
     const loanStore = useLoanStore();
     await loanStore.init();
-    console.log("loanStore.getWhitelist=", loanStore.getWhitelist);
 
     const borrowersOnWhitelists = loanStore.getWhitelist;
     const activeBorrowers = loanStore.getActiveBorrowers;
     let whitelist = ref(Array<WhiteListItem>());
+    let isLoadingMap = ref(new Map<string, boolean>());
 
-    borrowersOnWhitelists.forEach((borrowerAddress) => {
+    borrowersOnWhitelists.forEach((borrowerAddress: string) => {
       let borrowerStatus =
         activeBorrowers.indexOf(borrowerAddress) >= 0 ? "active" : "inactive";
       whitelist.value.push({
@@ -116,7 +119,9 @@ export default defineComponent({
         status: borrowerStatus,
         option: "Remove",
       });
+      isLoadingMap.value.set(borrowerAddress, false);
     });
+    console.log("isLoadingMap=", isLoadingMap.value);
     const columns = [
       { key: "id" },
       { key: "address" },
@@ -155,21 +160,22 @@ export default defineComponent({
       }
     }
 
-    async function removeWhitelist(address: string, idx: number) {
+    async function removeWhitelist(address: string) {
+      isLoadingMap.value.set(address, true);
+      let tx;
+      let result;
       try {
-        console.log("idx=", idx);
-        removeLoadingId.value = idx;
-        const tx = await loanStore.getWhitelistInstance.removeWhitelisted(
-          address
-        );
-        removeLoadingId.value = -1;
-        openNotification(
-          "Wait for the [Remove] transaction to be mined...",
-          "primary"
-        );
+        tx = await loanStore.getWhitelistInstance.removeWhitelisted(address);
+        pendingStore.increment();
         console.log(tx);
-        const result = await tx.wait();
+      } catch (error) {
+        console.error(error);
+        return;
+      }
+      try {
+        result = await tx.wait();
         console.log("remove result: ", result);
+        pendingStore.decrement();
         reloadTable();
         openNotification(
           "Remove account [" +
@@ -179,28 +185,34 @@ export default defineComponent({
         );
       } catch (error) {
         console.error(error);
+        pendingStore.decrement();
+        isLoadingMap.value.set(address, false);
         openNotification(
           "Remove account [" +
             utils.shortenAddress(address) +
             "] from whitelist failed.",
           "danger"
         );
-        removeLoadingId.value = -1;
       }
     }
 
     async function addWhitelist(address: string) {
+      let tx;
+      let result;
       try {
+        tx = await loanStore.getWhitelistInstance.addWhitelisted(address);
         isAddLoading.value = true;
-        const tx = await loanStore.getWhitelistInstance.addWhitelisted(address);
+        pendingStore.increment();
         isAddLoading.value = false;
         newBorrowerAddress.value = "";
         console.log(tx);
-        openNotification(
-          "Wait for the [Add] transaction to be mined...",
-          "primary"
-        );
-        const result = await tx.wait();
+      } catch (error) {
+        console.error(error);
+        return;
+      }
+      try {
+        result = await tx.wait();
+        pendingStore.decrement();
         console.log("add result: ", result);
         reloadTable();
         openNotification(
@@ -211,6 +223,7 @@ export default defineComponent({
         );
       } catch (error) {
         console.error(error);
+        pendingStore.decrement();
         openNotification(
           "Add account [" +
             utils.shortenAddress(address) +
@@ -232,37 +245,9 @@ export default defineComponent({
       });
     };
 
-    // onMounted(async () => {
-    //   loanStore.getWhitelistInstance.on(
-    //     "AddWhitelisted",
-    //     async (account: string) => {
-    //       await reloadTable();
-    //       console.log("Add ", account, " success.");
-    //       openNotification(
-    //         "Add account [" +
-    //           utils.shortenAddress(account) +
-    //           "] to whitelist success.",
-    //         "success"
-    //       );
-    //     }
-    //   );
-    //   loanStore.getWhitelistInstance.on(
-    //     "RemoveWhitelisted",
-    //     async (account: string) => {
-    //       await reloadTable();
-    //       console.log("Remove ", account, " success.");
-    //       openNotification(
-    //         "Remove account [" +
-    //           utils.shortenAddress(account) +
-    //           "] from whitelist success.",
-    //         "success"
-    //       );
-    //     }
-    //   );
-    // });
-
     return {
       whitelist,
+      isLoadingMap,
       columns,
       filteredCount,
       filter,

@@ -13,7 +13,7 @@ export const useAccountStore = defineStore('AccountStore', {
 
     getAccount(state) {
       return state.accounts[0]
-    }
+    },
   },
   actions: {
     async init() {
