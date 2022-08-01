@@ -1,7 +1,10 @@
 <template>
   <div class="app-navbar-actions">
     <va-badge left :text="badgePendingCount" color="warning" class="mr-4">
-      <va-button :color="showPending ? 'success' : 'primary'">
+      <va-button
+        v-if="isWalletConnect"
+        :color="showPending ? 'success' : 'primary'"
+      >
         <template #default>
           <div v-if="!showPending">
             <va-icon class="mr-1" name="settings"></va-icon>
@@ -17,16 +20,28 @@
           </div>
         </template>
       </va-button>
+      <va-button v-else @click="connectWallet" color="danger">
+        <template #default>
+          <va-icon class="mr-1" name="wallet"></va-icon>
+          {{ userName }}
+        </template>
+      </va-button>
     </va-badge>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
+// import { useCommonStore } from "@/store/Common";
 import { usePendingStore } from "@/store/Pending";
+import { useAccountStore } from "@/store/Account";
 export default defineComponent({
   name: "app-navbar-actions",
   props: {
+    isWalletConnect: {
+      type: Boolean,
+      default: false,
+    },
     userName: {
       type: String,
       default: "",
@@ -37,8 +52,10 @@ export default defineComponent({
     },
   },
   setup() {
+    // const commonStore = useCommonStore();
+    const accountStore = useAccountStore();
     const pendingStore = usePendingStore();
-    let iconName = ref("settings")
+    let iconName = ref("settings");
     let badgePendingCount = ref(0);
     let showPending = ref(false);
 
@@ -52,10 +69,16 @@ export default defineComponent({
       badgePendingCount.value = pendingStore.getPendingCount;
     });
 
+    async function connectWallet() {
+      // await commonStore.init();
+      await accountStore.init();
+    }
+
     return {
       iconName,
       showPending,
       badgePendingCount,
+      connectWallet,
     };
   },
   computed: {

@@ -173,7 +173,7 @@ import { computed, watch, ref, defineComponent } from "vue";
 import { useGlobalConfig } from "vuestic-ui";
 
 import { useLoanStore } from "@/store/Loan";
-import { useCommonStore } from "@/store/Common";
+// import { useCommonStore } from "@/store/Common";
 import { useAccountStore } from "@/store/Account";
 import { usePendingStore } from "@/store/Pending";
 
@@ -193,7 +193,13 @@ export default defineComponent({
 
     let showModal = ref(false);
 
-    const commonStore = useCommonStore();
+    // const commonStore = useCommonStore();
+    // if (!commonStore.getInitStatus) {
+    //   console.log("333333333333333333333333");
+    //   console.log("COMMOM NOT INIT");
+    //   console.log("333333333333333333333333");
+    //   await commonStore.init();
+    // }
     const accountStore = useAccountStore();
     const pendingStore = usePendingStore();
 

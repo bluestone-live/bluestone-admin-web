@@ -20,7 +20,8 @@
       <template v-slot:right>
         <app-navbar-actions
           class="app-navbar__actions md5 lg4"
-          :user-name="userName"
+          :user-name="accountAddress"
+          :is-wallet-connect="isWalletConnect"
         />
       </template>
     </va-navbar>
@@ -28,16 +29,15 @@
 </template>
 
 <script>
-import { computed, onMounted, onBeforeMount } from "vue";
-import { useStore } from "vuex";
+import { computed, onMounted, ref } from "vue";
+import { useAccountStore } from "@/store/Account";
+import { useNavbarStore } from "@/store/Navbar";
 import { useColors } from "vuestic-ui";
 import VuesticLogo from "@/components/vuestic-logo.vue";
 import VaIconMenuCollapsed from "@/components/icons/VaIconMenuCollapsed.vue";
 import AppNavbarActions from "./components/AppNavbarActions.vue";
 import utils from "@/utils";
 
-import { useAccountStore } from "@/store/Account";
-// const accountStore = useAccountStore();
 
 export default {
   name: "Navbar",
@@ -49,20 +49,24 @@ export default {
   setup() {
     const { getColors } = useColors();
     const colors = computed(() => getColors());
-    const store = useStore();
+    const sidebarStore = useNavbarStore();
     const accountStore = useAccountStore();
     const isSidebarMinimized = computed({
-      get: () => store.state.isSidebarMinimized,
-      set: (value) => store.commit("updateSidebarCollapsedState", value),
+      get: () => sidebarStore.isSidebarMinimized,
+      set: (value) => sidebarStore.updateSidebarCollapsedState(value),
     });
-    // const accountStore = useAccountStore();
-    onMounted(async()=>{
-      await accountStore.init()
-    })
-    const userName = computed(() => {
+    let isWalletConnect = ref(false);
+    onMounted(async () => {
+      if(!accountStore.getInitStatus) {
+        await accountStore.init();
+      }
+    });
+    const accountAddress = computed(() => {
       if (accountStore.getAccount) {
+        isWalletConnect.value = true;
         return utils.shortenAddress(accountStore.getAccount);
       } else {
+        isWalletConnect.value = false;
         return "Connect Wallet";
       }
     });
@@ -70,8 +74,8 @@ export default {
     return {
       colors,
       isSidebarMinimized,
-      userName,
-      // accountAddress,
+      isWalletConnect,
+      accountAddress,
     };
   },
 };

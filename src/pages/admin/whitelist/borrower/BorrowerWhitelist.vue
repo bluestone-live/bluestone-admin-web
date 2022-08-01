@@ -143,7 +143,7 @@ export default defineComponent({
         let tempWhitelist: Array<WhiteListItem> = [];
         await loanStore.initWhitelist();
         let borrowersOnWhitelists = loanStore.getWhitelist;
-        borrowersOnWhitelists.forEach((borrowerAddress) => {
+        borrowersOnWhitelists.forEach((borrowerAddress: any) => {
           let borrowerStatus =
             activeBorrowers.indexOf(borrowerAddress) >= 0
               ? "active"

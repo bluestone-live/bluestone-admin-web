@@ -68,6 +68,7 @@
 <script lang="ts">
 import { computed, defineComponent } from "vue";
 import { useGlobalConfig } from "vuestic-ui";
+// import { useCommonStore } from "@/store/Common";
 import { useLoanStore } from "@/store/Loan";
 import { useDepositStore } from "@/store/Deposit";
 import { useOracleStore } from "@/store/Oracle";
@@ -75,6 +76,13 @@ import { useOracleStore } from "@/store/Oracle";
 export default defineComponent({
   name: "DashboardInfoBlock",
   async setup() {
+    // const commonStore = useCommonStore();
+    // if (!commonStore.getInitStatus) {
+    //   console.log("1111111111111111111111111")
+    //   console.log("COMMOM NOT INIT")
+    //   console.log("1111111111111111111111111")
+    //   await commonStore.init();
+    // }
     const loanStore = useLoanStore();
     const depositStore = useDepositStore();
     const oracleStore = useOracleStore();
