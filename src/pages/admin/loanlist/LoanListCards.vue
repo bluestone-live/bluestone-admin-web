@@ -53,10 +53,12 @@
             <va-badge
               size="small"
               :color="
-                whitelist.indexOf(loanDetail[0]) >= 0 ? 'success' : 'danger'
+                whitelistedBorrowers.indexOf(loanDetail[0]) >= 0
+                  ? 'success'
+                  : 'danger'
               "
               :text="
-                whitelist.indexOf(loanDetail[0]) >= 0
+                whitelistedBorrowers.indexOf(loanDetail[0]) >= 0
                   ? 'On Whitelist'
                   : 'Out Whitelist'
               "
@@ -136,10 +138,7 @@
                   <va-button
                     class="mr-4 mb-2"
                     :disabled="!loanRecord.isMarginCall"
-                    :loading="
-                      borrowersIdx === marginCallLoadingId[0] &&
-                      index === marginCallLoadingId[1]
-                    "
+                    :loading="marginCallLoadingMap.get(loanRecord.loanId)"
                     @click="marginCall([borrowersIdx, index])"
                     color="warning"
                     >Margin Call</va-button
@@ -147,7 +146,7 @@
                   <va-button
                     class="mr-4 mb-2"
                     :disabled="!loanRecord.isLiquidable"
-                    :loading="index === liquidateLoadingId"
+                    :loading="liquidateLoadingMap.get(loanRecord.loanId)"
                     @click="
                       liquidateLoan(
                         loanRecord.loanId,
@@ -169,13 +168,15 @@
 </template>
 
 <script lang="ts">
-import { computed, watch, ref, defineComponent } from "vue";
+import { computed, watch, ref, defineComponent, getCurrentInstance } from "vue";
 import { useGlobalConfig } from "vuestic-ui";
 
 import { useLoanStore } from "@/store/Loan";
-// import { useCommonStore } from "@/store/Common";
+import { useCommonStore } from "@/store/Common";
+import { useWhitelistStore } from "@/store/Whitelist";
 import { useAccountStore } from "@/store/Account";
 import { usePendingStore } from "@/store/Pending";
+import { marginCollateralCoverageRatio } from "@/margin";
 
 import { BigNumber, ethers } from "ethers";
 import utils from "@/utils";
@@ -183,6 +184,9 @@ import utils from "@/utils";
 export default defineComponent({
   name: "LoanListCards",
   async setup() {
+    const instance = getCurrentInstance();
+    const _this = instance?.appContext.config.globalProperties;
+
     const toggleOptions = [
       { label: "All", value: "all" },
       { label: "Active", value: "active" },
@@ -193,13 +197,14 @@ export default defineComponent({
 
     let showModal = ref(false);
 
-    // const commonStore = useCommonStore();
-    // if (!commonStore.getInitStatus) {
-    //   console.log("333333333333333333333333");
-    //   console.log("COMMOM NOT INIT");
-    //   console.log("333333333333333333333333");
-    //   await commonStore.init();
-    // }
+    const commonStore = useCommonStore();
+    if (!commonStore.getInitStatus) {
+      await commonStore.init();
+    }
+    const whitelistStore = useWhitelistStore();
+    if (!whitelistStore.getInitStatus) {
+      await whitelistStore.init();
+    }
     const accountStore = useAccountStore();
     const pendingStore = usePendingStore();
 
@@ -227,11 +232,14 @@ export default defineComponent({
       "priority_high",
       "priority_high",
     ];
-    const handledLoanRecords = loanStore.getHandledLoanRecords;
-    const whitelist = loanStore.getWhitelist;
 
-    let marginCallLoadingId = ref([-1, -1]);
-    let liquidateLoadingId = ref(-1);
+    let liquidateLoadingMap = ref(new Map<string, boolean>());
+    let marginCallLoadingMap = ref(new Map<string, boolean>());
+
+    const whitelistedBorrowers = whitelistStore.getWhitelistedBorrowers;
+    const handledLoanRecords: any = handleRawLoanRecords(
+      loanStore.getBorrowersLoanRecords
+    );
 
     let filterInput = ref("");
     let filteredList = ref(handledLoanRecords);
@@ -329,9 +337,7 @@ export default defineComponent({
     async function marginCall(idxArr: number[]) {
       try {
         showModal.value = true;
-        // marginCallLoadingId.value = idxArr;
       } catch (error) {
-        // marginCallLoadingId.value = [-1, -1];
         console.error(error);
       }
     }
@@ -365,24 +371,97 @@ export default defineComponent({
           loanId,
           liquidateAmount
         );
-        liquidateLoadingId.value = idx;
       } catch (error) {
         console.error(error);
         return;
       }
       try {
+        liquidateLoadingMap.value.set(loanId, true);
+        pendingStore.increment();
         result = await tx.wait();
+        liquidateLoadingMap.value.set(loanId, false);
+        pendingStore.decrement();
         console.log("liquidateLoan result:", result);
-        liquidateLoadingId.value = -1;
       } catch (error) {
         console.error(error);
-        liquidateLoadingId.value = -1;
+        liquidateLoadingMap.value.set(loanId, false);
+        pendingStore.decrement();
       }
     }
 
     const theme = computed(() => {
       return useGlobalConfig().getGlobalConfig().colors || {};
     });
+
+    function handleRawLoanRecords(rawLoanRecords: Map<string, any>) {
+      let tempMap = new Map();
+      let date = new Date();
+      rawLoanRecords.forEach((loanRecords: any, address: string) => {
+        let tempRecords: any = [];
+        loanRecords.forEach((loanRecord: any) => {
+          let tempRecord = {
+            loanId: loanRecord.loanId,
+            loanTokenAddress: loanRecord.loanTokenAddress,
+            collateralTokenAddress: loanRecord.collateralTokenAddress,
+            loanAmount:
+              loanRecord.loanAmount.div(loanStore.getExp).toNumber() + " SGC",
+            collateralAmount:
+              loanRecord.collateralAmount.div(loanStore.getExp).toNumber() +
+              " SGC",
+            loanTerm: loanRecord.loanTerm.toNumber() + " Days",
+            annualInterestRate:
+              loanRecord.annualInterestRate
+                .div(loanStore.getExp)
+                .mul(100)
+                .toNumber() + "%",
+            interest:
+              loanRecord.interest.div(loanStore.getExp).toNumber() + " SGC",
+            collateralCoverageRatio:
+              loanRecord.collateralCoverageRatio
+                .div(loanStore.getExp)
+                .mul(100)
+                .toNumber() + "%",
+            minCollateralCoverageRatio:
+              loanRecord.minCollateralCoverageRatio
+                .div(loanStore.getExp)
+                .mul(100)
+                .toNumber() + "%",
+            alreadyPaidAmount:
+              loanRecord.alreadyPaidAmount.div(loanStore.getExp).toNumber() +
+              " SGC",
+            liquidatedAmount:
+              loanRecord.liquidatedAmount.div(loanStore.getExp).toNumber() +
+              " SGC",
+            soldCollateralAmount:
+              loanRecord.soldCollateralAmount.div(loanStore.getExp).toNumber() +
+              " SGC",
+            createdAt: utils.formatTimestamp(loanRecord.createdAt.toNumber()),
+            dueAt: utils.formatTimestamp(loanRecord.dueAt.toNumber()),
+            remainingDebt:
+              loanRecord.remainingDebt.div(loanStore.getExp).toNumber() +
+              " SGC",
+            isClosed: loanRecord.isClosed,
+            isMarginCall:
+              !loanRecord.isClosed &&
+              loanRecord.collateralCoverageRatio.lte(
+                marginCollateralCoverageRatio
+              ),
+            isLiquidable:
+              !loanRecord.isClosed &&
+              (loanRecord.collateralCoverageRatio.lt(
+                loanRecord.minCollateralCoverageRatio
+              ) ||
+                loanRecord.dueAt.mul(1000).lt(BigNumber.from(date.getTime()))),
+          };
+          tempRecords.push(tempRecord);
+
+          liquidateLoadingMap.value.set(loanRecord.loanId, false);
+          marginCallLoadingMap.value.set(loanRecord.loanId, false);
+        });
+        tempMap.set(address, tempRecords);
+      });
+      return tempMap;
+    }
 
     function copyToClipboard(copyValue: string) {
       //create new element
@@ -399,6 +478,17 @@ export default defineComponent({
       document.body.removeChild(oInput);
     }
 
+    const openNotification = (message: string, color: string) => {
+      _this?.$vaToast.init({
+        message: message,
+        color: color,
+        iconClass: "fa-star-o",
+        position: "bottom-right",
+        duration: Number(4000),
+        fullWidth: false,
+      });
+    };
+
     return {
       theme,
       showModal,
@@ -406,15 +496,15 @@ export default defineComponent({
       toggleOptions,
       toggleValue,
       filterInput,
-      whitelist,
+      whitelistedBorrowers,
       loanRecords: filteredList,
       formatObjectKey: utils.formatObjectKey,
       getCollapseColor,
       marginCall,
       liquidateLoan,
       copyToClipboard,
-      marginCallLoadingId,
-      liquidateLoadingId,
+      marginCallLoadingMap,
+      liquidateLoadingMap,
       collapseControl: false,
     };
   },

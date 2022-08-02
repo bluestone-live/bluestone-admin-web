@@ -11,7 +11,7 @@ export const useAccountStore = defineStore('AccountStore', {
     getInitStatus(state) {
       return state.isInit
     },
-    
+
     getAccounts(state) {
       return state.accounts
     },

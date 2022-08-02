@@ -70,7 +70,6 @@ const router = createRouter({
 })
 
 router.beforeEach(async () => {
-  // we wanted to use the store here
   if (!commonStore.isInited) {
     await commonStore.init()
   }

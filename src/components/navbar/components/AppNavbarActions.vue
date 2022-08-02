@@ -32,7 +32,6 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-// import { useCommonStore } from "@/store/Common";
 import { usePendingStore } from "@/store/Pending";
 import { useAccountStore } from "@/store/Account";
 export default defineComponent({
@@ -52,9 +51,9 @@ export default defineComponent({
     },
   },
   setup() {
-    // const commonStore = useCommonStore();
     const accountStore = useAccountStore();
     const pendingStore = usePendingStore();
+
     let iconName = ref("settings");
     let badgePendingCount = ref(0);
     let showPending = ref(false);
@@ -70,7 +69,6 @@ export default defineComponent({
     });
 
     async function connectWallet() {
-      // await commonStore.init();
       await accountStore.init();
     }
 

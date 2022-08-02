@@ -1,6 +1,7 @@
 {
   "contracts": {
     "Protocol": "0xCaaC68fD786b0d7065097347DEf87B27220A5B25",
+    "Whitelist": "0xff3496DA51515d2425B07de6e462e0EB5459eFab",
     "BorrowersWhitelist": "0x31a1B4BA538cfB65AF81a3D15275B41AD00A9A33",
     "InterestModel": "0xCe77240b0BC6D18Eee4BC514C85f2F86Bf4d6e45",
     "OasisDexMock": "0x7323F490e12e3E072ed028B2Ea331F3187885117",

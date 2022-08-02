@@ -31,7 +31,6 @@
 </template>
 
 <script>
-// import { useStore } from 'vuex';
 import { useNavbarStore } from "@/store/Navbar";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { onBeforeRouteUpdate } from "vue-router";
@@ -47,7 +46,6 @@ export default {
   },
 
   setup() {
-    // const store = useStore()
     const sidebarStore = useNavbarStore();
     const mobileBreakPointPX = 640;
     const tabletBreakPointPX = 768;

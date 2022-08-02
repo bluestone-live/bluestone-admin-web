@@ -59,7 +59,7 @@
             ><va-button
               size="small"
               color="danger"
-              :loading="isLoadingMap[whitelist[rowIndex].address]"
+              :loading="removeLoadingMap.get(whitelist[rowIndex].address)"
               @click="removeWhitelist(whitelist[rowIndex].address)"
               >{{ value }}</va-button
             ></template
@@ -80,6 +80,7 @@
 <script lang="ts">
 import { defineComponent, ref, getCurrentInstance } from "vue";
 import { useLoanStore } from "@/store/Loan";
+import { useWhitelistStore } from "@/store/Whitelist";
 import { usePendingStore } from "@/store/Pending";
 import utils from "@/utils";
 class WhiteListItem {
@@ -103,13 +104,19 @@ export default defineComponent({
 
     const pendingStore = usePendingStore();
 
+    const whitelistStore = useWhitelistStore();
+    if (!whitelistStore.getInitStatus) {
+      await whitelistStore.init();
+    }
+
     const loanStore = useLoanStore();
     await loanStore.init();
 
-    const borrowersOnWhitelists = loanStore.getWhitelist;
+    // const borrowersOnWhitelists = loanStore.getWhitelist;
+    const borrowersOnWhitelists = whitelistStore.getWhitelistedBorrowers;
     const activeBorrowers = loanStore.getActiveBorrowers;
     let whitelist = ref(Array<WhiteListItem>());
-    let isLoadingMap = ref(new Map<string, boolean>());
+    let removeLoadingMap = ref(new Map<string, boolean>());
 
     borrowersOnWhitelists.forEach((borrowerAddress: string) => {
       let borrowerStatus =
@@ -119,9 +126,9 @@ export default defineComponent({
         status: borrowerStatus,
         option: "Remove",
       });
-      isLoadingMap.value.set(borrowerAddress, false);
+      removeLoadingMap.value.set(borrowerAddress, false);
     });
-    console.log("isLoadingMap=", isLoadingMap.value);
+    console.log("removeLoadingMap=", removeLoadingMap.value);
     const columns = [
       { key: "id" },
       { key: "address" },
@@ -141,8 +148,9 @@ export default defineComponent({
       try {
         isTableLoading.value = true;
         let tempWhitelist: Array<WhiteListItem> = [];
-        await loanStore.initWhitelist();
-        let borrowersOnWhitelists = loanStore.getWhitelist;
+        await whitelistStore.initWhitelistedBorrowers();
+        // let borrowersOnWhitelists = loanStore.getWhitelist;
+        let borrowersOnWhitelists = whitelistStore.getWhitelistedBorrowers;
         borrowersOnWhitelists.forEach((borrowerAddress: any) => {
           let borrowerStatus =
             activeBorrowers.indexOf(borrowerAddress) >= 0
@@ -161,18 +169,21 @@ export default defineComponent({
     }
 
     async function removeWhitelist(address: string) {
-      isLoadingMap.value.set(address, true);
       let tx;
       let result;
       try {
-        tx = await loanStore.getWhitelistInstance.removeWhitelisted(address);
-        pendingStore.increment();
+        tx =
+          await whitelistStore.getWhitelistInstance.removeBorrowerWhitelisted(
+            address
+          );
         console.log(tx);
       } catch (error) {
         console.error(error);
         return;
       }
       try {
+        removeLoadingMap.value.set(address, true);
+        pendingStore.increment();
         result = await tx.wait();
         console.log("remove result: ", result);
         pendingStore.decrement();
@@ -186,7 +197,7 @@ export default defineComponent({
       } catch (error) {
         console.error(error);
         pendingStore.decrement();
-        isLoadingMap.value.set(address, false);
+        removeLoadingMap.value.set(address, false);
         openNotification(
           "Remove account [" +
             utils.shortenAddress(address) +
@@ -200,7 +211,9 @@ export default defineComponent({
       let tx;
       let result;
       try {
-        tx = await loanStore.getWhitelistInstance.addWhitelisted(address);
+        tx = await whitelistStore.getWhitelistInstance.addBorrowerWhitelisted(
+          address
+        );
         isAddLoading.value = true;
         pendingStore.increment();
         isAddLoading.value = false;
@@ -247,7 +260,7 @@ export default defineComponent({
 
     return {
       whitelist,
-      isLoadingMap,
+      removeLoadingMap,
       columns,
       filteredCount,
       filter,
