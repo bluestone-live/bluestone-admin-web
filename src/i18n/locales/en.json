@@ -1,7 +1,7 @@
 {
     "404": {
-        "title": "This page’s gone fishing.",
-        "text": "If you feel that it’s not right, please send us a message at ",
+        "title": "This page's gone fishing.",
+        "text": "If you feel that it's not right, please send us a message at ",
         "back_button": "Back to dashboard"
     },
     "language": {
@@ -9,11 +9,12 @@
         "simplified_chinese": "Simplified Chinese"
     },
     "navbar": {
-        "title": "Admin Platform"
+        "title": "BlueStone Administrator Platform"
     },
     "menu": {
         "dashboard": "Dashboard",
         "whitelist": "Whitelist",
+        "administrator": "Administrator",
         "lender": "Lender",
         "borrower": "Borrower",
         "loanlist": "Loan List"
@@ -25,17 +26,36 @@
             "activeLoans": "Active Loans",
             "totalLoans": "Total Loans",
             "marginCall": "Margin Call",
-            "liquidable": "Liquidated",
-            "btc": "BTC Balance",
-            "eth": "ETH Balance",
-            "sgc": "SGC Balance"
+            "liquidable": "Liquidable",
+            "btc": "BTC",
+            "eth": "ETH",
+            "sgc": "SGC"
         },
         "pools": {
             "title": "Pools Status"
-        },
-        "charts": {
-            "treasury": "Loan Treasury",
-            "status": "Loan Status"
         }
+    },
+    "whitelist": {
+        "administrator":{
+            "newTitle": "Add New Administrator",
+            "newButton": "Add To Whitelist",
+            "addedTitle": "Administrators Whitelist",
+            "filteredCount": "Number of filtered items:"
+        },
+        "lender":{
+            "newTitle": "Add New Lender",
+            "newButton": "Add To Whitelist",
+            "addedTitle": "Lenders Whitelist",
+            "filteredCount": "Number of filtered items:"
+        },
+        "borrower": {
+            "newTitle": "Add New Borrower",
+            "newButton": "Add To Whitelist",
+            "addedTitle": "Borrowers Whitelist",
+            "filteredCount": "Number of filtered items:"
+        }
+    },
+    "loanList": {
+        "loanDetailTitle": "Loan Record"
     }
 }

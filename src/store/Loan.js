@@ -1,15 +1,18 @@
 import { defineStore } from 'pinia'
 import { useCommonStore } from "./Common"
-import { marginLimit } from "@/margin"
-import { BigNumber } from "ethers"
+import { marginCollateralCoverageRatio } from "@/margin"
+import { BigNumber, ethers } from "ethers"
 import { toRaw } from "@vue/reactivity"
+import utils from "@/utils"
+import borrowerWhitelistDeclareFile from "@/contracts/BorrowersWhitelist.json"
 
 
-export const useLoanStore = defineStore('LoanStore', {
+export const useLoanStore = defineStore('loan', {
     state: () => ({
         isInited: false,
         commonState: useCommonStore(),
-        whitelists: [],
+        whitelistInstance: null,
+        whitelist: [],
         btcAddress: "",
         ethAddress: "",
         exp: BigNumber.from("10").pow(18),
@@ -17,21 +20,26 @@ export const useLoanStore = defineStore('LoanStore', {
         ethBalance: BigNumber,
         totalLoansCount: 0,
         activeLoansCount: 0,
-        marginCallLoansCount: 0,
-        liquidatedLoans: 0,
+        liquidableLoans: 0,
         borrowers: [],
         borrowersLoanRecords: Map,
         handledLoanRecords: Map,
         activeBorrowers: [],
         marginCallLoansCount: 0,
-        liquidatedLoansCount: 0
+        liquidableLoansCount: 0
     }),
     getters: {
         getInitStatus(state) {
             return state.isInited
         },
-        getWhitelists(state) {
-            return state.whitelists
+        getExp(state) {
+            return state.exp
+        },
+        getWhitelistInstance(state) {
+            return toRaw(state.whitelistInstance)
+        },
+        getWhitelist(state) {
+            return state.whitelist
         },
         getBtcAddress(state) {
             return state.btcAddress
@@ -52,7 +60,7 @@ export const useLoanStore = defineStore('LoanStore', {
             return state.activeLoansCount
         },
         getBorrowers(state) {
-            return state.borrowers
+            return toRaw(state.borrowers)
         },
         getBorrowersLoanRecords(state) {
             return toRaw(state.borrowersLoanRecords)
@@ -66,34 +74,43 @@ export const useLoanStore = defineStore('LoanStore', {
         getMarginCallLoansCount(state) {
             return state.marginCallLoansCount
         },
-        getLiquidatedLoansCount(state) {
-            return toRaw(state.liquidatedLoansCount)
+        getLiquidableLoansCount(state) {
+            return state.liquidableLoansCount
         }
     },
     actions: {
         async init() {
             try {
+                // this.initWhitelistInstance()
+                // await this.initWhitelist()
                 this.initBtcAddress()
                 this.initBtcBalance()
                 this.initEthAddress()
                 this.initEthBalance()
                 await this.initBorrowersAndTotalLoansCount()
                 await this.initBorrowersLoanRecords()
-                this.initHandledLoanRecords()
-                this.initLiquidatedLoansCount()
+                // this.initHandledLoanRecords()
                 this.initActiveBorrowersAndActiveLoansCount()
-                // this.initMarginCallLoansCount()
+                this.initMarginCallAndLiquidableLoansCount()
                 this.isInited = true
             } catch (error) {
                 console.error(error)
             }
         },
-        async initWhitelists() {
-            // TODO
-        },
-
+        // initWhitelistInstance() {
+        //     const whitelistAddress = this.commonState.getNetworkFile.contracts[borrowerWhitelistDeclareFile.contractName]
+        //     this.whitelistInstance = new ethers.Contract(
+        //         whitelistAddress,
+        //         borrowerWhitelistDeclareFile.abi,
+        //         this.commonState.getProvider.getSigner()
+        //     )
+        // },
+        // async initWhitelist() {
+        //     let tempArr = []
+        //     tempArr = await this.getWhitelistInstance.getWhitelistedAccounts()
+        //     this.whitelist = tempArr
+        // },
         initBtcAddress() {
-            console.log("Loan: getTokens=", this.commonState.getTokens)
             this.btcAddress = this.commonState.getTokens.xBTC.address
         },
         initEthAddress() {
@@ -102,24 +119,20 @@ export const useLoanStore = defineStore('LoanStore', {
 
         async initBtcBalance() {
             const btcPools = await this.commonState.getProtocol.getPoolsByToken(this.btcAddress)
-            console.log("btcPools=", btcPools)
             let totalBalance = BigNumber.from(0)
             btcPools.forEach((pool) => {
                 totalBalance = totalBalance.add(pool.availableAmount)
             })
             this.btcBalance = totalBalance
-            console.log("btcBalance=", this.btcBalance)
         },
 
         async initEthBalance() {
             const ethPools = await this.commonState.getProtocol.getPoolsByToken(this.ethAddress)
-            console.log("ethPools=", ethPools)
             let totalBalance = BigNumber.from(0)
             ethPools.forEach((pool) => {
                 totalBalance = totalBalance.add(pool.availableAmount)
             })
             this.ethBalance = totalBalance
-            console.log("ethBalance=", this.ethBalance)
         },
 
         async initBorrowersAndTotalLoansCount() {
@@ -127,7 +140,6 @@ export const useLoanStore = defineStore('LoanStore', {
             let filter = this.commonState.getProtocol.filters.LoanSucceed()
             const loanEvents = await this.commonState.getProtocol.queryFilter(filter)
             this.totalLoansCount = loanEvents.length
-            console.log("loanEvents=", loanEvents)
             loanEvents.forEach((event) => {
                 tempArr.push(event.args.accountAddress)
             })
@@ -140,86 +152,92 @@ export const useLoanStore = defineStore('LoanStore', {
             let tempMap = new Map()
             await Promise.all(this.borrowers.map(async (borrowerAddress) => {
                 let tempData = await this.commonState.getProtocol.getLoanRecordsByAccount(borrowerAddress)
-                console.log("borrowersLoanRecord tempdata:", tempData)
                 tempMap.set(borrowerAddress, tempData)
             }))
             this.borrowersLoanRecords = tempMap
             console.log("borrowersRecord=", this.borrowersLoanRecords)
         },
 
-        initHandledLoanRecords() {
-            let tempMap = new Map()
-            this.getBorrowersLoanRecords.forEach((loanRecords, address) => {
-                let tempRecords = []
-                loanRecords.forEach((loanRecord)=>{
-                    let tempRecord = {
-                        isClosed: loanRecord.isClosed,
-                        loanId: loanRecord.loanId,
-                        loanTokenAddress: loanRecord.loanTokenAddress,
-                        collateralTokenAddress: loanRecord.collateralTokenAddress,
-                        loanAmount: loanRecord.loanAmount.div(this.exp).toNumber(),
-                        collateralAmount: loanRecord.collateralAmount.div(this.exp).toNumber(),
-                        loanTerm: loanRecord.loanTerm.toNumber(),
-                        annualInterestRate: loanRecord.annualInterestRate.div(this.exp).toNumber(),
-                        interest: loanRecord.interest.div(this.exp).toNumber(),
-                        collateralCoverageRatio: loanRecord.collateralCoverageRatio.div(this.exp).toNumber(),
-                        minCollateralCoverageRatio: loanRecord.minCollateralCoverageRatio.div(this.exp).toNumber(),
-                        alreadyPaidAmount: loanRecord.alreadyPaidAmount.div(this.exp).toNumber(),
-                        liquidatedAmount: loanRecord.liquidatedAmount.div(this.exp).toNumber(),
-                        soldCollateralAmount: loanRecord.soldCollateralAmount.div(this.exp).toNumber(),
-                        createdAt: loanRecord.createdAt.toNumber(),
-                        dueAt: loanRecord.dueAt.toNumber(),
-                        remainingDebt: loanRecord.remainingDebt.div(this.exp).toNumber()
-                    }
-                    tempRecords.push(tempRecord)
-                })
-                tempMap.set(address, tempRecords)
-            })
-            this.handledLoanRecords = tempMap
-            console.log("handledLoanRecords=", this.handledLoanRecords)
-        },
+        // initHandledLoanRecords() {
+        //     let tempMap = new Map()
+        //     let date = new Date()
+        //     this.getBorrowersLoanRecords.forEach((loanRecords, address) => {
+        //         let tempRecords = []
+        //         loanRecords.forEach((loanRecord) => {
+        //             let tempRecord = {
+        //                 loanId: loanRecord.loanId,
+        //                 loanTokenAddress: loanRecord.loanTokenAddress,
+        //                 collateralTokenAddress: loanRecord.collateralTokenAddress,
+        //                 loanAmount: loanRecord.loanAmount.div(this.exp).toNumber() + " SGC",
+        //                 collateralAmount: loanRecord.collateralAmount.div(this.exp).toNumber() + " SGC",
+        //                 loanTerm: loanRecord.loanTerm.toNumber() + " Days",
+        //                 annualInterestRate: loanRecord.annualInterestRate.div(this.exp).mul(100).toNumber() + "%",
+        //                 interest: loanRecord.interest.div(this.exp).toNumber() + " SGC",
+        //                 collateralCoverageRatio: loanRecord.collateralCoverageRatio.div(this.exp).mul(100).toNumber() + "%",
+        //                 minCollateralCoverageRatio: loanRecord.minCollateralCoverageRatio.div(this.exp).mul(100).toNumber() + "%",
+        //                 alreadyPaidAmount: loanRecord.alreadyPaidAmount.div(this.exp).toNumber() + " SGC",
+        //                 liquidatedAmount: loanRecord.liquidatedAmount.div(this.exp).toNumber() + " SGC",
+        //                 soldCollateralAmount: loanRecord.soldCollateralAmount.div(this.exp).toNumber() + " SGC",
+        //                 createdAt: utils.formatTimestamp(loanRecord.createdAt.toNumber()),
+        //                 dueAt: utils.formatTimestamp(loanRecord.dueAt.toNumber()),
+        //                 remainingDebt: loanRecord.remainingDebt.div(this.exp).toNumber() + " SGC",
+        //                 isClosed: loanRecord.isClosed,
+        //                 isMarginCall: (!loanRecord.isClosed) && loanRecord.collateralCoverageRatio.lte(marginCollateralCoverageRatio),
+        //                 isLiquidable: (!loanRecord.isClosed) && (loanRecord.collateralCoverageRatio.lt(loanRecord.minCollateralCoverageRatio) || loanRecord.dueAt.mul(1000).lt(BigNumber.from(date.getTime())))
+        //             }
+        //             tempRecords.push(tempRecord)
+        //         })
+        //         tempMap.set(address, tempRecords)
+        //     })
+        //     this.handledLoanRecords = tempMap
+        //     console.log("handledLoanRecords=", this.handledLoanRecords)
+        // },
 
         initActiveBorrowersAndActiveLoansCount() {
             let tempArr = []
             let tempCount = 0
             this.getBorrowersLoanRecords.forEach((loanRecordsArr, borrowerAddress) => {
-                // let idxArr = []
+                let activeFlag = false
                 loanRecordsArr.forEach((loanRecord, loanIdx) => {
                     if (!loanRecord.isClosed) {
-                        // idxArr.push(loanIdx)
                         tempCount++
+                        activeFlag = true
                     }
                 })
-                // tempCount += idxArr.length
-                // tempMap.set(borrowerAddress, tempArr)
-                tempArr.push(borrowerAddress)
-            })
-            this.activeBorrowers = tempArr
-            this.activeLoansCount = tempCount
-            console.log("activeBorrowers=", this.activeBorrowers)
-        },
-
-        initMarginCallLoansCount() {
-            let tempArr = []
-            this.getActiveBorrowers.forEach((loanArrIdx, borrowerAddress) => {
-                if (this.getBorrowersLoanRecords[borrowerAddress][loanArrIdx].remainingDebt.lte(marginLimit)) {
+                if (activeFlag === true) {
                     tempArr.push(borrowerAddress)
                 }
             })
-            this.marginCallBorrowers = tempArr
+            this.activeBorrowers = tempArr
+            this.activeLoansCount = tempCount
         },
 
-        async initLiquidatedLoansCount() {
-            // let tempArr = []
-            let filter = this.commonState.getProtocol.filters.LiquidateLoanSucceed()
-            const liquidateEvents = await this.commonState.getProtocol.queryFilter(filter)
-            console.log("liquidate events=", liquidateEvents)
-            // liquidateEvents.forEach((event) => {
-            //     tempArr.push(event.args.accountAddress)
+        initMarginCallAndLiquidableLoansCount() {
+            let tempMarginCallCount = 0
+            let tempLiquidableCount = 0
+            // this.getHandledLoanRecords.forEach((loanRecords, address) => {
+            //     loanRecords.forEach((loanRecord) => {
+            //         if (loanRecord.isMarginCall) {
+            //             tempMarginCallCount++
+            //         }
+            //         if (loanRecord.isLiquidable) {
+            //             tempLiquidableCount++
+            //         }
+            //     })
             // })
-            // this.liquidatedBorrowers = tempArr
-            // console.log("liquidatedBorrowers=", this.liquidatedBorrowers)
-            this.liquidatedLoansCount = liquidateEvents.length
-        }
+            let date = new Date()
+            this.getBorrowersLoanRecords.forEach((loanRecords, address) => {
+                loanRecords.forEach((loanRecord) => {
+                    if ((!loanRecord.isClosed) && loanRecord.collateralCoverageRatio.lte(marginCollateralCoverageRatio)) {
+                        tempMarginCallCount++
+                    }
+                    if ((!loanRecord.isClosed) && (loanRecord.collateralCoverageRatio.lt(loanRecord.minCollateralCoverageRatio) || loanRecord.dueAt.mul(1000).lt(BigNumber.from(date.getTime())))) {
+                        tempLiquidableCount++
+                    }
+                })
+            })
+            this.marginCallLoansCount = tempMarginCallCount
+            this.liquidableLoansCount = tempLiquidableCount
+        },
     }
 })

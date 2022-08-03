@@ -2,7 +2,7 @@
   <Suspense>
     <!-- <h1>LoanList</h1>     -->
     <template #fallback>
-      <h1>LOADING</h1>
+      <loan-list-loading />
     </template>
       <loan-list-cards />
   </Suspense>
@@ -11,11 +11,13 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import LoanListCards from "./LoanListCards.vue";
+import LoanListLoading from "@/components/loading/LoanListLoading.vue"
 
 export default defineComponent({
   name: "LoanList",
   components: {
     LoanListCards,
+    LoanListLoading
   },
 });
 </script>

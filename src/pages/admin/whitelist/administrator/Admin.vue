@@ -3,21 +3,21 @@
     <template #fallback>
       <whitelist-loading />
     </template>
-    <lender-whitelist />
+    <admin-whitelist />
   </Suspense>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, onMounted } from "vue";
 import WhitelistLoading from "@/components/loading/WhitelistLoading.vue";
-import LenderWhitelist from "./LenderWhitelist.vue"
+import AdminWhitelist from "./AdminWhitelist.vue"
 
 export default defineComponent({
-  name: "Lender",
+  name: "Admin",
   components: {
     WhitelistLoading,
-    LenderWhitelist
-  },
+    AdminWhitelist
+  }
 });
 </script>
 

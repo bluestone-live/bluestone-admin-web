@@ -1,31 +1,30 @@
 <template>
-  <va-dropdown
-    v-for="(route, idx) in items"
-    :key="idx"
-    position="right"
-    fixed
-    :offset="[0, 8]"
-    :preventOverflow="false"
-    v-model="dropdownsValue[idx]"
-  >
+  <va-dropdown v-for="(route, idx) in items" :key="idx" position="right" fixed :offset="[0, 8]" :preventOverflow="false"
+    v-model="dropdownsValue[idx]">
     <template #anchor>
-      <va-sidebar-item :active="isItemChildsActive(route)" :to="route.children ? undefined : { name: route.name }">
-        <va-sidebar-item-content>
-          <va-sidebar-item-title>
-            <va-icon :name="route.meta.icon" class="va-sidebar-item__icon"/>
-          </va-sidebar-item-title>
-          <va-icon v-if="route.children" class="more_icon" :name="dropdownsValue[idx] ? 'chevron_left' : 'chevron_right'"/>          
-        </va-sidebar-item-content>
+      <va-sidebar-item :active="isRouteActive(route) || isItemChildsActive(route)">
+        <router-link class="side-item-inactive" :to="route.children ? { name: undefined } : { name: route.name }"
+          :active-class="isRouteActive(route) || isItemChildsActive(route) ? 'side-item-active' : undefined">
+          <va-sidebar-item-content>
+            <va-sidebar-item-title>
+              <va-icon :name="route.meta.icon" class="va-sidebar-item__icon" />
+            </va-sidebar-item-title>
+            <va-icon v-if="route.children" class="more_icon"
+              :name="dropdownsValue[idx] ? 'chevron_left' : 'chevron_right'" />
+          </va-sidebar-item-content>
+        </router-link>
       </va-sidebar-item>
     </template>
     <div class="sidebar-item__children">
       <template v-for="(child, index) in route.children" :key="index">
-        <va-sidebar-item :active="isRouteActive(child)" :to="{ name: child.name }">
-          <va-sidebar-item-content>
-            <va-sidebar-item-title>
-              {{ $t(child.displayName) }}
-            </va-sidebar-item-title>            
-          </va-sidebar-item-content>
+        <va-sidebar-item :active="isRouteActive(child)">
+          <router-link class="side-item-inactive" :to="{ name: child.name }" active-class="side-item-active">
+            <va-sidebar-item-content>
+              <va-sidebar-item-title>
+                {{ $t(child.displayName) }}
+              </va-sidebar-item-title>
+            </va-sidebar-item-content>
+          </router-link>
         </va-sidebar-item>
       </template>
     </div>
@@ -40,7 +39,7 @@ export default {
   props: {
     items: { type: Array, default: () => [] }
   },
-  data () {
+  data() {
     return {
       dropdownsValue: []
     }
@@ -74,8 +73,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.side-item-inactive {
+  color: black;
+}
+
+.side-item-active {
+  color: white;
+}
+
 .sidebar-item {
   position: relative;
+
   &__children {
     max-height: 60vh;
     overflow-y: auto;
@@ -105,6 +113,4 @@ export default {
     }
   }
 }
-
-
 </style>

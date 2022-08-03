@@ -1,18 +1,15 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-// import AuthLayout from '@/layout/auth-layout.vue'
 import AppLayout from '@/layout/app-layout.vue'
 import Page404Layout from '@/layout/page-404-layout.vue'
-import { useCommonStore } from "@/store/Common.js"
 import RouteViewComponent from './route-view.vue'
-// import UIRoute from '@/pages/admin/ui/route'
-import { createPinia } from "pinia"
-export const pinia = createPinia()
+import { useCommonStore } from "@/store/Common.js"
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: "/:catchAll(.*)",
+    path: "/",
     redirect: { name: 'dashboard' },
   },
+  // { path: '/:pathMatch(.*)*', name: 'NotFound', component: Page404Layout },
   {
     name: 'admin',
     path: '/admin',
@@ -28,6 +25,11 @@ const routes: Array<RouteRecordRaw> = [
         path: 'whitelist',
         component: RouteViewComponent,
         children: [
+          {
+            name: 'administrator',
+            path: 'administrator',
+            component: () => import('@/pages/admin/whitelist/administrator/Admin.vue')
+          },
           {
             name: 'lender',
             path: 'lender',
@@ -52,8 +54,8 @@ const routes: Array<RouteRecordRaw> = [
     component: Page404Layout,
     children: [
       {
-        name: 'not-found-simple',
-        path: 'not-found-simple',
+        name: 'notfound',
+        path: '',
         component: () => import('@/pages/404-pages/VaPageNotFoundSimple.vue'),
       },
     ],
@@ -62,15 +64,12 @@ const routes: Array<RouteRecordRaw> = [
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  //  mode: process.env.VUE_APP_ROUTER_MODE_HISTORY === 'true' ? 'history' : 'hash',
   routes
 })
 
-const commonStore = useCommonStore(pinia)
-
 router.beforeEach(async () => {
-  // we wanted to use the store here
-  if (!commonStore.isInited) { 
+  const commonStore = useCommonStore()
+  if (!commonStore.isInited) {
     await commonStore.init()
   }
 })

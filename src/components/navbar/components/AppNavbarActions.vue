@@ -1,42 +1,88 @@
 <template>
   <div class="app-navbar-actions">
-    <!-- <language-dropdown class="app-navbar-actions__item"/> -->
-    <va-button>{{userName}}</va-button>
+    <va-badge left :text="badgePendingCount" color="warning" class="mr-4">
+      <va-button v-if="isWalletConnect" :color="showPending ? 'success' : 'primary'">
+        <template #default>
+          <div v-if="!showPending">
+            <va-icon class="mr-1" name="settings"></va-icon>
+            {{ userName }}
+          </div>
+          <div v-else>
+            <va-icon class="mr-1" name="loop" spin="counter-clockwise"></va-icon>
+            Pending...
+          </div>
+        </template>
+      </va-button>
+      <va-button v-else @click="connectWallet" color="danger">
+        <template #default>
+          <va-icon class="mr-1" name="wallet"></va-icon>
+          {{ userName }}
+        </template>
+      </va-button>
+    </va-badge>
   </div>
 </template>
 
-<script>
-// import LanguageDropdown from './dropdowns/LanguageDropdown.vue';
-
-export default {
-  name: 'app-navbar-actions',
-
-  components: {
-    // LanguageDropdown
-  },
-
+<script lang="ts">
+import { defineComponent, ref } from "vue";
+import { usePendingStore } from "@/store/Pending.js";
+import { useAccountStore } from "@/store/Account.js";
+export default defineComponent({
+  name: "app-navbar-actions",
   props: {
+    isWalletConnect: {
+      type: Boolean,
+      default: false,
+    },
     userName: {
       type: String,
-      default: '',
+      default: "",
     },
     isTopBar: {
       type: Boolean,
       default: false,
     },
   },
+  setup() {
+    const accountStore = useAccountStore();
+    const pendingStore = usePendingStore();
 
+    let iconName = ref("settings");
+    let badgePendingCount = ref(0);
+    let showPending = ref(false);
+
+    pendingStore.$subscribe(() => {
+      console.log("Pending State Changed");
+      if (pendingStore.getPendingCount === 0) {
+        showPending.value = false;
+      } else {
+        showPending.value = true;
+      }
+      badgePendingCount.value = pendingStore.getPendingCount;
+    });
+
+    async function connectWallet() {
+      await accountStore.init();
+    }
+
+    return {
+      iconName,
+      showPending,
+      badgePendingCount,
+      connectWallet,
+    };
+  },
   computed: {
     isTopBarProxy: {
-      get () {
-        return this.isTopBar
+      get() {
+        return this.isTopBar;
       },
-      set (isTopBar) {
-        this.$emit('update:isTopBar', isTopBar)
+      set(isTopBar: any) {
+        this.$emit("update:isTopBar", isTopBar);
       },
     },
   },
-}
+});
 </script>
 
 <style lang="scss">

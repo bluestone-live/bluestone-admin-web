@@ -2,47 +2,49 @@
   <div class="row row-equal">
     <!-- <div class="flex xl12 xs12">
       <div class="row"> -->
-        <div
-          class="flex xs12 sm4"
-          v-for="(info, idx) in balanceInfoTiles"
-          :key="idx"
-        >
-          <va-card class="mb-4" :color="info.color" gradient>
-            <va-card-content>
-              <p class="display-2 mb-0" style="color: white">
+    <div
+      class="flex xs12 sm6"
+      v-for="(info, idx) in balanceInfoTiles"
+      :key="idx"
+    >
+      <va-card class="mb-4" :color="info.color">
+        <va-card-title>{{ info.title }}</va-card-title>
+        <va-card-content>
+          <p class="display-2 mb-0" style="color: white">
+            {{ info.balance + " " + $t("dashboard.info." + info.text) }}
+          </p>
+          <p style="color: white">
+            {{ info.price + " $" }}
+          </p>
+        </va-card-content>
+      </va-card>
+    </div>
+
+    <div class="flex xs12 md12">
+      <va-card>
+        <va-card-title>Loans Status</va-card-title>
+        <va-card-content>
+          <div class="row row-separated">
+            <div
+              class="flex xs3"
+              v-for="(info, idx) in statusInfoTiles"
+              :key="idx"
+            >
+              <p
+                class="display-2 mb-1 text--center"
+                :style="{ color: info.color }"
+              >
                 {{ info.value }}
               </p>
-              <p style="color: white">
+              <p class="text--center mb-1">
                 {{ $t("dashboard.info." + info.text) }}
               </p>
-            </va-card-content>
-          </va-card>
-        </div>
-
-        <div class="flex xs12 md8">
-          <va-card>
-            <va-card-content>
-              <div class="row row-separated">
-                <div
-                  class="flex xs3"
-                  v-for="(info, idx) in statusInfoTiles"
-                  :key="idx"
-                >
-                  <p
-                    class="display-2 mb-1 text--center"
-                    :style="{ color: info.color }"
-                  >
-                    {{ info.value }}
-                  </p>
-                  <p class="text--center mb-1">
-                    {{ $t("dashboard.info." + info.text) }}
-                  </p>
-                </div>
-              </div>
-            </va-card-content>
-          </va-card>
-        </div>
-      <!-- </div>
+            </div>
+          </div>
+        </va-card-content>
+      </va-card>
+    </div>
+    <!-- </div>
     </div> -->
 
     <div class="flex xs12 md12 xl12">
@@ -66,28 +68,40 @@
 <script lang="ts">
 import { computed, defineComponent } from "vue";
 import { useGlobalConfig } from "vuestic-ui";
-import { useLoanStore } from "@/store/Loan";
-import { useDepositStore } from "@/store/Deposit";
+import { useLoanStore } from "@/store/Loan.js";
+import { useDepositStore } from "@/store/Deposit.js";
+import { useOracleStore } from "@/store/Oracle.js";
 
 export default defineComponent({
   name: "DashboardInfoBlock",
   async setup() {
     const loanStore = useLoanStore();
     const depositStore = useDepositStore();
+    const oracleStore = useOracleStore();
 
-    await loanStore.init();
-    await depositStore.init();
+    if(!loanStore.getInitStatus) {
+      await loanStore.init();
+    }
+    if(!depositStore.getInitStatus) {
+      await depositStore.init();
+    }
+    if(!oracleStore.getInitStatus) {
+      await oracleStore.init();
+    }
     const btcBalance = loanStore.getBtcBalance;
     const ethBalance = loanStore.getEthBalance;
+    const activeLoansCount = loanStore.getActiveLoansCount;
+    const totalLoansCount = loanStore.getTotalLoansCount;
+    const marginCallCount = loanStore.getMarginCallLoansCount;
+    const liquidableCount = loanStore.getLiquidableLoansCount;
     const sgcBalance = depositStore.getSgcBalance;
+    const availableSgcPools = depositStore.getAvailableSgcPools;
     const totalLoanOutstandingBalance =
       depositStore.getTotalLoanOutstandingBalance;
-    const activeLoans = loanStore.getActiveLoansCount;
-    const totalLoans = loanStore.getTotalLoansCount;
-    const marginCall = loanStore.getMarginCallLoansCount;
-    const liquidable = loanStore.getLiquidatedLoansCount;
+    const btcPrice = oracleStore.getBtcPrice;
+    const ethPrice = oracleStore.getEthPrice;
+    const sgcPrice = oracleStore.getSgcPrice;
 
-    const users = depositStore.getAvailableSgcPools;
     const columns = [
       { key: "poolId" },
       { key: "availableAmount" },
@@ -98,27 +112,35 @@ export default defineComponent({
 
     const balanceInfoTiles = [
       {
-        color: "primary",
-        value: btcBalance,
+        color: "info",
+        balance: btcBalance,
+        price: btcPrice * btcBalance,
+        title: "BTC Balance",
         text: "btc",
         icon: "",
       },
       {
-        color: "primary",
-        value: ethBalance,
+        color: "info",
+        balance: ethBalance,
+        price: ethPrice * ethBalance,
+        title: "ETH Balance",
         text: "eth",
         icon: "",
       },
       {
         color: "danger",
-        value: sgcBalance,
+        balance: sgcBalance,
+        price: sgcPrice * sgcBalance,
+        title: "SGC Balance",
         text: "sgc",
         icon: "",
       },
       {
         color: "secondary",
-        value: totalLoanOutstandingBalance,
-        text: "totalLoanOutstandingBalance",
+        balance: totalLoanOutstandingBalance,
+        price: sgcPrice * totalLoanOutstandingBalance,
+        title: "Total Loan Outstanding Balance",
+        text: "sgc",
         icon: "",
       },
     ];
@@ -126,22 +148,22 @@ export default defineComponent({
     const statusInfoTiles = [
       {
         color: "#3d9209",
-        value: activeLoans,
+        value: activeLoansCount,
         text: "activeLoans",
       },
       {
         color: "#2c82e0",
-        value: totalLoans,
+        value: totalLoansCount,
         text: "totalLoans",
       },
       {
         color: "#ffd43a",
-        value: marginCall,
+        value: marginCallCount,
         text: "marginCall",
       },
       {
         color: "#e42222",
-        value: liquidable,
+        value: liquidableCount,
         text: "liquidable",
       },
     ];
@@ -149,11 +171,12 @@ export default defineComponent({
     const theme = computed(() => {
       return useGlobalConfig().getGlobalConfig().colors || {};
     });
+    
     return {
       balanceInfoTiles,
       statusInfoTiles,
       theme,
-      items: users,
+      items: availableSgcPools,
       columns,
     };
   },

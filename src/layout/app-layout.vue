@@ -4,23 +4,13 @@
     <div class="app-layout__content">
       <div class="app-layout__sidebar-wrapper" :class="{ minimized: isSidebarMinimized }">
         <div v-if="isFullScreenSidebar" class="d-flex justify--end">
-          <va-button
-            class="px-4 py-4"
-            icon="close"
-            flat 
-            color="dark"
-            @click="onCloseSidebarButtonClick"
-          />
+          <va-button class="px-4 py-4" icon="close" flat color="dark" @click="onCloseSidebarButtonClick" />
         </div>
-        <sidebar
-          :width="sidebarWidth"
-          :minimized="isSidebarMinimized" 
-          :minimizedWidth="sidebarMinimizedWidth"
-        />
+        <sidebar :width="sidebarWidth" :minimized="isSidebarMinimized" :minimizedWidth="sidebarMinimizedWidth" />
       </div>
       <div class="app-layout__page">
         <div class="layout fluid gutter--xl">
-          <router-view/>
+          <router-view />
         </div>
       </div>
     </div>
@@ -28,73 +18,79 @@
 </template>
 
 <script>
-import { useStore } from 'vuex';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { onBeforeRouteUpdate } from 'vue-router';
-import Sidebar from '@/components/sidebar/Sidebar.vue';
-import Navbar from '@/components/navbar/Navbar.vue';
-
+import { useNavbarStore } from "@/store/Navbar";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { onBeforeRouteUpdate } from "vue-router";
+import Sidebar from "@/components/sidebar/Sidebar.vue";
+import Navbar from "@/components/navbar/Navbar.vue";
 
 export default {
-  name: 'app-layout',
+  name: "app-layout",
 
   components: {
-    Navbar, Sidebar
+    Navbar,
+    Sidebar,
   },
 
-  setup() {   
-    const store = useStore()
-    const mobileBreakPointPX = 640
-    const tabletBreakPointPX = 768
+  setup() {
+    const sidebarStore = useNavbarStore();
+    const mobileBreakPointPX = 640;
+    const tabletBreakPointPX = 768;
 
-    const sidebarWidth = ref('16rem')
-    const sidebarMinimizedWidth = ref(undefined)
-    
-    const isMobile = ref(false)
-    const isTablet = ref(false)
-    const isSidebarMinimized = computed(() => store.state.isSidebarMinimized)
-    const checkIsTablet = () => window.innerWidth <= tabletBreakPointPX
-    const checkIsMobile = () => window.innerWidth <= mobileBreakPointPX
+    const sidebarWidth = ref("16rem");
+    const sidebarMinimizedWidth = ref(undefined);
+
+    const isMobile = ref(false);
+    const isTablet = ref(false);
+    const isSidebarMinimized = computed(() => sidebarStore.isSidebarMinimized);
+    const checkIsTablet = () => window.innerWidth <= tabletBreakPointPX;
+    const checkIsMobile = () => window.innerWidth <= mobileBreakPointPX;
 
     const onResize = () => {
-      store.commit('updateSidebarCollapsedState', checkIsTablet())
+      sidebarStore.updateSidebarCollapsedState(checkIsTablet());
 
-      isMobile.value = checkIsMobile()
-      isTablet.value = checkIsTablet()
-      sidebarMinimizedWidth.value = isMobile.value ? 0 : '4rem'
-      sidebarWidth.value = isTablet.value ? '100%' : '16rem'
-    }
+      isMobile.value = checkIsMobile();
+      isTablet.value = checkIsTablet();
+      sidebarMinimizedWidth.value = isMobile.value ? 0 : "4rem";
+      sidebarWidth.value = isTablet.value ? "100%" : "16rem";
+    };
 
     onMounted(() => {
-      window.addEventListener('resize', onResize)     
-    })
+      window.addEventListener("resize", onResize);
+    });
 
     onBeforeUnmount(() => {
-      window.removeEventListener('resize', onResize)
-    })
+      window.removeEventListener("resize", onResize);
+    });
 
     onBeforeRouteUpdate(() => {
       if (checkIsTablet()) {
         // Collapse sidebar after route change for Mobile
-        store.commit('updateSidebarCollapsedState', true)
+        // store.commit("updateSidebarCollapsedState", true);
+        sidebarStore.updateSidebarCollapsedState(true);
       }
-    })
+    });
 
-    onResize()
+    onResize();
 
-    const isFullScreenSidebar = computed(() => isTablet.value && !isSidebarMinimized.value)
+    const isFullScreenSidebar = computed(
+      () => isTablet.value && !isSidebarMinimized.value
+    );
 
     const onCloseSidebarButtonClick = () => {
-      store.commit('updateSidebarCollapsedState', true)
-    }
+      // store.commit("updateSidebarCollapsedState", true);
+      sidebarStore.updateSidebarCollapsedState(true)
+    };
 
     return {
-      isSidebarMinimized, 
-      sidebarWidth, sidebarMinimizedWidth, 
-      isFullScreenSidebar, onCloseSidebarButtonClick
-    }
-  }
-}
+      isSidebarMinimized,
+      sidebarWidth,
+      sidebarMinimizedWidth,
+      isFullScreenSidebar,
+      onCloseSidebarButtonClick,
+    };
+  },
+};
 </script>
 
 <style lang="scss">
@@ -105,6 +101,7 @@ $tabletBreakPointPX: 768px;
   height: 100vh;
   display: flex;
   flex-direction: column;
+
   &__navbar {
     min-height: 4rem;
   }
@@ -129,12 +126,13 @@ $tabletBreakPointPX: 768px;
           height: 100%;
           position: fixed;
           top: 0;
-          z-index: 999; 
+          z-index: 999;
         }
 
         .va-sidebar:not(.va-sidebar--minimized) {
           // Z-index fix for preventing overflow for close button
           z-index: -1;
+
           .va-sidebar__menu {
             padding: 0;
           }
@@ -142,6 +140,7 @@ $tabletBreakPointPX: 768px;
       }
     }
   }
+
   &__page {
     flex-grow: 2;
     overflow-y: scroll;

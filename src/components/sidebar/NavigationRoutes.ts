@@ -14,11 +14,14 @@ export default {
     {
       name: 'whitelist',
       displayName: 'menu.whitelist',
-      disabled: true,
       meta: {
         icon: 'vuestic-iconset-forms',
       },
       children: [
+        {
+          name: "administrator",
+          displayName: 'menu.administrator',
+        },
         {
           name: 'lender',
           displayName: 'menu.lender'
