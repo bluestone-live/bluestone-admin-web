@@ -1,19 +1,19 @@
 import { defineStore } from 'pinia'
 import utils from "@/utils"
-import { ethers } from "ethers"
+import { ethers, Contract } from "ethers"
 import { toRaw } from "@vue/reactivity"
 import protocolDeclareFile from "@/contracts/Protocol.json"
 import erc20DeclareFile from "@/contracts/ERC20Mock.json"
 
-export const useCommonStore = defineStore('CommonStore', {
+export const useCommonStore = defineStore('common', {
     state: () => ({
         isInited: false,
         ethersInstance: null,
-        erc20Instance: null,
-        networkType: null,
+        networkType: String,
         networkFile: null,
-        protocolAddress: null,
-        protocolInstance: null,
+        protocolAddress: String,
+        protocolInstance: Contract,
+        erc20Instance: Contract,
         tokens: null,
     }),
     getters: {

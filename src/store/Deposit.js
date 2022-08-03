@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { useCommonStore } from "./Common"
 import { BigNumber } from "ethers"
 
-export const useDepositStore = defineStore('DepositStore', {
+export const useDepositStore = defineStore('deposit', {
     state: () => ({
         isInited: false,
         commonState: useCommonStore(),
@@ -40,7 +40,6 @@ export const useDepositStore = defineStore('DepositStore', {
     actions: {
         async init() {
             try {
-                // await this.initWhitelists()
                 this.initSgcAddress()
                 await this.initSgcPools()
                 this.initAvailableSgcPools()
@@ -52,17 +51,12 @@ export const useDepositStore = defineStore('DepositStore', {
             }
         },
 
-        async initWhitelists() {
-            // return useMetaMaskStore
-        },
-
         initSgcAddress() {
             this.sgcAddress = this.commonState.getTokens.SGC.address
         },
 
         async initSgcPools() {
             this.sgcPools = await this.commonState.getProtocol.getPoolsByToken(this.sgcAddress)
-            console.log("sgcPools=", this.sgcPools)
         },
 
         initAvailableSgcPools() {

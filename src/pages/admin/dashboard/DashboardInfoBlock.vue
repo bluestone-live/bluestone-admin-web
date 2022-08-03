@@ -68,28 +68,26 @@
 <script lang="ts">
 import { computed, defineComponent } from "vue";
 import { useGlobalConfig } from "vuestic-ui";
-// import { useCommonStore } from "@/store/Common";
-import { useLoanStore } from "@/store/Loan";
-import { useDepositStore } from "@/store/Deposit";
-import { useOracleStore } from "@/store/Oracle";
+import { useLoanStore } from "@/store/Loan.js";
+import { useDepositStore } from "@/store/Deposit.js";
+import { useOracleStore } from "@/store/Oracle.js";
 
 export default defineComponent({
   name: "DashboardInfoBlock",
   async setup() {
-    // const commonStore = useCommonStore();
-    // if (!commonStore.getInitStatus) {
-    //   console.log("1111111111111111111111111")
-    //   console.log("COMMOM NOT INIT")
-    //   console.log("1111111111111111111111111")
-    //   await commonStore.init();
-    // }
     const loanStore = useLoanStore();
     const depositStore = useDepositStore();
     const oracleStore = useOracleStore();
 
-    await loanStore.init();
-    await depositStore.init();
-    await oracleStore.init();
+    if(!loanStore.getInitStatus) {
+      await loanStore.init();
+    }
+    if(!depositStore.getInitStatus) {
+      await depositStore.init();
+    }
+    if(!oracleStore.getInitStatus) {
+      await oracleStore.init();
+    }
     const btcBalance = loanStore.getBtcBalance;
     const ethBalance = loanStore.getEthBalance;
     const activeLoansCount = loanStore.getActiveLoansCount;
@@ -173,6 +171,7 @@ export default defineComponent({
     const theme = computed(() => {
       return useGlobalConfig().getGlobalConfig().colors || {};
     });
+    
     return {
       balanceInfoTiles,
       statusInfoTiles,

@@ -1,23 +1,15 @@
 <template>
   <div class="flex xs12 md12 xl12">
-    <h1>{{ removeLoadingMap }}</h1>
     <va-card class="mb-4" :disabled="!isOwner">
       <va-card-title>
-        <h1>{{ $t("whitelist.administrator.newTitle") }}</h1></va-card-title
-      >
+        <h1>{{ $t("whitelist.administrator.newTitle") }}</h1>
+      </va-card-title>
       <va-card-content>
-        <va-input
-          class="mb-4"
-          v-model="newAdministratorAddress"
-          label="Administrator Address"
-          placeholder="0x..."
-          :disabled="isAddLoading"
-        />
-        <va-button
-          @click="addWhitelist(newAdministratorAddress)"
-          :loading="isAddLoading"
-          >{{ $t("whitelist.administrator.newButton") }}</va-button
-        >
+        <va-input class="mb-4" v-model="newAdministratorAddress" label="Administrator Address" placeholder="0x..."
+          :disabled="isAddLoading" />
+        <va-button @click="addWhitelist(newAdministratorAddress)" :loading="isAddLoading">{{
+            $t("whitelist.administrator.newButton")
+        }}</va-button>
       </va-card-content>
     </va-card>
     <va-card class="d-flex" stripe stripe-color="info" :disabled="!isOwner">
@@ -26,43 +18,25 @@
       </va-card-title>
       <va-card-content>
         <div class="row">
-          <va-input
-            class="flex mb-2 md6"
-            placeholder="Filter..."
-            v-model="filter"
-          />
+          <va-input class="flex mb-2 md6" placeholder="Filter..." v-model="filter" />
         </div>
 
-        <va-data-table
-          striped
-          :loading="isTableLoading"
-          :items="administrators"
-          :columns="columns"
-          :filter="filter"
-          @filtered="filteredCount = $event.items.length"
-        >
+        <va-data-table striped :loading="isTableLoading" :items="administrators" :columns="columns" :filter="filter"
+          @filtered="filteredCount = $event.items.length">
           <template #cell(id)="{ rowIndex }">
             {{ rowIndex }}
           </template>
           <template #cell(address)="{ rowIndex }">
-            <va-icon
-              v-if="administrators[rowIndex] == ownerAccount"
-              class="mr-1"
-              name="settings"
-            ></va-icon>
+            <va-icon v-if="administrators[rowIndex] == ownerAccount" class="mr-1" name="settings"></va-icon>
             {{ administrators[rowIndex] }}
           </template>
-          <template #cell(option)="{ rowIndex }"
-            ><va-button
-              size="small"
-              color="danger"
-              :disabled="administrators[rowIndex] == ownerAccount"
+          <template #cell(option)="{ rowIndex }">
+            <va-button size="small" color="danger" :disabled="administrators[rowIndex] == ownerAccount"
               :loading="removeLoadingMap.get(administrators[rowIndex])"
-              @click="removeWhitelist(administrators[rowIndex])"
-            >
+              @click="removeWhitelist(administrators[rowIndex])">
               Remove
-            </va-button></template
-          >
+            </va-button>
+          </template>
         </va-data-table>
 
         <va-alert class="mt-3" color="info" outline>
@@ -84,9 +58,9 @@ import {
   computed,
   reactive,
 } from "vue";
-import { useAccountStore } from "@/store/Account";
-import { useWhitelistStore } from "@/store/Whitelist";
-import { usePendingStore } from "@/store/Pending";
+import { useAccountStore } from "@/store/Account.js";
+import { useWhitelistStore } from "@/store/Whitelist.js";
+import { usePendingStore } from "@/store/Pending.js";
 import utils from "@/utils";
 
 export default defineComponent({
@@ -96,12 +70,12 @@ export default defineComponent({
     const instance = getCurrentInstance();
     const _this = instance?.appContext.config.globalProperties;
 
+    const pendingStore = usePendingStore();
+    const accountStore = useAccountStore();
     const whitelistStore = useWhitelistStore();
     if (!whitelistStore.getInitStatus) {
       await whitelistStore.init();
     }
-    const pendingStore = usePendingStore();
-    const accountStore = useAccountStore();
     const currentAccount: String = accountStore.getAccount;
     const ownerAccount: String =
       await whitelistStore.getWhitelistInstance.owner();
@@ -110,8 +84,6 @@ export default defineComponent({
     const isOwner = computed(() => {
       return currentAccount.toLowerCase() == ownerAccount.toLowerCase();
     });
-    console.log("isOwner=", isOwner.value);
-    // const isOwner = (currentAccount == ownerAccount);
 
     let administrators = ref(whitelistStore.getAdministrators);
     let removeLoadingMap = reactive(new Map<string, boolean>());
@@ -119,7 +91,6 @@ export default defineComponent({
     administrators.value.forEach((borrowerAddress: string) => {
       removeLoadingMap.set(borrowerAddress, false);
     });
-    console.log("removeLoadingMap=", removeLoadingMap);
     const columns = [{ key: "id" }, { key: "address" }, { key: "option" }];
 
     let filter = ref("");
@@ -161,10 +132,11 @@ export default defineComponent({
         console.log("remove result: ", result);
         pendingStore.decrement();
         reloadTable();
+        removeLoadingMap.set(address, false);
         openNotification(
           "Remove account [" +
-            utils.shortenAddress(address) +
-            "] from administrators whitelist success.",
+          utils.shortenAddress(address) +
+          "] from administrators whitelist success.",
           "success"
         );
       } catch (error) {
@@ -173,8 +145,8 @@ export default defineComponent({
         removeLoadingMap.set(address, false);
         openNotification(
           "Remove account [" +
-            utils.shortenAddress(address) +
-            "] from administrators whitelist failed.",
+          utils.shortenAddress(address) +
+          "] from administrators whitelist failed.",
           "danger"
         );
       }
@@ -203,8 +175,8 @@ export default defineComponent({
         reloadTable();
         openNotification(
           "Add account [" +
-            utils.shortenAddress(address) +
-            "] to administrators whitelist success.",
+          utils.shortenAddress(address) +
+          "] to administrators whitelist success.",
           "success"
         );
       } catch (error) {
@@ -212,8 +184,8 @@ export default defineComponent({
         pendingStore.decrement();
         openNotification(
           "Add account [" +
-            utils.shortenAddress(address) +
-            "] to administrators whitelist failed.",
+          utils.shortenAddress(address) +
+          "] to administrators whitelist failed.",
           "danger"
         );
         isAddLoading.value = false;
@@ -226,7 +198,7 @@ export default defineComponent({
         color: color,
         iconClass: "fa-star-o",
         position: "bottom-right",
-        duration: Number(4000),
+        duration: Number(10000),
         fullWidth: false,
       });
     };

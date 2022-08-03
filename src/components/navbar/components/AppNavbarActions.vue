@@ -1,21 +1,14 @@
 <template>
   <div class="app-navbar-actions">
     <va-badge left :text="badgePendingCount" color="warning" class="mr-4">
-      <va-button
-        v-if="isWalletConnect"
-        :color="showPending ? 'success' : 'primary'"
-      >
+      <va-button v-if="isWalletConnect" :color="showPending ? 'success' : 'primary'">
         <template #default>
           <div v-if="!showPending">
             <va-icon class="mr-1" name="settings"></va-icon>
             {{ userName }}
           </div>
           <div v-else>
-            <va-icon
-              class="mr-1"
-              name="loop"
-              spin="counter-clockwise"
-            ></va-icon>
+            <va-icon class="mr-1" name="loop" spin="counter-clockwise"></va-icon>
             Pending...
           </div>
         </template>
@@ -32,8 +25,8 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { usePendingStore } from "@/store/Pending";
-import { useAccountStore } from "@/store/Account";
+import { usePendingStore } from "@/store/Pending.js";
+import { useAccountStore } from "@/store/Account.js";
 export default defineComponent({
   name: "app-navbar-actions",
   props: {

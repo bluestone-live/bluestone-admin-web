@@ -1,15 +1,15 @@
 import { defineStore } from 'pinia'
 import { useCommonStore } from "./Common"
-import { ethers } from 'ethers'
+import { ethers, Contract } from 'ethers'
 import { toRaw } from "@vue/reactivity"
 import whitelistDeclareFile from "@/contracts/Whitelist.json"
 
 
-export const useWhitelistStore = defineStore('WhitelistStore', {
+export const useWhitelistStore = defineStore('whitelist', {
     state: () => ({
         isInited: false,
         commonState: useCommonStore(),
-        whitelistInstance: null,
+        whitelistInstance: Contract,
         administrators: [],
         whitelistedLenders: [],
         whitelistedBorrowers: [],

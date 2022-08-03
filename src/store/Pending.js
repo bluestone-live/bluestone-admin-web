@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-export const usePendingStore = defineStore('PendingStore', {
+export const usePendingStore = defineStore('pending', {
     state: () => ({
         pendingCount: 0,
     }),

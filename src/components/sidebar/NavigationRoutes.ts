@@ -14,7 +14,6 @@ export default {
     {
       name: 'whitelist',
       displayName: 'menu.whitelist',
-      disabled: true,
       meta: {
         icon: 'vuestic-iconset-forms',
       },

@@ -20,8 +20,8 @@
 </template>
 
 <script>
-import MadeByComponent from './MadeByComponent'
-import Wallpaper from './Wallpaper'
+import MadeByComponent from './MadeByComponent.vue'
+import Wallpaper from './Wallpaper.vue'
 import { useGlobalConfig } from 'vuestic-ui'
 
 export default {

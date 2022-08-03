@@ -3,8 +3,6 @@ import AppLayout from '@/layout/app-layout.vue'
 import Page404Layout from '@/layout/page-404-layout.vue'
 import RouteViewComponent from './route-view.vue'
 import { useCommonStore } from "@/store/Common.js"
-import pinia from '@/store/index.js'
-const commonStore = useCommonStore(pinia)
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -56,8 +54,8 @@ const routes: Array<RouteRecordRaw> = [
     component: Page404Layout,
     children: [
       {
-        name: 'not-found-simple',
-        path: 'not-found-simple',
+        name: 'notfound',
+        path: '',
         component: () => import('@/pages/404-pages/VaPageNotFoundSimple.vue'),
       },
     ],
@@ -70,6 +68,7 @@ const router = createRouter({
 })
 
 router.beforeEach(async () => {
+  const commonStore = useCommonStore()
   if (!commonStore.isInited) {
     await commonStore.init()
   }

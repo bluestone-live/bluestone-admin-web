@@ -2,21 +2,14 @@
   <div class="flex xs12 md12 xl12">
     <va-card class="mb-4">
       <va-card-title>
-        <h1>{{ $t("whitelist.borrower.newTitle") }}</h1></va-card-title
-      >
+        <h1>{{ $t("whitelist.borrower.newTitle") }}</h1>
+      </va-card-title>
       <va-card-content>
-        <va-input
-          class="mb-4"
-          v-model="newBorrowerAddress"
-          label="Borrower Address"
-          placeholder="0x..."
-          :disabled="isAddLoading"
-        />
-        <va-button
-          @click="addWhitelist(newBorrowerAddress)"
-          :loading="isAddLoading"
-          >{{ $t("whitelist.borrower.newButton") }}</va-button
-        >
+        <va-input class="mb-4" v-model="newBorrowerAddress" label="Borrower Address" placeholder="0x..."
+          :disabled="isAddLoading" />
+        <va-button @click="addWhitelist(newBorrowerAddress)" :loading="isAddLoading">{{
+            $t("whitelist.borrower.newButton")
+        }}</va-button>
       </va-card-content>
     </va-card>
     <va-card class="d-flex" stripe stripe-color="info">
@@ -25,45 +18,24 @@
       </va-card-title>
       <va-card-content>
         <div class="row">
-          <va-input
-            class="flex mb-2 md6"
-            placeholder="Filter..."
-            v-model="filter"
-          />
+          <va-input class="flex mb-2 md6" placeholder="Filter..." v-model="filter" />
         </div>
 
-        <va-data-table
-          striped
-          :loading="isTableLoading"
-          :items="whitelist"
-          :columns="columns"
-          :filter="filter"
-          @filtered="filteredCount = $event.items.length"
-        >
+        <va-data-table striped :loading="isTableLoading" :items="whitelist" :columns="columns" :filter="filter"
+          @filtered="filteredCount = $event.items.length">
           <template #cell(id)="{ rowIndex }">
             {{ rowIndex }}
           </template>
           <template #cell(address)="{ value }">
             {{ value }}
           </template>
-          <template #cell(status)="{ value }"
-            ><va-chip
-              square
-              outline
-              size="small"
-              :color="value == 'active' ? 'success' : 'danger'"
-              >{{ value }}</va-chip
-            ></template
-          >
-          <template #cell(option)="{ value, rowIndex }"
-            ><va-button
-              size="small"
-              color="danger"
-              :loading="removeLoadingMap.get(whitelist[rowIndex].address)"
-              @click="removeWhitelist(whitelist[rowIndex].address)"
-              >{{ value }}</va-button
-            ></template
-          >
+          <template #cell(status)="{ value }">
+            <va-chip square outline size="small" :color="value == 'active' ? 'success' : 'danger'">{{ value }}</va-chip>
+          </template>
+          <template #cell(option)="{ value, rowIndex }">
+            <va-button size="small" color="danger" :loading="removeLoadingMap.get(whitelist[rowIndex].address)"
+              @click="removeWhitelist(whitelist[rowIndex].address)">{{ value }}</va-button>
+          </template>
         </va-data-table>
 
         <va-alert class="mt-3" color="info" outline>
@@ -79,9 +51,9 @@
 
 <script lang="ts">
 import { defineComponent, ref, getCurrentInstance } from "vue";
-import { useLoanStore } from "@/store/Loan";
-import { useWhitelistStore } from "@/store/Whitelist";
-import { usePendingStore } from "@/store/Pending";
+import { useLoanStore } from "@/store/Loan.js";
+import { useWhitelistStore } from "@/store/Whitelist.js";
+import { usePendingStore } from "@/store/Pending.js";
 import utils from "@/utils";
 class WhiteListItem {
   address: string;
@@ -103,16 +75,15 @@ export default defineComponent({
     const _this = instance?.appContext.config.globalProperties;
 
     const pendingStore = usePendingStore();
-
     const whitelistStore = useWhitelistStore();
+    const loanStore = useLoanStore();
     if (!whitelistStore.getInitStatus) {
       await whitelistStore.init();
     }
+    if (!loanStore.getInitStatus) {
+      await loanStore.init();
+    }
 
-    const loanStore = useLoanStore();
-    await loanStore.init();
-
-    // const borrowersOnWhitelists = loanStore.getWhitelist;
     const borrowersOnWhitelists = whitelistStore.getWhitelistedBorrowers;
     const activeBorrowers = loanStore.getActiveBorrowers;
     let whitelist = ref(Array<WhiteListItem>());
@@ -188,10 +159,11 @@ export default defineComponent({
         console.log("remove result: ", result);
         pendingStore.decrement();
         reloadTable();
+        removeLoadingMap.value.set(address, false);
         openNotification(
           "Remove account [" +
-            utils.shortenAddress(address) +
-            "] from whitelist success.",
+          utils.shortenAddress(address) +
+          "] from whitelist success.",
           "success"
         );
       } catch (error) {
@@ -200,8 +172,8 @@ export default defineComponent({
         removeLoadingMap.value.set(address, false);
         openNotification(
           "Remove account [" +
-            utils.shortenAddress(address) +
-            "] from whitelist failed.",
+          utils.shortenAddress(address) +
+          "] from whitelist failed.",
           "danger"
         );
       }
@@ -230,8 +202,8 @@ export default defineComponent({
         reloadTable();
         openNotification(
           "Add account [" +
-            utils.shortenAddress(address) +
-            "] to whitelist success.",
+          utils.shortenAddress(address) +
+          "] to whitelist success.",
           "success"
         );
       } catch (error) {
@@ -239,8 +211,8 @@ export default defineComponent({
         pendingStore.decrement();
         openNotification(
           "Add account [" +
-            utils.shortenAddress(address) +
-            "] to whitelist failed.",
+          utils.shortenAddress(address) +
+          "] to whitelist failed.",
           "danger"
         );
         isAddLoading.value = false;
@@ -253,7 +225,7 @@ export default defineComponent({
         color: color,
         iconClass: "fa-star-o",
         position: "bottom-right",
-        duration: Number(4000),
+        duration: Number(10000),
         fullWidth: false,
       });
     };

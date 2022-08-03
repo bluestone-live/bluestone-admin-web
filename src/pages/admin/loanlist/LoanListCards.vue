@@ -1,93 +1,48 @@
 <template>
   <div class="row row-equal">
-    <va-modal
-      v-model="showModal"
-      message="Please contact the borrower to add more collaterals."
-      title="Margin Call"
-    />
+    <va-modal v-model="showModal" message="Please contact the borrower to add more collaterals." title="Margin Call" />
     <div class="xs12 sm12 loanList-select">
-      <va-input
-        class="flex md4 mt-1"
-        label="Borrower Address"
-        placeholder="Filter..."
-        v-model="filterInput"
-      >
+      <va-input class="flex md4 mt-1" label="Borrower Address" placeholder="Filter..." v-model="filterInput">
         <template #prependInner>
           <va-icon name="search" />
         </template>
       </va-input>
-      <va-button-toggle
-        flat
-        gradient
-        v-model="toggleValue"
-        :options="toggleOptions"
-        class="mt-3"
-      />
+      <va-button-toggle flat gradient v-model="toggleValue" :options="toggleOptions" class="mt-3" />
     </div>
-    <div
-      class="flex xs12 sm12"
-      v-for="(loanDetail, borrowersIdx) in loanRecords"
-      :key="borrowersIdx"
-    >
+    <div class="flex xs12 sm12" v-for="(loanDetail, borrowersIdx) in loanRecords" :key="borrowersIdx">
       <va-card class="mb-4">
         <va-card-title class="flex">
           <h1>
             <!-- <va-icon class="mr-1" name="user" size="small" /> -->
             {{ loanDetail[0] }}
-            <va-popover
-              class="mr-2 mb-2"
-              icon="library_add_check"
-              message="Copied"
-              trigger="click"
-              placement="right"
-            >
-              <va-icon
-                name="content_copy"
-                size="0.8rem"
-                @click="copyToClipboard(loanDetail[0])"
-                color="gray"
-              />
+            <va-popover class="mr-2 mb-2" icon="library_add_check" message="Copied" trigger="click" placement="right">
+              <va-icon name="content_copy" size="0.8rem" @click="copyToClipboard(loanDetail[0])" color="gray" />
             </va-popover>
           </h1>
           <div class="text-right">
-            <va-badge
-              size="small"
-              :color="
-                whitelistedBorrowers.indexOf(loanDetail[0]) >= 0
-                  ? 'success'
-                  : 'danger'
-              "
-              :text="
-                whitelistedBorrowers.indexOf(loanDetail[0]) >= 0
-                  ? 'On Whitelist'
-                  : 'Out Whitelist'
-              "
-            ></va-badge>
+            <va-badge size="small" :color="
+              whitelistedBorrowers.indexOf(loanDetail[0]) >= 0
+                ? 'success'
+                : 'danger'
+            " :text="
+  whitelistedBorrowers.indexOf(loanDetail[0]) >= 0
+    ? 'On Whitelist'
+    : 'Out Whitelist'
+"></va-badge>
           </div>
         </va-card-title>
         <va-card-content>
-          <va-collapse
-            v-for="(loanRecord, index) in loanDetail[1]"
-            :key="index"
-            class="mb-4"
-            :header="loanRecord.createdAt + ' ~ ' + loanRecord.dueAt"
-            :color="getCollapseColor(loanRecord)"
-            icon="timer"
-          >
+          <va-collapse v-for="(loanRecord, index) in loanDetail[1]" :key="index" class="mb-4"
+            :header="loanRecord.createdAt + ' ~ ' + loanRecord.dueAt" :color="getCollapseColor(loanRecord)"
+            icon="timer">
             <va-list>
               <va-list-label>
                 <h1>{{ $t("loanList.loanDetailTitle") }}</h1>
               </va-list-label>
-              <template
-                v-for="(valueRecord, keyRecord, itemIndex) in loanRecord"
-                :key="keyRecord"
-              >
+              <template v-for="(valueRecord, keyRecord, itemIndex) in loanRecord" :key="keyRecord">
                 <va-list-item>
                   <va-list-item-section avatar>
-                    <va-avatar
-                      :icon="loanRecordsKeyIcon[itemIndex]"
-                      size="small"
-                    >
+                    <va-avatar :icon="loanRecordsKeyIcon[itemIndex]" size="small">
                       <!-- <va-icon name="label_outline" size="2rem" color="gray" /> -->
                     </va-avatar>
                   </va-list-item-section>
@@ -100,27 +55,14 @@
                     {{ valueRecord }}
                   </va-list-item-label>
                   <va-list-item-section icon>
-                    <div
-                      v-if="
-                        keyRecord == 'loanId' ||
-                        keyRecord == 'loanTokenAddress' ||
-                        keyRecord == 'collateralTokenAddress'
-                      "
-                    >
-                      <va-popover
-                        class="mr-2 mb-2"
-                        message="Copied"
-                        icon="library_add_check"
-                        trigger="click"
-                        placement="top"
-                        color="primary"
-                      >
-                        <va-icon
-                          name="content_copy"
-                          size="1rem"
-                          @click="copyToClipboard(valueRecord)"
-                          color="gray"
-                        />
+                    <div v-if="
+                      keyRecord == 'loanId' ||
+                      keyRecord == 'loanTokenAddress' ||
+                      keyRecord == 'collateralTokenAddress'
+                    ">
+                      <va-popover class="mr-2 mb-2" message="Copied" icon="library_add_check" trigger="click"
+                        placement="top" color="primary">
+                        <va-icon name="content_copy" size="1rem" @click="copyToClipboard(valueRecord)" color="gray" />
                       </va-popover>
                     </div>
                     <div v-else>
@@ -128,35 +70,21 @@
                     </div>
                   </va-list-item-section>
                 </va-list-item>
-                <va-list-separator
-                  v-if="itemIndex <= 18"
-                  :key="'separator' + keyRecord"
-                />
+                <va-list-separator v-if="itemIndex <= 18" :key="'separator' + keyRecord" />
               </template>
               <div class="loanDetail-buttons">
                 <span>
-                  <va-button
-                    class="mr-4 mb-2"
-                    :disabled="!loanRecord.isMarginCall"
-                    :loading="marginCallLoadingMap.get(loanRecord.loanId)"
-                    @click="marginCall([borrowersIdx, index])"
-                    color="warning"
-                    >Margin Call</va-button
-                  >
-                  <va-button
-                    class="mr-4 mb-2"
-                    :disabled="!loanRecord.isLiquidable"
-                    :loading="liquidateLoadingMap.get(loanRecord.loanId)"
-                    @click="
+                  <va-button class="mr-4 mb-2" :disabled="!loanRecord.isMarginCall"
+                    :loading="marginCallLoadingMap.get(loanRecord.loanId)" @click="marginCall([borrowersIdx, index])"
+                    color="warning">Margin Call</va-button>
+                  <va-button class="mr-4 mb-2" :disabled="!loanRecord.isLiquidable"
+                    :loading="liquidateLoadingMap.get(loanRecord.loanId)" @click="
                       liquidateLoan(
                         loanRecord.loanId,
                         loanRecord.remainingDebt,
                         index
                       )
-                    "
-                    color="danger"
-                    >Liquidate</va-button
-                  >
+                    " color="danger">Liquidate</va-button>
                 </span>
               </div>
             </va-list>
@@ -171,12 +99,12 @@
 import { computed, watch, ref, defineComponent, getCurrentInstance } from "vue";
 import { useGlobalConfig } from "vuestic-ui";
 
-import { useLoanStore } from "@/store/Loan";
-import { useCommonStore } from "@/store/Common";
-import { useWhitelistStore } from "@/store/Whitelist";
-import { useAccountStore } from "@/store/Account";
-import { usePendingStore } from "@/store/Pending";
-import { marginCollateralCoverageRatio } from "@/margin";
+import { useLoanStore } from "@/store/Loan.js";
+import { useCommonStore } from "@/store/Common.js";
+import { useWhitelistStore } from "@/store/Whitelist.js";
+import { useAccountStore } from "@/store/Account.js";
+import { usePendingStore } from "@/store/Pending.js";
+import { marginCollateralCoverageRatio } from "@/margin/index";
 
 import { BigNumber, ethers } from "ethers";
 import utils from "@/utils";
@@ -187,6 +115,21 @@ export default defineComponent({
     const instance = getCurrentInstance();
     const _this = instance?.appContext.config.globalProperties;
 
+    const accountStore = useAccountStore();
+    const loanStore = useLoanStore();
+    const pendingStore = usePendingStore();
+    const commonStore = useCommonStore();
+    const whitelistStore = useWhitelistStore();
+    if (!commonStore.getInitStatus) {
+      await commonStore.init();
+    }
+    if (!whitelistStore.getInitStatus) {
+      await whitelistStore.init();
+    }
+    if (!loanStore.getInitStatus) {
+      await loanStore.init();
+    }
+
     const toggleOptions = [
       { label: "All", value: "all" },
       { label: "Active", value: "active" },
@@ -196,20 +139,6 @@ export default defineComponent({
     let toggleValue = ref("all");
 
     let showModal = ref(false);
-
-    const commonStore = useCommonStore();
-    if (!commonStore.getInitStatus) {
-      await commonStore.init();
-    }
-    const whitelistStore = useWhitelistStore();
-    if (!whitelistStore.getInitStatus) {
-      await whitelistStore.init();
-    }
-    const accountStore = useAccountStore();
-    const pendingStore = usePendingStore();
-
-    const loanStore = useLoanStore();
-    await loanStore.init();
 
     const loanRecordsKeyIcon = [
       "label",
@@ -381,11 +310,23 @@ export default defineComponent({
         result = await tx.wait();
         liquidateLoadingMap.value.set(loanId, false);
         pendingStore.decrement();
+        openNotification(
+          "Liquidate loan [" +
+          loanId +
+          "] success.",
+          "success"
+        );
         console.log("liquidateLoan result:", result);
       } catch (error) {
         console.error(error);
         liquidateLoadingMap.value.set(loanId, false);
         pendingStore.decrement();
+        openNotification(
+          "Liquidate loan [" +
+          loanId +
+          "] failed.",
+          "danger"
+        );
       }
     }
 
@@ -484,7 +425,7 @@ export default defineComponent({
         color: color,
         iconClass: "fa-star-o",
         position: "bottom-right",
-        duration: Number(4000),
+        duration: Number(10000),
         fullWidth: false,
       });
     };
@@ -513,7 +454,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .row-separated {
-  .flex + .flex {
+  .flex+.flex {
     border-left: 1px solid var(--va-background);
   }
 
@@ -531,6 +472,7 @@ export default defineComponent({
   width: 100%;
   height: 100%;
 }
+
 .loanDetail-buttons {
   display: flex;
   justify-content: right;

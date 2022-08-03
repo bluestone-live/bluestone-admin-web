@@ -2,12 +2,8 @@
   <div class="app-layout__navbar">
     <va-navbar>
       <template v-slot:left>
-        <va-icon-menu-collapsed
-          @click="isSidebarMinimized = !isSidebarMinimized"
-          :class="{ 'x-flip': isSidebarMinimized }"
-          class="va-navbar__item"
-          :color="colors.primary"
-        />
+        <va-icon-menu-collapsed @click="isSidebarMinimized = !isSidebarMinimized"
+          :class="{ 'x-flip': isSidebarMinimized }" class="va-navbar__item" :color="colors.primary" />
         <router-link to="/">
           <vuestic-logo class="logo" />
         </router-link>
@@ -18,20 +14,17 @@
       </template>
 
       <template v-slot:right>
-        <app-navbar-actions
-          class="app-navbar__actions md5 lg4"
-          :user-name="accountAddress"
-          :is-wallet-connect="isWalletConnect"
-        />
+        <app-navbar-actions class="app-navbar__actions md5 lg4" :user-name="accountAddress"
+          :is-wallet-connect="isWalletConnect" />
       </template>
     </va-navbar>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { useAccountStore } from "@/store/Account";
-import { useNavbarStore } from "@/store/Navbar";
+import { useAccountStore } from "@/store/Account.js";
+import { useNavbarStore } from "@/store/Navbar.js";
 import { useColors } from "vuestic-ui";
 import VuesticLogo from "@/components/vuestic-logo.vue";
 import VaIconMenuCollapsed from "@/components/icons/VaIconMenuCollapsed.vue";
@@ -57,7 +50,7 @@ export default {
     });
     let isWalletConnect = ref(false);
     onMounted(async () => {
-      if(!accountStore.getInitStatus) {
+      if (!accountStore.getInitStatus) {
         await accountStore.init();
       }
     });
@@ -85,12 +78,14 @@ export default {
 .va-navbar {
   box-shadow: var(--va-box-shadow);
   z-index: 2;
+
   &__center {
     @media screen and (max-width: 1200px) {
       .app-navbar__github-button {
         display: none;
       }
     }
+
     @media screen and (max-width: 950px) {
       .app-navbar__text {
         display: none;
@@ -102,6 +97,7 @@ export default {
     .left {
       width: 100%;
     }
+
     .app-navbar__actions {
       width: 100%;
       display: flex;
@@ -113,10 +109,12 @@ export default {
 .left {
   display: flex;
   align-items: center;
-  & > * {
+
+  &>* {
     margin-right: 1.5rem;
   }
-  & > *:last-child {
+
+  &>*:last-child {
     margin-right: 0;
   }
 }
@@ -125,8 +123,9 @@ export default {
   transform: scaleX(-100%);
 }
 
-.app-navbar__text > * {
+.app-navbar__text>* {
   margin-right: 0.5rem;
+
   &:last-child {
     margin-right: 0;
   }

@@ -5,7 +5,7 @@ import { BigNumber } from "ethers"
 import { useDepositStore } from './Deposit'
 
 
-export const useOracleStore = defineStore('OracleStore', {
+export const useOracleStore = defineStore('oracle', {
     state: () => ({
         isInited: false,
         commonState: useCommonStore(),

@@ -7,7 +7,7 @@ import utils from "@/utils"
 import borrowerWhitelistDeclareFile from "@/contracts/BorrowersWhitelist.json"
 
 
-export const useLoanStore = defineStore('LoanStore', {
+export const useLoanStore = defineStore('loan', {
     state: () => ({
         isInited: false,
         commonState: useCommonStore(),
@@ -81,8 +81,8 @@ export const useLoanStore = defineStore('LoanStore', {
     actions: {
         async init() {
             try {
-                this.initWhitelistInstance()
-                await this.initWhitelist()
+                // this.initWhitelistInstance()
+                // await this.initWhitelist()
                 this.initBtcAddress()
                 this.initBtcBalance()
                 this.initEthAddress()
@@ -97,19 +97,19 @@ export const useLoanStore = defineStore('LoanStore', {
                 console.error(error)
             }
         },
-        initWhitelistInstance() {
-            const whitelistAddress = this.commonState.getNetworkFile.contracts[borrowerWhitelistDeclareFile.contractName]
-            this.whitelistInstance = new ethers.Contract(
-                whitelistAddress,
-                borrowerWhitelistDeclareFile.abi,
-                this.commonState.getProvider.getSigner()
-            )
-        },
-        async initWhitelist() {
-            let tempArr = []
-            tempArr = await this.getWhitelistInstance.getWhitelistedAccounts()
-            this.whitelist = tempArr
-        },
+        // initWhitelistInstance() {
+        //     const whitelistAddress = this.commonState.getNetworkFile.contracts[borrowerWhitelistDeclareFile.contractName]
+        //     this.whitelistInstance = new ethers.Contract(
+        //         whitelistAddress,
+        //         borrowerWhitelistDeclareFile.abi,
+        //         this.commonState.getProvider.getSigner()
+        //     )
+        // },
+        // async initWhitelist() {
+        //     let tempArr = []
+        //     tempArr = await this.getWhitelistInstance.getWhitelistedAccounts()
+        //     this.whitelist = tempArr
+        // },
         initBtcAddress() {
             this.btcAddress = this.commonState.getTokens.xBTC.address
         },

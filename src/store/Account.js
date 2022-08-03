@@ -1,15 +1,15 @@
 import { defineStore } from 'pinia'
 import { useCommonStore } from "./Common"
 
-export const useAccountStore = defineStore('AccountStore', {
+export const useAccountStore = defineStore('account', {
   state: () => ({
-    isInit: false,
+    isInited: false,
     commonStore: useCommonStore(),
     accounts: [],
   }),
   getters: {
     getInitStatus(state) {
-      return state.isInit
+      return state.isInited
     },
 
     getAccounts(state) {
@@ -23,7 +23,7 @@ export const useAccountStore = defineStore('AccountStore', {
   actions: {
     async init() {
       await this.initAccounts()
-      this.isInit = true
+      this.isInited = true
       console.log("Account: init Account success.")
     },
     async initAccounts() {

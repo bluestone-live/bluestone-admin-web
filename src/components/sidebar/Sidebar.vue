@@ -1,19 +1,15 @@
 <template>
-  <va-sidebar
-    :width="width"
-    :minimized="minimized" 
-    :minimizedWidth="minimizedWidth"
-  >
+  <va-sidebar :width="width" :minimized="minimized" :minimizedWidth="minimizedWidth">
     <menu-minimized v-if="minimized" :items="items" />
     <menu-accordion v-else :items="items" />
-  </va-sidebar>    
+  </va-sidebar>
 </template>
 
 <script>
 import { useGlobalConfig } from 'vuestic-ui';
 import MenuAccordion from './menu/MenuAccordion.vue';
 import MenuMinimized from './menu/MenuMinimized.vue';
-import NavigationRoutes from './NavigationRoutes';
+import NavigationRoutes from './NavigationRoutes.ts';
 
 export default {
   name: "app-sidebar",
@@ -57,6 +53,7 @@ export default {
 
   &__menu {
     padding: 2rem 0;
+
     &__inner {
       padding-bottom: 8rem;
     }
