@@ -76,12 +76,11 @@ export default defineComponent({
     if (!whitelistStore.getInitStatus) {
       await whitelistStore.init();
     }
-    const currentAccount: String = accountStore.getAccount;
+    let currentAccount: String = accountStore.getAccount;
     const ownerAccount: String =
       await whitelistStore.getWhitelistInstance.owner();
-    console.log("currentACcount=", currentAccount);
-    console.log("ownerAccount===", ownerAccount);
-    const isOwner = computed(() => {
+
+    let isOwner = computed(() => {
       return currentAccount.toLowerCase() == ownerAccount.toLowerCase();
     });
 

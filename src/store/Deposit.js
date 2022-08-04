@@ -21,6 +21,9 @@ export const useDepositStore = defineStore('deposit', {
         getWhitelists(state) {
             return state.whitelists
         },
+        getExp(state) {
+            return state.exp
+        },
         getSgcPools(state) {
             return state.sgcPools
         },
@@ -89,10 +92,6 @@ export const useDepositStore = defineStore('deposit', {
             console.log(a, b, c)
             let totalBalance = BigNumber.from(0)
             this.sgcPools.forEach((pool) => {
-                // if(pool.availableAmount.gt(BigNumber.from(0))) {
-                //     console.log("non-zero pool=", pool)
-                //     console.log("totalBalance=", totalBalance)
-                // }
                 totalBalance = totalBalance.add(pool.availableAmount)
             })
             this.sgcBalance = totalBalance

@@ -31,8 +31,11 @@
             "eth": "ETH",
             "sgc": "SGC"
         },
+        "loans": {
+            "title": "Loans Status"
+        },
         "pools": {
-            "title": "Pools Status"
+            "title": "Available Pools Status"
         }
     },
     "whitelist": {

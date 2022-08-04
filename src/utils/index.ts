@@ -21,7 +21,7 @@ const utils = {
     },
 
     shortenAddress(address: string): string {
-        return address.substring(0, 5) + "..." + address.substring(38)
+        return address.substring(0, 5) + "..." + address.substring(address.length - 4)
     },
 
     formatTimestamp(timestamp: any) {

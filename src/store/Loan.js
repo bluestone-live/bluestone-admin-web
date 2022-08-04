@@ -11,8 +11,6 @@ export const useLoanStore = defineStore('loan', {
     state: () => ({
         isInited: false,
         commonState: useCommonStore(),
-        whitelistInstance: null,
-        whitelist: [],
         btcAddress: "",
         ethAddress: "",
         exp: BigNumber.from("10").pow(18),
@@ -34,12 +32,6 @@ export const useLoanStore = defineStore('loan', {
         },
         getExp(state) {
             return state.exp
-        },
-        getWhitelistInstance(state) {
-            return toRaw(state.whitelistInstance)
-        },
-        getWhitelist(state) {
-            return state.whitelist
         },
         getBtcAddress(state) {
             return state.btcAddress
@@ -81,15 +73,12 @@ export const useLoanStore = defineStore('loan', {
     actions: {
         async init() {
             try {
-                // this.initWhitelistInstance()
-                // await this.initWhitelist()
                 this.initBtcAddress()
                 this.initBtcBalance()
                 this.initEthAddress()
                 this.initEthBalance()
                 await this.initBorrowersAndTotalLoansCount()
                 await this.initBorrowersLoanRecords()
-                // this.initHandledLoanRecords()
                 this.initActiveBorrowersAndActiveLoansCount()
                 this.initMarginCallAndLiquidableLoansCount()
                 this.isInited = true
@@ -97,19 +86,7 @@ export const useLoanStore = defineStore('loan', {
                 console.error(error)
             }
         },
-        // initWhitelistInstance() {
-        //     const whitelistAddress = this.commonState.getNetworkFile.contracts[borrowerWhitelistDeclareFile.contractName]
-        //     this.whitelistInstance = new ethers.Contract(
-        //         whitelistAddress,
-        //         borrowerWhitelistDeclareFile.abi,
-        //         this.commonState.getProvider.getSigner()
-        //     )
-        // },
-        // async initWhitelist() {
-        //     let tempArr = []
-        //     tempArr = await this.getWhitelistInstance.getWhitelistedAccounts()
-        //     this.whitelist = tempArr
-        // },
+
         initBtcAddress() {
             this.btcAddress = this.commonState.getTokens.xBTC.address
         },
@@ -158,41 +135,6 @@ export const useLoanStore = defineStore('loan', {
             console.log("borrowersRecord=", this.borrowersLoanRecords)
         },
 
-        // initHandledLoanRecords() {
-        //     let tempMap = new Map()
-        //     let date = new Date()
-        //     this.getBorrowersLoanRecords.forEach((loanRecords, address) => {
-        //         let tempRecords = []
-        //         loanRecords.forEach((loanRecord) => {
-        //             let tempRecord = {
-        //                 loanId: loanRecord.loanId,
-        //                 loanTokenAddress: loanRecord.loanTokenAddress,
-        //                 collateralTokenAddress: loanRecord.collateralTokenAddress,
-        //                 loanAmount: loanRecord.loanAmount.div(this.exp).toNumber() + " SGC",
-        //                 collateralAmount: loanRecord.collateralAmount.div(this.exp).toNumber() + " SGC",
-        //                 loanTerm: loanRecord.loanTerm.toNumber() + " Days",
-        //                 annualInterestRate: loanRecord.annualInterestRate.div(this.exp).mul(100).toNumber() + "%",
-        //                 interest: loanRecord.interest.div(this.exp).toNumber() + " SGC",
-        //                 collateralCoverageRatio: loanRecord.collateralCoverageRatio.div(this.exp).mul(100).toNumber() + "%",
-        //                 minCollateralCoverageRatio: loanRecord.minCollateralCoverageRatio.div(this.exp).mul(100).toNumber() + "%",
-        //                 alreadyPaidAmount: loanRecord.alreadyPaidAmount.div(this.exp).toNumber() + " SGC",
-        //                 liquidatedAmount: loanRecord.liquidatedAmount.div(this.exp).toNumber() + " SGC",
-        //                 soldCollateralAmount: loanRecord.soldCollateralAmount.div(this.exp).toNumber() + " SGC",
-        //                 createdAt: utils.formatTimestamp(loanRecord.createdAt.toNumber()),
-        //                 dueAt: utils.formatTimestamp(loanRecord.dueAt.toNumber()),
-        //                 remainingDebt: loanRecord.remainingDebt.div(this.exp).toNumber() + " SGC",
-        //                 isClosed: loanRecord.isClosed,
-        //                 isMarginCall: (!loanRecord.isClosed) && loanRecord.collateralCoverageRatio.lte(marginCollateralCoverageRatio),
-        //                 isLiquidable: (!loanRecord.isClosed) && (loanRecord.collateralCoverageRatio.lt(loanRecord.minCollateralCoverageRatio) || loanRecord.dueAt.mul(1000).lt(BigNumber.from(date.getTime())))
-        //             }
-        //             tempRecords.push(tempRecord)
-        //         })
-        //         tempMap.set(address, tempRecords)
-        //     })
-        //     this.handledLoanRecords = tempMap
-        //     console.log("handledLoanRecords=", this.handledLoanRecords)
-        // },
-
         initActiveBorrowersAndActiveLoansCount() {
             let tempArr = []
             let tempCount = 0
@@ -215,16 +157,6 @@ export const useLoanStore = defineStore('loan', {
         initMarginCallAndLiquidableLoansCount() {
             let tempMarginCallCount = 0
             let tempLiquidableCount = 0
-            // this.getHandledLoanRecords.forEach((loanRecords, address) => {
-            //     loanRecords.forEach((loanRecord) => {
-            //         if (loanRecord.isMarginCall) {
-            //             tempMarginCallCount++
-            //         }
-            //         if (loanRecord.isLiquidable) {
-            //             tempLiquidableCount++
-            //         }
-            //     })
-            // })
             let date = new Date()
             this.getBorrowersLoanRecords.forEach((loanRecords, address) => {
                 loanRecords.forEach((loanRecord) => {

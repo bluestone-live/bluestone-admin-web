@@ -1,48 +1,92 @@
 <template>
   <div class="row row-equal">
-    <va-modal v-model="showModal" message="Please contact the borrower to add more collaterals." title="Margin Call" />
+    <va-modal
+      v-model="showModal"
+      message="Please contact the borrower to add more collaterals."
+      title="Margin Call"
+    />
     <div class="xs12 sm12 loanList-select">
-      <va-input class="flex md4 mt-1" label="Borrower Address" placeholder="Filter..." v-model="filterInput">
+      <va-input
+        class="flex md4 mt-1"
+        label="Borrower Address"
+        placeholder="Filter..."
+        v-model="filterInput"
+      >
         <template #prependInner>
           <va-icon name="search" />
         </template>
       </va-input>
-      <va-button-toggle flat gradient v-model="toggleValue" :options="toggleOptions" class="mt-3" />
+      <va-button-toggle
+        flat
+        gradient
+        v-model="toggleValue"
+        :options="toggleOptions"
+        class="mt-3"
+      />
     </div>
-    <div class="flex xs12 sm12" v-for="(loanDetail, borrowersIdx) in loanRecords" :key="borrowersIdx">
+    <div
+      class="flex xs12 sm12"
+      v-for="(loanDetail, borrowersIdx) in loanRecords"
+      :key="borrowersIdx"
+    >
       <va-card class="mb-4">
         <va-card-title class="flex">
           <h1>
-            <!-- <va-icon class="mr-1" name="user" size="small" /> -->
             {{ loanDetail[0] }}
-            <va-popover class="mr-2 mb-2" icon="library_add_check" message="Copied" trigger="click" placement="right">
-              <va-icon name="content_copy" size="0.8rem" @click="copyToClipboard(loanDetail[0])" color="gray" />
+            <va-popover
+              class="mr-2 mb-2"
+              icon="library_add_check"
+              message="Copied"
+              trigger="click"
+              placement="right"
+            >
+              <va-icon
+                name="content_copy"
+                size="0.8rem"
+                @click="copyToClipboard(loanDetail[0])"
+                color="gray"
+              />
             </va-popover>
           </h1>
           <div class="text-right">
-            <va-badge size="small" :color="
-              whitelistedBorrowers.indexOf(loanDetail[0]) >= 0
-                ? 'success'
-                : 'danger'
-            " :text="
-  whitelistedBorrowers.indexOf(loanDetail[0]) >= 0
-    ? 'On Whitelist'
-    : 'Out Whitelist'
-"></va-badge>
+            <va-badge
+              size="small"
+              :color="
+                whitelistedBorrowers.indexOf(loanDetail[0]) >= 0
+                  ? 'success'
+                  : 'danger'
+              "
+              :text="
+                whitelistedBorrowers.indexOf(loanDetail[0]) >= 0
+                  ? 'On Whitelist'
+                  : 'Out Whitelist'
+              "
+            ></va-badge>
           </div>
         </va-card-title>
         <va-card-content>
-          <va-collapse v-for="(loanRecord, index) in loanDetail[1]" :key="index" class="mb-4"
-            :header="loanRecord.createdAt + ' ~ ' + loanRecord.dueAt" :color="getCollapseColor(loanRecord)"
-            icon="timer">
+          <va-collapse
+            v-for="(loanRecord, index) in loanDetail[1]"
+            :key="index"
+            class="mb-4"
+            :header="loanRecord.createdAt + ' ~ ' + loanRecord.dueAt"
+            :color="getCollapseColor(loanRecord)"
+            icon="timer"
+          >
             <va-list>
               <va-list-label>
                 <h1>{{ $t("loanList.loanDetailTitle") }}</h1>
               </va-list-label>
-              <template v-for="(valueRecord, keyRecord, itemIndex) in loanRecord" :key="keyRecord">
+              <template
+                v-for="(valueRecord, keyRecord, itemIndex) in loanRecord"
+                :key="keyRecord"
+              >
                 <va-list-item>
                   <va-list-item-section avatar>
-                    <va-avatar :icon="loanRecordsKeyIcon[itemIndex]" size="small">
+                    <va-avatar
+                      :icon="loanRecordsKeyIcon[itemIndex]"
+                      size="small"
+                    >
                       <!-- <va-icon name="label_outline" size="2rem" color="gray" /> -->
                     </va-avatar>
                   </va-list-item-section>
@@ -55,14 +99,27 @@
                     {{ valueRecord }}
                   </va-list-item-label>
                   <va-list-item-section icon>
-                    <div v-if="
-                      keyRecord == 'loanId' ||
-                      keyRecord == 'loanTokenAddress' ||
-                      keyRecord == 'collateralTokenAddress'
-                    ">
-                      <va-popover class="mr-2 mb-2" message="Copied" icon="library_add_check" trigger="click"
-                        placement="top" color="primary">
-                        <va-icon name="content_copy" size="1rem" @click="copyToClipboard(valueRecord)" color="gray" />
+                    <div
+                      v-if="
+                        keyRecord == 'loanId' ||
+                        keyRecord == 'loanTokenAddress' ||
+                        keyRecord == 'collateralTokenAddress'
+                      "
+                    >
+                      <va-popover
+                        class="mr-2 mb-2"
+                        message="Copied"
+                        icon="library_add_check"
+                        trigger="click"
+                        placement="top"
+                        color="primary"
+                      >
+                        <va-icon
+                          name="content_copy"
+                          size="1rem"
+                          @click="copyToClipboard(valueRecord)"
+                          color="gray"
+                        />
                       </va-popover>
                     </div>
                     <div v-else>
@@ -70,21 +127,31 @@
                     </div>
                   </va-list-item-section>
                 </va-list-item>
-                <va-list-separator v-if="itemIndex <= 18" :key="'separator' + keyRecord" />
+                <va-list-separator
+                  v-if="itemIndex <= 18"
+                  :key="'separator' + keyRecord"
+                />
               </template>
               <div class="loanDetail-buttons">
                 <span>
-                  <va-button class="mr-4 mb-2" :disabled="!loanRecord.isMarginCall"
-                    :loading="marginCallLoadingMap.get(loanRecord.loanId)" @click="marginCall([borrowersIdx, index])"
-                    color="warning">Margin Call</va-button>
-                  <va-button class="mr-4 mb-2" :disabled="!loanRecord.isLiquidable"
-                    :loading="liquidateLoadingMap.get(loanRecord.loanId)" @click="
-                      liquidateLoan(
-                        loanRecord.loanId,
-                        loanRecord.remainingDebt,
-                        index
-                      )
-                    " color="danger">Liquidate</va-button>
+                  <va-button
+                    class="mr-4 mb-2"
+                    :disabled="!loanRecord.isMarginCall"
+                    :loading="marginCallLoadingMap.get(loanRecord.loanId)"
+                    @click="marginCall([borrowersIdx, index])"
+                    color="warning"
+                    >Margin Call</va-button
+                  >
+                  <va-button
+                    class="mr-4 mb-2"
+                    :disabled="!loanRecord.isLiquidable"
+                    :loading="liquidateLoadingMap.get(loanRecord.loanId)"
+                    @click="
+                      liquidateLoan(loanRecord.loanId, loanDetail[0], index)
+                    "
+                    color="danger"
+                    >Liquidate</va-button
+                  >
                 </span>
               </div>
             </va-list>
@@ -96,7 +163,14 @@
 </template>
 
 <script lang="ts">
-import { computed, watch, ref, defineComponent, getCurrentInstance } from "vue";
+import {
+  computed,
+  watch,
+  ref,
+  reactive,
+  defineComponent,
+  getCurrentInstance,
+} from "vue";
 import { useGlobalConfig } from "vuestic-ui";
 
 import { useLoanStore } from "@/store/Loan.js";
@@ -162,11 +236,13 @@ export default defineComponent({
       "priority_high",
     ];
 
+    let remainingAmountMap = ref(new Map<string, BigNumber>());
     let liquidateLoadingMap = ref(new Map<string, boolean>());
     let marginCallLoadingMap = ref(new Map<string, boolean>());
 
-    const whitelistedBorrowers = whitelistStore.getWhitelistedBorrowers;
-    const handledLoanRecords: any = handleRawLoanRecords(
+    let whitelistedBorrowers = whitelistStore.getWhitelistedBorrowers;
+    let handledLoanRecords: any = handleRawLoanRecords(
+      loanStore.getBorrowers,
       loanStore.getBorrowersLoanRecords
     );
 
@@ -263,6 +339,16 @@ export default defineComponent({
       }
     }
 
+    async function reloadMap() {
+      await loanStore.initBorrowersLoanRecords();
+      handledLoanRecords = handleRawLoanRecords(
+        loanStore.getBorrowers,
+        loanStore.getBorrowersLoanRecords
+      );
+      console.log("handledLoanRecords=", handledLoanRecords);
+      filteredList.value = handledLoanRecords;
+    }
+
     async function marginCall(idxArr: number[]) {
       try {
         showModal.value = true;
@@ -271,7 +357,11 @@ export default defineComponent({
       }
     }
 
-    async function liquidateLoan(loanId: string, amount: string, idx: number) {
+    async function liquidateLoan(
+      loanId: string,
+      borrower: string,
+      idx: number
+    ) {
       if (false) {
         const mintTx = await commonStore.getERC20.mint(
           accountStore.getAccount,
@@ -292,10 +382,7 @@ export default defineComponent({
       let tx;
       let result;
       try {
-        const remainingDebt = amount.slice(0, amount.length - 4);
-        const liquidateAmount = BigNumber.from(remainingDebt).mul(
-          loanStore.getExp
-        );
+        const liquidateAmount = remainingAmountMap.value.get(loanId);
         tx = await commonStore.getProtocol.liquidateLoan(
           loanId,
           liquidateAmount
@@ -311,9 +398,7 @@ export default defineComponent({
         liquidateLoadingMap.value.set(loanId, false);
         pendingStore.decrement();
         openNotification(
-          "Liquidate loan [" +
-          loanId +
-          "] success.",
+          "Liquidate loan [" + utils.shortenAddress(loanId) + "] success.",
           "success"
         );
         console.log("liquidateLoan result:", result);
@@ -322,11 +407,15 @@ export default defineComponent({
         liquidateLoadingMap.value.set(loanId, false);
         pendingStore.decrement();
         openNotification(
-          "Liquidate loan [" +
-          loanId +
-          "] failed.",
+          "Liquidate loan [" + utils.shortenAddress(loanId) + "] failed.",
           "danger"
         );
+        return;
+      }
+      try {
+        await reloadMap();
+      } catch (error) {
+        console.error(error);
       }
     }
 
@@ -334,10 +423,15 @@ export default defineComponent({
       return useGlobalConfig().getGlobalConfig().colors || {};
     });
 
-    function handleRawLoanRecords(rawLoanRecords: Map<string, any>) {
+    function handleRawLoanRecords(
+      borrowers: Array<string>,
+      rawLoanRecords: Map<string, any>
+    ) {
       let tempMap = new Map();
       let date = new Date();
-      rawLoanRecords.forEach((loanRecords: any, address: string) => {
+      borrowers.forEach((borrower) => {
+        // rawLoanRecords.forEach((loanRecords: any, address: string) => {
+        let loanRecords = rawLoanRecords.get(borrower);
         let tempRecords: any = [];
         loanRecords.forEach((loanRecord: any) => {
           let tempRecord = {
@@ -396,10 +490,14 @@ export default defineComponent({
           };
           tempRecords.push(tempRecord);
 
+          remainingAmountMap.value.set(
+            loanRecord.loanId,
+            loanRecord.remainingDebt
+          );
           liquidateLoadingMap.value.set(loanRecord.loanId, false);
           marginCallLoadingMap.value.set(loanRecord.loanId, false);
         });
-        tempMap.set(address, tempRecords);
+        tempMap.set(borrower, tempRecords);
       });
       return tempMap;
     }
@@ -433,6 +531,7 @@ export default defineComponent({
     return {
       theme,
       showModal,
+      reloadMap,
       loanRecordsKeyIcon,
       toggleOptions,
       toggleValue,
@@ -454,7 +553,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .row-separated {
-  .flex+.flex {
+  .flex + .flex {
     border-left: 1px solid var(--va-background);
   }
 
