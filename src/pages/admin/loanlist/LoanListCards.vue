@@ -524,6 +524,7 @@ export default defineComponent({
         iconClass: "fa-star-o",
         position: "bottom-right",
         duration: Number(10000),
+        title: "Loan List",
         fullWidth: false,
       });
     };

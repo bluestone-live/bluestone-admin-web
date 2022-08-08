@@ -34,18 +34,18 @@ export const useOracleStore = defineStore('oracle', {
     actions: {
         async init() {
             try {
-                if (!this.isInited) {
-                    await Promise.all([
-                        this.initBtcPrice(),
-                        this.initEthPrice(),
-                        this.initSgcPrice()
-                    ])
-                    console.log("btcPrice=", this.getBtcPrice)
-                    console.log("ethPrice=", this.getEthPrice)
-                    console.log("sgcPrice=", this.sgcPrice)
-                    this.isInited = true
-                }
+                await Promise.all([
+                    this.initBtcPrice(),
+                    this.initEthPrice(),
+                    this.initSgcPrice()
+                ])
+                console.log("btcPrice=", this.getBtcPrice)
+                console.log("ethPrice=", this.getEthPrice)
+                console.log("sgcPrice=", this.sgcPrice)
+                this.isInited = true
+                console.log("[Oracle]: Oracle Store init success.")
             } catch (error) {
+                console.log("[Oracle]: Oracle Store init failed.")
                 console.error(error)
             }
         },

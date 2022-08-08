@@ -1,14 +1,21 @@
 <template>
   <div class="app-navbar-actions">
     <va-badge left :text="badgePendingCount" color="warning" class="mr-4">
-      <va-button v-if="isWalletConnect" :color="showPending ? 'success' : 'primary'">
+      <va-button
+        v-if="isWalletConnect"
+        :color="showPending ? 'success' : isNetworkErr ? 'danger' : 'primary'"
+      >
         <template #default>
           <div v-if="!showPending">
             <va-icon class="mr-1" name="settings"></va-icon>
             {{ userName }}
           </div>
           <div v-else>
-            <va-icon class="mr-1" name="loop" spin="counter-clockwise"></va-icon>
+            <va-icon
+              class="mr-1"
+              name="loop"
+              spin="counter-clockwise"
+            ></va-icon>
             Pending...
           </div>
         </template>
@@ -24,9 +31,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, getCurrentInstance, onMounted, ref } from "vue";
 import { usePendingStore } from "@/store/Pending.js";
 import { useAccountStore } from "@/store/Account.js";
+import { useCommonStore } from "@/store/Common";
 export default defineComponent({
   name: "app-navbar-actions",
   props: {
@@ -44,15 +52,21 @@ export default defineComponent({
     },
   },
   setup() {
+    const instance = getCurrentInstance();
+    const _this = instance?.appContext.config.globalProperties;
+
+    const commonStore = useCommonStore();
     const accountStore = useAccountStore();
     const pendingStore = usePendingStore();
+
+    const availableNetwork = 42;
 
     let iconName = ref("settings");
     let badgePendingCount = ref(0);
     let showPending = ref(false);
+    let isNetworkErr = ref(false);
 
     pendingStore.$subscribe(() => {
-      console.log("Pending State Changed");
       if (pendingStore.getPendingCount === 0) {
         showPending.value = false;
       } else {
@@ -61,13 +75,42 @@ export default defineComponent({
       badgePendingCount.value = pendingStore.getPendingCount;
     });
 
+    onMounted(() => {
+      if (commonStore.getNetworkId != availableNetwork) {
+        isNetworkErr.value = true;
+        openNotification(
+          "Please change Network to Kovan testnet.",
+          "danger"
+        )
+      }
+      commonStore.getProvider.provider.on("accountsChanged", () => {
+        location.reload();
+      });
+      commonStore.getProvider.provider.on("chainChanged", () => {
+        location.reload();
+      });
+    });
+
     async function connectWallet() {
       await accountStore.init();
     }
 
+    const openNotification = (message: string, color: string) => {
+      _this?.$vaToast.init({
+        message: message,
+        color: color,
+        iconClass: "fa-star-o",
+        position: "bottom-right",
+        duration: Number(1000000),
+        title: "Metamask",
+        fullWidth: false,
+      });
+    };
+
     return {
       iconName,
       showPending,
+      isNetworkErr,
       badgePendingCount,
       connectWallet,
     };

@@ -22,9 +22,14 @@ export const useAccountStore = defineStore('account', {
   },
   actions: {
     async init() {
-      await this.initAccounts()
-      this.isInited = true
-      console.log("Account: init Account success.")
+      try {
+        await this.initAccounts()
+        this.isInited = true
+        console.log("[Account]: Account Store init success.")
+      } catch (error) {
+        console.log("[Account]: Account Store init failed.")
+        console.error(error)
+      }
     },
     async initAccounts() {
       this.accounts = await this.commonStore.getProvider.send("eth_requestAccounts", [])

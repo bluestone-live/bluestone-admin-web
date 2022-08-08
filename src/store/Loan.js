@@ -82,7 +82,9 @@ export const useLoanStore = defineStore('loan', {
                 this.initActiveBorrowersAndActiveLoansCount()
                 this.initMarginCallAndLiquidableLoansCount()
                 this.isInited = true
+                console.log("[Loan]: Loan Store init success.")
             } catch (error) {
+                console.log("[Loan]: Loan Store init failed.")
                 console.error(error)
             }
         },

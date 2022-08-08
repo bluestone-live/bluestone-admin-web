@@ -184,6 +184,7 @@ export default defineComponent({
         iconClass: "fa-star-o",
         position: "bottom-right",
         duration: Number(10000),
+        title: "Lender",
         fullWidth: false,
       });
     };

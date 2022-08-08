@@ -9,6 +9,7 @@ export const useCommonStore = defineStore('common', {
     state: () => ({
         isInited: false,
         ethersInstance: null,
+        networkId: 0,
         networkType: String,
         networkFile: null,
         protocolAddress: String,
@@ -23,7 +24,10 @@ export const useCommonStore = defineStore('common', {
         getProvider(state) {
             return toRaw(state.ethersInstance)
         },
-        getNetwork(state) {
+        getNetworkId(state) {
+            return state.networkId
+        },
+        getNetworkType(state) {
             return state.networkType
         },
         getNetworkFile(state) {
@@ -46,14 +50,13 @@ export const useCommonStore = defineStore('common', {
         async init() {
             try {
                 this.initEthersInstance()
-                console.log("CommonStore: init provider success.")
                 await this.initNetworkType()
-                console.log("CommonStore: init network success.")
                 await this.initProtocolRelated()
-                console.log("CommonStore: init protocol address and instance success.", this.getProtocol)
                 this.initERC20Instance()
                 this.isInited = true
+                console.log("[Common]: Common Store init success.")
             } catch (error) {
+                console.log("[Common]: Common Store init failed.")
                 console.error(error)
             }
         },
@@ -70,9 +73,9 @@ export const useCommonStore = defineStore('common', {
 
         async initNetworkType() {
             const network = await this.getProvider.getNetwork()
-            const networkId = network.chainId
+            this.networkId = network.chainId
 
-            switch (networkId) {
+            switch (this.networkId) {
                 case 1:
                     this.networkType = 'main';
                     break;
@@ -96,7 +99,6 @@ export const useCommonStore = defineStore('common', {
 
         async initProtocolRelated() {
             this.networkFile = await utils.getNetworkFile(this.networkType)
-            console.log("networkFile=", this.networkFile)
             this.protocolAddress = this.networkFile.contracts[protocolDeclareFile.contractName]
             this.tokens = this.networkFile.tokens
 

@@ -41,7 +41,9 @@ export const useWhitelistStore = defineStore('whitelist', {
                     this.initWhitelistedBorrowers()
                 ])
                 this.isInited = true
+                console.log("[Whitelist]: Whitelist Store init success.")
             } catch (error) {
+                console.log("[Whitelist]: Whitelist Store init failed.")
                 console.error(error)
             }
         },

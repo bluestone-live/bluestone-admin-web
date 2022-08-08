@@ -49,7 +49,9 @@ export const useDepositStore = defineStore('deposit', {
                 this.initSgcBalance()
                 this.initTotalLoanOutstandingBalance()
                 this.isInited = true
+                console.log("[Deposit]: Deposit Store init success.")
             } catch (error) {
+                console.log("[Deposit]: Deposit Store init failed.")
                 console.error(error)
             }
         },
