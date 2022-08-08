@@ -6,10 +6,9 @@ import { useCommonStore } from "@/store/Common.js"
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: "/",
+    path: '/',
     redirect: { name: 'dashboard' },
   },
-  // { path: '/:pathMatch(.*)*', name: 'NotFound', component: Page404Layout },
   {
     name: 'admin',
     path: '/admin',
@@ -50,7 +49,7 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   {
-    path: '/404',
+    path: '/:pathMatch(.*)*',
     component: Page404Layout,
     children: [
       {
