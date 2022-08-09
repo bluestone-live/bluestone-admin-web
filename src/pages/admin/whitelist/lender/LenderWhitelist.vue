@@ -5,10 +5,18 @@
         <h1>{{ $t("whitelist.lender.newTitle") }}</h1>
       </va-card-title>
       <va-card-content>
-        <va-input class="mb-4" v-model="newLenderAddress" label="Lender Address" placeholder="0x..."
-          :disabled="isAddLoading" />
-        <va-button @click="addWhitelist(newLenderAddress)" :loading="isAddLoading">{{ $t("whitelist.lender.newButton")
-        }}</va-button>
+        <va-input
+          class="mb-4"
+          v-model="newLenderAddress"
+          label="Lender Address"
+          placeholder="0x..."
+          :disabled="isAddLoading"
+        />
+        <va-button
+          @click="addWhitelist(newLenderAddress)"
+          :loading="isAddLoading"
+          >{{ $t("whitelist.lender.newButton") }}</va-button
+        >
       </va-card-content>
     </va-card>
     <va-card class="d-flex" stripe stripe-color="info">
@@ -17,11 +25,21 @@
       </va-card-title>
       <va-card-content>
         <div class="row">
-          <va-input class="flex mb-2 md6" placeholder="Filter..." v-model="filter" />
+          <va-input
+            class="flex mb-2 md6"
+            placeholder="Filter..."
+            v-model="filter"
+          />
         </div>
 
-        <va-data-table striped :loading="isTableLoading" :items="whitelistedLenders" :columns="columns" :filter="filter"
-          @filtered="filteredCount = $event.items.length">
+        <va-data-table
+          striped
+          :loading="isTableLoading"
+          :items="whitelistedLenders"
+          :columns="columns"
+          :filter="filter"
+          @filtered="filteredCount = $event.items.length"
+        >
           <template #cell(id)="{ rowIndex }">
             {{ rowIndex }}
           </template>
@@ -29,8 +47,12 @@
             {{ whitelistedLenders[rowIndex] }}
           </template>
           <template #cell(option)="{ rowIndex }">
-            <va-button size="small" color="danger" :loading="removeLoadingMap.get(whitelistedLenders[rowIndex])"
-              @click="removeWhitelist(whitelistedLenders[rowIndex])">
+            <va-button
+              size="small"
+              color="danger"
+              :loading="removeLoadingMap.get(whitelistedLenders[rowIndex])"
+              @click="removeWhitelist(whitelistedLenders[rowIndex])"
+            >
               Remove
             </va-button>
           </template>
@@ -65,7 +87,7 @@ export default defineComponent({
     if (!whitelistStore.getInitStatus) {
       await whitelistStore.init();
     }
-    
+
     let whitelistedLenders = ref(whitelistStore.getWhitelistedLenders);
     let removeLoadingMap = ref(new Map<string, boolean>());
 
@@ -73,11 +95,7 @@ export default defineComponent({
       removeLoadingMap.value.set(borrowerAddress, false);
     });
     console.log("removeLoadingMap=", removeLoadingMap.value);
-    const columns = [
-      { key: "id" },
-      { key: "address" },
-      { key: "option" },
-    ];
+    const columns = [{ key: "id" }, { key: "address" }, { key: "option" }];
 
     let filter = ref("");
     let filteredCount = ref(whitelistedLenders.value.length);
@@ -96,6 +114,10 @@ export default defineComponent({
       } catch (error) {
         isTableLoading.value = false;
         console.error(error);
+        openNotification(
+          "Refresh table failed. Please refresh page manually.",
+          "warning"
+        );
       }
     }
 
@@ -120,8 +142,8 @@ export default defineComponent({
         removeLoadingMap.value.set(address, false);
         openNotification(
           "Remove account [" +
-          utils.shortenAddress(address) +
-          "] from administrators whitelist success.",
+            utils.shortenAddress(address) +
+            "] from administrators whitelist success.",
           "success"
         );
       } catch (error) {
@@ -130,8 +152,8 @@ export default defineComponent({
         removeLoadingMap.value.set(address, false);
         openNotification(
           "Remove account [" +
-          utils.shortenAddress(address) +
-          "] from administrators whitelist failed.",
+            utils.shortenAddress(address) +
+            "] from administrators whitelist failed.",
           "danger"
         );
       }
@@ -160,8 +182,8 @@ export default defineComponent({
         reloadTable();
         openNotification(
           "Add account [" +
-          utils.shortenAddress(address) +
-          "] to administrators whitelist success.",
+            utils.shortenAddress(address) +
+            "] to administrators whitelist success.",
           "success"
         );
       } catch (error) {
@@ -169,8 +191,8 @@ export default defineComponent({
         pendingStore.decrement();
         openNotification(
           "Add account [" +
-          utils.shortenAddress(address) +
-          "] to administrators whitelist failed.",
+            utils.shortenAddress(address) +
+            "] to administrators whitelist failed.",
           "danger"
         );
         isAddLoading.value = false;
@@ -184,7 +206,7 @@ export default defineComponent({
         iconClass: "fa-star-o",
         position: "bottom-right",
         duration: Number(10000),
-        title: "Lender",
+        title: "Whitelist: Lender",
         fullWidth: false,
       });
     };

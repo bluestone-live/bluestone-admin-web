@@ -138,7 +138,7 @@
                     class="mr-4 mb-2"
                     :disabled="!loanRecord.isMarginCall"
                     :loading="marginCallLoadingMap.get(loanRecord.loanId)"
-                    @click="marginCall([borrowersIdx, index])"
+                    @click="marginCall()"
                     color="warning"
                     >Margin Call</va-button
                   >
@@ -146,9 +146,7 @@
                     class="mr-4 mb-2"
                     :disabled="!loanRecord.isLiquidable"
                     :loading="liquidateLoadingMap.get(loanRecord.loanId)"
-                    @click="
-                      liquidateLoan(loanRecord.loanId, loanDetail[0], index)
-                    "
+                    @click="liquidateLoan(loanRecord.loanId)"
                     color="danger"
                     >Liquidate</va-button
                   >
@@ -170,6 +168,7 @@ import {
   reactive,
   defineComponent,
   getCurrentInstance,
+  onMounted,
 } from "vue";
 import { useGlobalConfig } from "vuestic-ui";
 
@@ -340,16 +339,23 @@ export default defineComponent({
     }
 
     async function reloadMap() {
-      await loanStore.initBorrowersLoanRecords();
-      handledLoanRecords = handleRawLoanRecords(
-        loanStore.getBorrowers,
-        loanStore.getBorrowersLoanRecords
-      );
-      console.log("handledLoanRecords=", handledLoanRecords);
-      filteredList.value = handledLoanRecords;
+      try {
+        await loanStore.initBorrowersLoanRecords();
+        handledLoanRecords = handleRawLoanRecords(
+          loanStore.getBorrowers,
+          loanStore.getBorrowersLoanRecords
+        );
+        filteredList.value = handledLoanRecords;
+      } catch (error) {
+        console.error(error);
+        openNotification(
+          "Refresh loan list failed. Please refresh page manually.",
+          "warning"
+        );
+      }
     }
 
-    async function marginCall(idxArr: number[]) {
+    async function marginCall() {
       try {
         showModal.value = true;
       } catch (error) {
@@ -357,28 +363,81 @@ export default defineComponent({
       }
     }
 
-    async function liquidateLoan(
-      loanId: string,
-      borrower: string,
-      idx: number
-    ) {
-      if (false) {
-        const mintTx = await commonStore.getERC20.mint(
-          accountStore.getAccount,
-          BigNumber.from(2000000).mul(loanStore.getExp)
+    async function liquidateLoan(loanId: string) {
+      try {
+        // 1.Approve
+        const hasApproved = await hasAccountApprovedProtocol(
+          accountStore.getAccount
         );
-        const res = await mintTx.wait();
-        console.log("mint result:", res);
+        if (!hasApproved) {
+          await approveProtocol(loanId, commonStore.getProtocolAddress);
+        }
+
+        // 2.Liquidate
+        await liquidate(loanId);
+      } catch (error) {
+        console.error(error);
+        return
       }
-      if (false) {
-        const approveAmount = BigNumber.from(2).pow(256).sub(1);
-        const approveTx = await commonStore.getERC20.approve(
-          commonStore.getProtocolAddress,
-          approveAmount
+
+      // 3.refresh page
+      await reloadMap();
+    }
+
+    async function hasAccountApprovedProtocol(account: string) {
+      try {
+        const eventFilter = commonStore.getERC20.filters.Approval(
+          account,
+          commonStore.getProtocolAddress
         );
+        const approveEvents = await commonStore.getERC20.queryFilter(
+          eventFilter
+        );
+        console.log("approve events=", approveEvents);
+        if (approveEvents.length === 0) {
+          return false;
+        } else {
+          return true;
+        }
+      } catch (error) {
+        console.error(error);
+        openNotification("Get Approval events failed. Please retry.", "danger");
+        throw error;
+      }
+    }
+
+    async function approveProtocol(loanId: string, protocol: string) {
+      const approveAmount = BigNumber.from(2).pow(256).sub(1);
+      let approveTx;
+      try {
+        approveTx = await commonStore.getERC20.approve(protocol, approveAmount);
+      } catch (error) {
+        console.log(error);
+        openNotification("MetaMask execute [approve] failed.", "danger");
+        throw error;
+      }
+      try {
+        liquidateLoadingMap.value.set(loanId, true);
+        pendingStore.increment();
         const result = await approveTx.wait();
+        liquidateLoadingMap.value.set(loanId, false);
+        pendingStore.decrement();
         console.log("Approve result:", result);
+      } catch (error) {
+        console.error(error);
+        liquidateLoadingMap.value.set(loanId, false);
+        pendingStore.decrement();
+        openNotification(
+          "Approved account [" +
+            utils.shortenAddress(accountStore.getAccount) +
+            "] failed.",
+          "danger"
+        );
+        throw error;
       }
+    }
+
+    async function liquidate(loanId: string) {
       let tx;
       let result;
       try {
@@ -389,7 +448,8 @@ export default defineComponent({
         );
       } catch (error) {
         console.error(error);
-        return;
+        openNotification("MetaMask execute [liquidateLoan] failed.", "danger");
+        throw error;
       }
       try {
         liquidateLoadingMap.value.set(loanId, true);
@@ -410,12 +470,7 @@ export default defineComponent({
           "Liquidate loan [" + utils.shortenAddress(loanId) + "] failed.",
           "danger"
         );
-        return;
-      }
-      try {
-        await reloadMap();
-      } catch (error) {
-        console.error(error);
+        throw error;
       }
     }
 
@@ -430,7 +485,6 @@ export default defineComponent({
       let tempMap = new Map();
       let date = new Date();
       borrowers.forEach((borrower) => {
-        // rawLoanRecords.forEach((loanRecords: any, address: string) => {
         let loanRecords = rawLoanRecords.get(borrower);
         let tempRecords: any = [];
         loanRecords.forEach((loanRecord: any) => {

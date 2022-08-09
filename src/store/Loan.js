@@ -1,11 +1,8 @@
 import { defineStore } from 'pinia'
 import { useCommonStore } from "./Common"
 import { marginCollateralCoverageRatio } from "@/margin"
-import { BigNumber, ethers } from "ethers"
+import { BigNumber } from "ethers"
 import { toRaw } from "@vue/reactivity"
-import utils from "@/utils"
-import borrowerWhitelistDeclareFile from "@/contracts/BorrowersWhitelist.json"
-
 
 export const useLoanStore = defineStore('loan', {
     state: () => ({
@@ -122,9 +119,7 @@ export const useLoanStore = defineStore('loan', {
             loanEvents.forEach((event) => {
                 tempArr.push(event.args.accountAddress)
             })
-            console.log("before borrowers=", tempArr)
             this.borrowers = [...new Set(tempArr)]
-            console.log("borrowers=", this.borrowers)
         },
 
         async initBorrowersLoanRecords() {
@@ -134,7 +129,6 @@ export const useLoanStore = defineStore('loan', {
                 tempMap.set(borrowerAddress, tempData)
             }))
             this.borrowersLoanRecords = tempMap
-            console.log("borrowersRecord=", this.borrowersLoanRecords)
         },
 
         initActiveBorrowersAndActiveLoansCount() {

@@ -5,11 +5,18 @@
         <h1>{{ $t("whitelist.borrower.newTitle") }}</h1>
       </va-card-title>
       <va-card-content>
-        <va-input class="mb-4" v-model="newBorrowerAddress" label="Borrower Address" placeholder="0x..."
-          :disabled="isAddLoading" />
-        <va-button @click="addWhitelist(newBorrowerAddress)" :loading="isAddLoading">{{
-            $t("whitelist.borrower.newButton")
-        }}</va-button>
+        <va-input
+          class="mb-4"
+          v-model="newBorrowerAddress"
+          label="Borrower Address"
+          placeholder="0x..."
+          :disabled="isAddLoading"
+        />
+        <va-button
+          @click="addWhitelist(newBorrowerAddress)"
+          :loading="isAddLoading"
+          >{{ $t("whitelist.borrower.newButton") }}</va-button
+        >
       </va-card-content>
     </va-card>
     <va-card class="d-flex" stripe stripe-color="info">
@@ -18,11 +25,21 @@
       </va-card-title>
       <va-card-content>
         <div class="row">
-          <va-input class="flex mb-2 md6" placeholder="Filter..." v-model="filter" />
+          <va-input
+            class="flex mb-2 md6"
+            placeholder="Filter..."
+            v-model="filter"
+          />
         </div>
 
-        <va-data-table striped :loading="isTableLoading" :items="whitelist" :columns="columns" :filter="filter"
-          @filtered="filteredCount = $event.items.length">
+        <va-data-table
+          striped
+          :loading="isTableLoading"
+          :items="whitelist"
+          :columns="columns"
+          :filter="filter"
+          @filtered="filteredCount = $event.items.length"
+        >
           <template #cell(id)="{ rowIndex }">
             {{ rowIndex }}
           </template>
@@ -30,11 +47,22 @@
             {{ value }}
           </template>
           <template #cell(status)="{ value }">
-            <va-chip square outline size="small" :color="value == 'active' ? 'success' : 'danger'">{{ value }}</va-chip>
+            <va-chip
+              square
+              outline
+              size="small"
+              :color="value == 'active' ? 'success' : 'danger'"
+              >{{ value }}</va-chip
+            >
           </template>
           <template #cell(option)="{ value, rowIndex }">
-            <va-button size="small" color="danger" :loading="removeLoadingMap.get(whitelist[rowIndex].address)"
-              @click="removeWhitelist(whitelist[rowIndex].address)">{{ value }}</va-button>
+            <va-button
+              size="small"
+              color="danger"
+              :loading="removeLoadingMap.get(whitelist[rowIndex].address)"
+              @click="removeWhitelist(whitelist[rowIndex].address)"
+              >{{ value }}</va-button
+            >
           </template>
         </va-data-table>
 
@@ -136,6 +164,10 @@ export default defineComponent({
       } catch (error) {
         isTableLoading.value = false;
         console.error(error);
+        openNotification(
+          "Refresh table failed. Please refresh page manually.",
+          "warning"
+        );
       }
     }
 
@@ -162,8 +194,8 @@ export default defineComponent({
         removeLoadingMap.value.set(address, false);
         openNotification(
           "Remove account [" +
-          utils.shortenAddress(address) +
-          "] from whitelist success.",
+            utils.shortenAddress(address) +
+            "] from whitelist success.",
           "success"
         );
       } catch (error) {
@@ -172,8 +204,8 @@ export default defineComponent({
         removeLoadingMap.value.set(address, false);
         openNotification(
           "Remove account [" +
-          utils.shortenAddress(address) +
-          "] from whitelist failed.",
+            utils.shortenAddress(address) +
+            "] from whitelist failed.",
           "danger"
         );
       }
@@ -202,8 +234,8 @@ export default defineComponent({
         reloadTable();
         openNotification(
           "Add account [" +
-          utils.shortenAddress(address) +
-          "] to whitelist success.",
+            utils.shortenAddress(address) +
+            "] to whitelist success.",
           "success"
         );
       } catch (error) {
@@ -211,8 +243,8 @@ export default defineComponent({
         pendingStore.decrement();
         openNotification(
           "Add account [" +
-          utils.shortenAddress(address) +
-          "] to whitelist failed.",
+            utils.shortenAddress(address) +
+            "] to whitelist failed.",
           "danger"
         );
         isAddLoading.value = false;
@@ -226,7 +258,7 @@ export default defineComponent({
         iconClass: "fa-star-o",
         position: "bottom-right",
         duration: Number(10000),
-        title: "Borrower",
+        title: "Whitelist: Borrower",
         fullWidth: false,
       });
     };
