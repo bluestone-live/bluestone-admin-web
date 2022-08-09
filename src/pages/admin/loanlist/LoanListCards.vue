@@ -446,20 +446,20 @@ export default defineComponent({
             loanTerm: loanRecord.loanTerm.toNumber() + " Days",
             annualInterestRate:
               loanRecord.annualInterestRate
-                .div(loanStore.getExp)
                 .mul(100)
+                .div(loanStore.getExp)
                 .toNumber() + "%",
             interest:
               loanRecord.interest.div(loanStore.getExp).toNumber() + " SGC",
             collateralCoverageRatio:
               loanRecord.collateralCoverageRatio
-                .div(loanStore.getExp)
                 .mul(100)
+                .div(loanStore.getExp)
                 .toNumber() + "%",
             minCollateralCoverageRatio:
               loanRecord.minCollateralCoverageRatio
-                .div(loanStore.getExp)
                 .mul(100)
+                .div(loanStore.getExp)
                 .toNumber() + "%",
             alreadyPaidAmount:
               loanRecord.alreadyPaidAmount.div(loanStore.getExp).toNumber() +
