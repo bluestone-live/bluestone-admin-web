@@ -1,8 +1,9 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 import AppLayout from '@/layout/app-layout.vue'
 import Page404Layout from '@/layout/page-404-layout.vue'
+import AuthLayout from '@/layout/auth-layout.vue'
 import RouteViewComponent from './route-view.vue'
-import { useCommonStore } from "@/store/Common.js"
+import { useCommonStore } from '@/store/Common.js'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -47,6 +48,17 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/pages/admin/loanlist/LoanList.vue')
       }
     ]
+  },
+  {
+    path: '/auth',
+    component: AuthLayout,
+    children: [
+      {
+        name: 'wallet',
+        path: 'wallet',
+        component: () => import('@/pages/auth/wallet/WalletConnect.vue'),
+      },
+    ],
   },
   {
     path: '/:pathMatch(.*)*',

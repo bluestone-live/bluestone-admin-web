@@ -165,10 +165,8 @@ import {
   computed,
   watch,
   ref,
-  reactive,
   defineComponent,
   getCurrentInstance,
-  onMounted,
 } from "vue";
 import { useGlobalConfig } from "vuestic-ui";
 
@@ -364,44 +362,43 @@ export default defineComponent({
     }
 
     async function liquidateLoan(loanId: string) {
+      const liquidateAmount = remainingAmountMap.value.get(loanId)!;
       try {
-        // 1.Approve
-        const hasApproved = await hasAccountApprovedProtocol(
-          accountStore.getAccount
+        // 1.Whether need Approve
+        const isSufficent = await isAllowanceSufficient(
+          accountStore.getAccount,
+          commonStore.getProtocolAddress,
+          liquidateAmount
         );
-        if (!hasApproved) {
+        if (!isSufficent) {
           await approveProtocol(loanId, commonStore.getProtocolAddress);
         }
 
         // 2.Liquidate
-        await liquidate(loanId);
+        await liquidate(loanId, liquidateAmount);
       } catch (error) {
         console.error(error);
-        return
+        return;
       }
 
       // 3.refresh page
       await reloadMap();
     }
 
-    async function hasAccountApprovedProtocol(account: string) {
+    async function isAllowanceSufficient(
+      owner: string,
+      spender: string,
+      liquidateAmount: BigNumber
+    ) {
       try {
-        const eventFilter = commonStore.getERC20.filters.Approval(
-          account,
-          commonStore.getProtocolAddress
+        const allowance: BigNumber = await commonStore.getERC20.allowance(
+          owner,
+          spender
         );
-        const approveEvents = await commonStore.getERC20.queryFilter(
-          eventFilter
-        );
-        console.log("approve events=", approveEvents);
-        if (approveEvents.length === 0) {
-          return false;
-        } else {
-          return true;
-        }
+        return allowance.gt(liquidateAmount) ? true : false;
       } catch (error) {
         console.error(error);
-        openNotification("Get Approval events failed. Please retry.", "danger");
+        openNotification("Get allowance failed. Please retry.", "danger");
         throw error;
       }
     }
@@ -437,11 +434,10 @@ export default defineComponent({
       }
     }
 
-    async function liquidate(loanId: string) {
+    async function liquidate(loanId: string, liquidateAmount: BigNumber) {
       let tx;
       let result;
       try {
-        const liquidateAmount = remainingAmountMap.value.get(loanId);
         tx = await commonStore.getProtocol.liquidateLoan(
           loanId,
           liquidateAmount

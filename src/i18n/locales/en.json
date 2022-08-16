@@ -19,6 +19,9 @@
         "borrower": "Borrower",
         "loanlist": "Loan List"
     },
+    "auth": {
+        "title": "Please Select a Wallet"
+    },
     "dashboard": {
         "info": {
             "componentRichTheme": "component-rich theme",
