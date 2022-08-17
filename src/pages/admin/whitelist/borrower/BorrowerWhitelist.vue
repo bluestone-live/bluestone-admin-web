@@ -79,9 +79,9 @@
 
 <script lang="ts">
 import { defineComponent, ref, getCurrentInstance } from "vue";
-import { useLoanStore } from "@/store/Loan.js";
-import { useWhitelistStore } from "@/store/Whitelist.js";
-import { usePendingStore } from "@/store/Pending.js";
+import { useLoanStore } from "@/store/Loan";
+import { useWhitelistStore } from "@/store/Whitelist";
+import { usePendingStore } from "@/store/Pending";
 import utils from "@/utils";
 class WhiteListItem {
   address: string;
@@ -108,11 +108,11 @@ export default defineComponent({
     if (!whitelistStore.getInitStatus) {
       await whitelistStore.init();
     }
-    if (!loanStore.getInitStatus) {
+    if (!loanStore.isInited) {
       await loanStore.init();
     }
 
-    const borrowersOnWhitelists = whitelistStore.getWhitelistedBorrowers;
+    const borrowersOnWhitelists = whitelistStore.whitelistedBorrowers;
     const activeBorrowers = loanStore.getActiveBorrowers;
     let whitelist = ref(Array<WhiteListItem>());
     let removeLoadingMap = ref(new Map<string, boolean>());
@@ -149,7 +149,7 @@ export default defineComponent({
         let tempWhitelist: Array<WhiteListItem> = [];
         await whitelistStore.initWhitelistedBorrowers();
         // let borrowersOnWhitelists = loanStore.getWhitelist;
-        let borrowersOnWhitelists = whitelistStore.getWhitelistedBorrowers;
+        let borrowersOnWhitelists = whitelistStore.whitelistedBorrowers;
         borrowersOnWhitelists.forEach((borrowerAddress: any) => {
           let borrowerStatus =
             activeBorrowers.indexOf(borrowerAddress) >= 0

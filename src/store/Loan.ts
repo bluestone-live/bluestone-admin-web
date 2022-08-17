@@ -3,6 +3,7 @@ import { useCommonStore } from "./Common"
 import { marginCollateralCoverageRatio } from "@/margin"
 import { BigNumber } from "ethers"
 import { toRaw } from "@vue/reactivity"
+import { IPool, ILoanRecord } from "@/services/types"
 
 export const useLoanStore = defineStore('loan', {
     state: () => ({
@@ -11,61 +12,33 @@ export const useLoanStore = defineStore('loan', {
         btcAddress: "",
         ethAddress: "",
         exp: BigNumber.from("10").pow(18),
-        btcBalance: BigNumber,
-        ethBalance: BigNumber,
+        btcBalance: BigNumber.from("0"),
+        ethBalance: BigNumber.from("0"),
         totalLoansCount: 0,
         activeLoansCount: 0,
         liquidableLoans: 0,
-        borrowers: [],
-        borrowersLoanRecords: Map,
-        handledLoanRecords: Map,
-        activeBorrowers: [],
+        borrowers: [] as string[],
+        borrowersLoanRecords: new Map(),
+        activeBorrowers: [] as string[],
         marginCallLoansCount: 0,
         liquidableLoansCount: 0
     }),
     getters: {
-        getInitStatus(state) {
-            return state.isInited
+        getBtcBalance(): Number {
+            return this.btcBalance.div(this.exp).toNumber()
         },
-        getExp(state) {
-            return state.exp
+        getEthBalance(): Number {
+            return this.ethBalance.div(this.exp).toNumber()
         },
-        getBtcAddress(state) {
-            return state.btcAddress
+        getBorrowers(): string[] {
+            return toRaw(this.borrowers)
         },
-        getEthAddress(state) {
-            return state.ethAddress
+        getBorrowersLoanRecords(): Map<string, ILoanRecord[]> {
+            return toRaw(this.borrowersLoanRecords)
         },
-        getBtcBalance(state) {
-            return state.btcBalance.div(this.exp).toNumber()
+        getActiveBorrowers(): string[] {
+            return toRaw(this.activeBorrowers)
         },
-        getEthBalance(state) {
-            return state.ethBalance.div(this.exp).toNumber()
-        },
-        getTotalLoansCount(state) {
-            return state.totalLoansCount
-        },
-        getActiveLoansCount(state) {
-            return state.activeLoansCount
-        },
-        getBorrowers(state) {
-            return toRaw(state.borrowers)
-        },
-        getBorrowersLoanRecords(state) {
-            return toRaw(state.borrowersLoanRecords)
-        },
-        getHandledLoanRecords(state) {
-            return toRaw(state.handledLoanRecords)
-        },
-        getActiveBorrowers(state) {
-            return toRaw(state.activeBorrowers)
-        },
-        getMarginCallLoansCount(state) {
-            return state.marginCallLoansCount
-        },
-        getLiquidableLoansCount(state) {
-            return state.liquidableLoansCount
-        }
     },
     actions: {
         async init() {
@@ -96,7 +69,7 @@ export const useLoanStore = defineStore('loan', {
         async initBtcBalance() {
             const btcPools = await this.commonState.getProtocol.getPoolsByToken(this.btcAddress)
             let totalBalance = BigNumber.from(0)
-            btcPools.forEach((pool) => {
+            btcPools.forEach((pool: IPool) => {
                 totalBalance = totalBalance.add(pool.availableAmount)
             })
             this.btcBalance = totalBalance
@@ -105,25 +78,25 @@ export const useLoanStore = defineStore('loan', {
         async initEthBalance() {
             const ethPools = await this.commonState.getProtocol.getPoolsByToken(this.ethAddress)
             let totalBalance = BigNumber.from(0)
-            ethPools.forEach((pool) => {
+            ethPools.forEach((pool: IPool) => {
                 totalBalance = totalBalance.add(pool.availableAmount)
             })
             this.ethBalance = totalBalance
         },
 
         async initBorrowersAndTotalLoansCount() {
-            let tempArr = []
+            let tempArr = [] as string[]
             let filter = this.commonState.getProtocol.filters.LoanSucceed()
             const loanEvents = await this.commonState.getProtocol.queryFilter(filter)
             this.totalLoansCount = loanEvents.length
             loanEvents.forEach((event) => {
-                tempArr.push(event.args.accountAddress)
+                tempArr.push((event as any).args.accountAddress)
             })
             this.borrowers = [...new Set(tempArr)]
         },
 
         async initBorrowersLoanRecords() {
-            let tempMap = new Map()
+            let tempMap: Map<string, ILoanRecord[]> = new Map()
             await Promise.all(this.borrowers.map(async (borrowerAddress) => {
                 let tempData = await this.commonState.getProtocol.getLoanRecordsByAccount(borrowerAddress)
                 tempMap.set(borrowerAddress, tempData)
@@ -132,17 +105,18 @@ export const useLoanStore = defineStore('loan', {
         },
 
         initActiveBorrowersAndActiveLoansCount() {
-            let tempArr = []
+            let tempArr = [] as string[]
             let tempCount = 0
-            this.getBorrowersLoanRecords.forEach((loanRecordsArr, borrowerAddress) => {
-                let activeFlag = false
+            this.getBorrowersLoanRecords.forEach((loanRecordsArr: ILoanRecord[], borrowerAddress: string) => {
+                let activeFlag: boolean = false
                 loanRecordsArr.forEach((loanRecord, loanIdx) => {
+                    console.log("loanRecord=", loanRecord)
                     if (!loanRecord.isClosed) {
                         tempCount++
                         activeFlag = true
                     }
                 })
-                if (activeFlag === true) {
+                if (activeFlag) {
                     tempArr.push(borrowerAddress)
                 }
             })
@@ -154,8 +128,8 @@ export const useLoanStore = defineStore('loan', {
             let tempMarginCallCount = 0
             let tempLiquidableCount = 0
             let date = new Date()
-            this.getBorrowersLoanRecords.forEach((loanRecords, address) => {
-                loanRecords.forEach((loanRecord) => {
+            this.getBorrowersLoanRecords.forEach((loanRecordsArr: ILoanRecord[], address: string) => {
+                loanRecordsArr.forEach((loanRecord: ILoanRecord) => {
                     if ((!loanRecord.isClosed) && loanRecord.collateralCoverageRatio.lte(marginCollateralCoverageRatio)) {
                         tempMarginCallCount++
                     }

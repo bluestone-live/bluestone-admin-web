@@ -1,22 +1,22 @@
-// import { ethers } from "ethers";
-import protocolDeclareFile from "@/contracts/Protocol.json"
-
-interface ITokenDeclaration {
-    name: string;
-    symbol: string;
-    address: string;
-}
-
-interface INetworkFile {
-    contracts: { [key: string]: string };
-    tokens: { [key: string]: ITokenDeclaration };
-}
+import {NetworkType, INetworkFile} from "@/services/types"
 
 const utils = {
-    async getNetworkFile(networkType: string): Promise<INetworkFile> {
-        // Map web3 network type to that in network.json
-        const currentNetwork =
-            networkType === 'private' ? 'development' : networkType
+    async getNetworkFile(networkType: NetworkType): Promise<INetworkFile> {
+        let currentNetwork: string;
+        switch(networkType) {
+            case NetworkType.Main:
+                currentNetwork = "main"
+                break
+            case NetworkType.Kovan:
+                currentNetwork = "kovan"
+                break;
+            case NetworkType.Rinkeby:
+                currentNetwork = "rinkeby"
+                break
+            default:
+                currentNetwork = "private"
+                break
+        }
         return import(`../networks/${currentNetwork}.json`)
     },
 

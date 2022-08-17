@@ -4,11 +4,6 @@ export const usePendingStore = defineStore('pending', {
     state: () => ({
         pendingCount: 0,
     }),
-    getters: {
-        getPendingCount(state) {
-            return state.pendingCount
-        }
-    },
     actions: {
         increment() {
             this.pendingCount++

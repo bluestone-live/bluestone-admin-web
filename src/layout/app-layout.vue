@@ -42,7 +42,7 @@ export default {
 
     const isMobile = ref(false);
     const isTablet = ref(false);
-    const isSidebarMinimized = computed(() => sidebarStore.isSidebarMinimized);
+    const isSidebarMinimized = computed(() => sidebarStore.sidebarMinimized);
     const checkIsTablet = () => window.innerWidth <= tabletBreakPointPX;
     const checkIsMobile = () => window.innerWidth <= mobileBreakPointPX;
 

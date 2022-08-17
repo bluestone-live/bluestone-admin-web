@@ -5,19 +5,11 @@ export const useAccountStore = defineStore('account', {
   state: () => ({
     isInited: false,
     commonStore: useCommonStore(),
-    accounts: [],
+    accounts: [] as string[],
   }),
   getters: {
-    getInitStatus(state) {
-      return state.isInited
-    },
-
-    getAccounts(state) {
-      return state.accounts
-    },
-
-    getAccount(state) {
-      return state.accounts[0]
+    getAccount(): string {
+      return this.accounts[0]
     },
   },
   actions: {

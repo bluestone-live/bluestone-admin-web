@@ -4,13 +4,8 @@ export const useNavbarStore = defineStore('navbar', {
     state: () => ({
         sidebarMinimized: false,
     }),
-    getters: {
-        isSidebarMinimized(state) {
-            return state.sidebarMinimized
-        }
-    },
     actions: {
-        updateSidebarCollapsedState(isSidebarMinimized) {
+        updateSidebarCollapsedState(isSidebarMinimized: boolean) {
             this.sidebarMinimized = isSidebarMinimized
         },
     }

@@ -32,9 +32,10 @@
 
 <script lang="ts">
 import { defineComponent, getCurrentInstance, onMounted, ref } from "vue";
-import { usePendingStore } from "@/store/Pending.js";
-import { useAccountStore } from "@/store/Account.js";
+import { usePendingStore } from "@/store/Pending";
+import { useAccountStore } from "@/store/Account";
 import { useCommonStore } from "@/store/Common";
+import { NetworkType } from "@/services/types";
 export default defineComponent({
   name: "app-navbar-actions",
   props: {
@@ -59,34 +60,29 @@ export default defineComponent({
     const accountStore = useAccountStore();
     const pendingStore = usePendingStore();
 
-    const availableNetwork = 42;
-
     let iconName = ref("settings");
     let badgePendingCount = ref(0);
     let showPending = ref(false);
     let isNetworkErr = ref(false);
 
     pendingStore.$subscribe(() => {
-      if (pendingStore.getPendingCount === 0) {
+      if (pendingStore.pendingCount === 0) {
         showPending.value = false;
       } else {
         showPending.value = true;
       }
-      badgePendingCount.value = pendingStore.getPendingCount;
+      badgePendingCount.value = pendingStore.pendingCount;
     });
 
     onMounted(() => {
-      if (commonStore.getNetworkId != availableNetwork) {
+      if (commonStore.networkType != NetworkType.Kovan) {
         isNetworkErr.value = true;
-        openNotification(
-          "Please change Network to Kovan testnet.",
-          "danger"
-        )
+        openNotification("Please change Network to Kovan testnet.", "danger");
       }
-      commonStore.getProvider.provider.on("accountsChanged", () => {
+      (commonStore.getProvider as any).provider.on("accountsChanged", () => {
         location.reload();
       });
-      commonStore.getProvider.provider.on("chainChanged", () => {
+      (commonStore.getProvider as any).provider.on("chainChanged", () => {
         location.reload();
       });
     });

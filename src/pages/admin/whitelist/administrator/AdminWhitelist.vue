@@ -83,9 +83,9 @@ import {
   computed,
   reactive,
 } from "vue";
-import { useAccountStore } from "@/store/Account.js";
-import { useWhitelistStore } from "@/store/Whitelist.js";
-import { usePendingStore } from "@/store/Pending.js";
+import { useAccountStore } from "@/store/Account";
+import { useWhitelistStore } from "@/store/Whitelist";
+import { usePendingStore } from "@/store/Pending";
 import utils from "@/utils";
 
 export default defineComponent({
@@ -98,7 +98,7 @@ export default defineComponent({
     const pendingStore = usePendingStore();
     const accountStore = useAccountStore();
     const whitelistStore = useWhitelistStore();
-    if (!whitelistStore.getInitStatus) {
+    if (!whitelistStore.isInited) {
       await whitelistStore.init();
     }
     let currentAccount: String = accountStore.getAccount;
@@ -109,7 +109,7 @@ export default defineComponent({
       return currentAccount.toLowerCase() == ownerAccount.toLowerCase();
     });
 
-    let administrators = ref(whitelistStore.getAdministrators);
+    let administrators = ref(whitelistStore.administrators);
     let removeLoadingMap = reactive(new Map<string, boolean>());
 
     administrators.value.forEach((borrowerAddress: string) => {
@@ -129,7 +129,7 @@ export default defineComponent({
       try {
         isTableLoading.value = true;
         await whitelistStore.initAdministrators();
-        administrators.value = whitelistStore.getAdministrators;
+        administrators.value = whitelistStore.administrators;
         isTableLoading.value = false;
       } catch (error) {
         isTableLoading.value = false;

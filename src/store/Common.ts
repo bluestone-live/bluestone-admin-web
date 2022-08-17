@@ -1,0 +1,105 @@
+import { defineStore } from 'pinia'
+import utils from "@/utils"
+import { ethers, Contract, providers } from "ethers"
+import { toRaw } from "@vue/reactivity"
+import protocolDeclareFile from "@/contracts/Protocol.json"
+import erc20DeclareFile from "@/contracts/ERC20Mock.json"
+import { WalletSelector, NetworkType, INetworkFile } from "@/services/types";
+// import WalletConnectProvider from "@walletconnect/web3-provider";
+
+export const useCommonStore = defineStore('common', {
+    state: () => ({
+        isInited: false,
+        wallet: WalletSelector.MetaMask,
+        ethersInstance: {} as providers.Web3Provider,
+        networkType: NetworkType.None,
+        networkFile: {} as INetworkFile,
+        protocolAddress: "",
+        protocolInstance: {} as Contract,
+        erc20Instance: {} as Contract,
+        tokens: {} as INetworkFile["tokens"],
+    }),
+    getters: {
+        getProvider(state) {
+            return toRaw(state.ethersInstance)
+        },
+        getProtocol(state) {
+            return toRaw(state.protocolInstance)
+        },
+        getERC20(state) {
+            return toRaw(state.erc20Instance)
+        },
+        getTokens(state) {
+            return toRaw(state.tokens)
+        }
+    },
+    actions: {
+        async init() {
+            try {
+                await this.initEthersInstance()
+                await this.initNetworkType()
+                await this.initProtocolRelated()
+                this.initERC20Instance()
+                this.isInited = true
+                console.log("[Common]: Common Store init success.")
+            } catch (error) {
+                console.log("[Common]: Common Store init failed.")
+                console.error(error)
+            }
+        },
+
+        initWallet(selectedWallet: WalletSelector) {
+            this.wallet = selectedWallet
+        },
+
+        async initEthersInstance() {
+            let provider;
+            // if (this.wallet == WalletSelector.MetaMask) {
+            //     console.log("MetaMask钱包")
+            //     if ((window as any).ethereum) {
+            //         // this.ethersInstance = new ethers.providers.Web3Provider((window as any).ethereum)
+            //         provider = (window as any).ethereum;
+            //     } else {
+            //         throw new Error(
+            //             'Ethers Instance init error: Require global web3 provider.'
+            //         )
+            //     }
+            // } else if (this.wallet == WalletSelector.WalletConnect) {
+            //     console.log("WalletConnect钱包")
+            //     provider = new WalletConnectProvider({
+            //         infuraId: "27e484dcd9e3efcfd25a83a78777cdf1",
+            //     })
+            // }
+            provider = (window as any).ethereum;
+            await provider.enable()
+            this.ethersInstance = new ethers.providers.Web3Provider(provider)
+        },
+
+        async initNetworkType() {
+            const network = await ((this.getProvider as any) as any).getNetwork()
+            this.networkType = network.chainId;
+            console.log("networktype=", this.networkType)
+        },
+
+        async initProtocolRelated() {
+            this.networkFile = await utils.getNetworkFile(this.networkType)
+            this.protocolAddress = this.networkFile.contracts[protocolDeclareFile.contractName]
+            this.tokens = this.networkFile.tokens
+
+            this.protocolInstance = new ethers.Contract(
+                this.protocolAddress,
+                protocolDeclareFile.abi,
+                (this.getProvider as any).getSigner()
+            )
+        },
+
+        initERC20Instance() {
+            const sgcAddress = this.getTokens.SGC.address
+            this.erc20Instance = new ethers.Contract(
+                sgcAddress,
+                erc20DeclareFile.abi,
+                (this.getProvider as any).getSigner()
+            )
+        },
+    },
+})

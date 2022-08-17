@@ -9,26 +9,14 @@ export const useWhitelistStore = defineStore('whitelist', {
     state: () => ({
         isInited: false,
         commonState: useCommonStore(),
-        whitelistInstance: Contract,
+        whitelistInstance: {} as Contract,
         administrators: [],
         whitelistedLenders: [],
         whitelistedBorrowers: [],
     }),
     getters: {
-        getInitStatus(state) {
-            return state.isInited
-        },
         getWhitelistInstance(state) {
             return toRaw(state.whitelistInstance)
-        },
-        getAdministrators(state) {
-            return state.administrators
-        },
-        getWhitelistedLenders(state) {
-            return state.whitelistedLenders
-        },
-        getWhitelistedBorrowers(state) {
-            return state.whitelistedBorrowers
         },
     },
     actions: {
@@ -48,7 +36,7 @@ export const useWhitelistStore = defineStore('whitelist', {
             }
         },
         initWhitelistInstance() {
-            const whitelistAddress = this.commonState.getNetworkFile.contracts[whitelistDeclareFile.contractName]
+            const whitelistAddress = this.commonState.networkFile.contracts[whitelistDeclareFile.contractName]
             this.whitelistInstance = new ethers.Contract(
                 whitelistAddress,
                 whitelistDeclareFile.abi,

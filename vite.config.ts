@@ -1,19 +1,21 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import path from 'path'
+import { resolve } from 'path'
+
 export default defineConfig({
   plugins: [vue()],
+  define: { 'process.env': {} },
   resolve: {
-    alias: 
-    [
-      {
-        find: '@',
-        replacement: path.resolve(__dirname, './src'),
-      }, 
-      {
-        find: /^~(.*)$/,
-        replacement: '$1',
-      },
-    ],
+    alias:
+      [
+        {
+          find: '@',
+          replacement: resolve(__dirname, './src'),
+        },
+        {
+          find: /^~(.*)$/,
+          replacement: '$1',
+        },
+      ],
   }
 })

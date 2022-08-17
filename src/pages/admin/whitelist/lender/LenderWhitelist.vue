@@ -71,8 +71,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, getCurrentInstance } from "vue";
-import { useWhitelistStore } from "@/store/Whitelist.js";
-import { usePendingStore } from "@/store/Pending.js";
+import { useWhitelistStore } from "@/store/Whitelist";
+import { usePendingStore } from "@/store/Pending";
 import utils from "@/utils";
 
 export default defineComponent({
@@ -84,11 +84,11 @@ export default defineComponent({
 
     const pendingStore = usePendingStore();
     const whitelistStore = useWhitelistStore();
-    if (!whitelistStore.getInitStatus) {
+    if (!whitelistStore.isInited) {
       await whitelistStore.init();
     }
 
-    let whitelistedLenders = ref(whitelistStore.getWhitelistedLenders);
+    let whitelistedLenders = ref(whitelistStore.whitelistedLenders);
     let removeLoadingMap = ref(new Map<string, boolean>());
 
     whitelistedLenders.value.forEach((borrowerAddress: string) => {
@@ -109,7 +109,7 @@ export default defineComponent({
       try {
         isTableLoading.value = true;
         await whitelistStore.initWhitelistedLenders();
-        whitelistedLenders.value = whitelistStore.getWhitelistedLenders;
+        whitelistedLenders.value = whitelistStore.whitelistedLenders;
         isTableLoading.value = false;
       } catch (error) {
         isTableLoading.value = false;

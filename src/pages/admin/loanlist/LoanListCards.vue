@@ -170,13 +170,13 @@ import {
 } from "vue";
 import { useGlobalConfig } from "vuestic-ui";
 
-import { useLoanStore } from "@/store/Loan.js";
-import { useCommonStore } from "@/store/Common.js";
-import { useWhitelistStore } from "@/store/Whitelist.js";
-import { useAccountStore } from "@/store/Account.js";
-import { usePendingStore } from "@/store/Pending.js";
+import { useLoanStore } from "@/store/Loan";
+import { useCommonStore } from "@/store/Common";
+import { useWhitelistStore } from "@/store/Whitelist";
+import { useAccountStore } from "@/store/Account";
+import { usePendingStore } from "@/store/Pending";
 import { marginCollateralCoverageRatio } from "@/margin/index";
-
+import { ILoanRecord, IHandledLoanRecord } from "@/services/types";
 import { BigNumber, ethers } from "ethers";
 import utils from "@/utils";
 
@@ -191,13 +191,13 @@ export default defineComponent({
     const pendingStore = usePendingStore();
     const commonStore = useCommonStore();
     const whitelistStore = useWhitelistStore();
-    if (!commonStore.getInitStatus) {
+    if (!commonStore.isInited) {
       await commonStore.init();
     }
-    if (!whitelistStore.getInitStatus) {
+    if (!whitelistStore.isInited) {
       await whitelistStore.init();
     }
-    if (!loanStore.getInitStatus) {
+    if (!loanStore.isInited) {
       await loanStore.init();
     }
 
@@ -237,8 +237,8 @@ export default defineComponent({
     let liquidateLoadingMap = ref(new Map<string, boolean>());
     let marginCallLoadingMap = ref(new Map<string, boolean>());
 
-    let whitelistedBorrowers = whitelistStore.getWhitelistedBorrowers;
-    let handledLoanRecords: any = handleRawLoanRecords(
+    let whitelistedBorrowers = whitelistStore.whitelistedBorrowers;
+    let handledLoanRecords: Map<string, IHandledLoanRecord[]> = handleRawLoanRecords(
       loanStore.getBorrowers,
       loanStore.getBorrowersLoanRecords
     );
@@ -258,7 +258,7 @@ export default defineComponent({
 
     function filterByInput(newInputValue: string) {
       let tempMap = new Map();
-      handledLoanRecords.forEach((loanRecords: any, address: string) => {
+      handledLoanRecords.forEach((loanRecords: IHandledLoanRecord[], address: string) => {
         if (address.toLowerCase().search(newInputValue.toLowerCase()) !== -1) {
           tempMap.set(address, loanRecords);
         }
@@ -273,9 +273,9 @@ export default defineComponent({
           break;
         case "active": {
           let tempMap = new Map();
-          handledLoanRecords.forEach((loanRecords: any, address: string) => {
-            let tempRecords: any[] = [];
-            loanRecords.forEach((loanRecord: any) => {
+          handledLoanRecords.forEach((loanRecords: IHandledLoanRecord[], address: string) => {
+            let tempRecords = [] as ILoanRecord[];
+            loanRecords.forEach((loanRecord: IHandledLoanRecord) => {
               if (!loanRecord.isClosed) {
                 tempRecords.push(loanRecord);
               }
@@ -289,9 +289,9 @@ export default defineComponent({
         }
         case "marginCall": {
           let tempMap = new Map();
-          handledLoanRecords.forEach((loanRecords: any, address: string) => {
+          handledLoanRecords.forEach((loanRecords: IHandledLoanRecord[], address: string) => {
             let tempRecords: any[] = [];
-            loanRecords.forEach((loanRecord: any) => {
+            loanRecords.forEach((loanRecord: IHandledLoanRecord) => {
               if (loanRecord.isMarginCall) {
                 tempRecords.push(loanRecord);
               }
@@ -305,9 +305,9 @@ export default defineComponent({
         }
         case "liquidable": {
           let tempMap = new Map();
-          handledLoanRecords.forEach((loanRecords: any, address: string) => {
+          handledLoanRecords.forEach((loanRecords: IHandledLoanRecord[], address: string) => {
             let tempRecords: any[] = [];
-            loanRecords.forEach((loanRecord: any) => {
+            loanRecords.forEach((loanRecord: IHandledLoanRecord) => {
               if (loanRecord.isLiquidable) {
                 tempRecords.push(loanRecord);
               }
@@ -367,11 +367,11 @@ export default defineComponent({
         // 1.Whether need Approve
         const isSufficent = await isAllowanceSufficient(
           accountStore.getAccount,
-          commonStore.getProtocolAddress,
+          commonStore.protocolAddress,
           liquidateAmount
         );
         if (!isSufficent) {
-          await approveProtocol(loanId, commonStore.getProtocolAddress);
+          await approveProtocol(loanId, commonStore.protocolAddress);
         }
 
         // 2.Liquidate
@@ -476,54 +476,54 @@ export default defineComponent({
 
     function handleRawLoanRecords(
       borrowers: Array<string>,
-      rawLoanRecords: Map<string, any>
-    ) {
+      rawLoanRecords: Map<string, ILoanRecord[]>
+    ): Map<string, IHandledLoanRecord[]> {
       let tempMap = new Map();
       let date = new Date();
       borrowers.forEach((borrower) => {
         let loanRecords = rawLoanRecords.get(borrower);
-        let tempRecords: any = [];
-        loanRecords.forEach((loanRecord: any) => {
-          let tempRecord = {
+        let tempRecords = [] as IHandledLoanRecord[];
+        loanRecords?.forEach((loanRecord: ILoanRecord) => {
+          let tempRecord: IHandledLoanRecord = {
             loanId: loanRecord.loanId,
             loanTokenAddress: loanRecord.loanTokenAddress,
             collateralTokenAddress: loanRecord.collateralTokenAddress,
             loanAmount:
-              loanRecord.loanAmount.div(loanStore.getExp).toNumber() + " SGC",
+              loanRecord.loanAmount.div(loanStore.exp).toNumber() + " SGC",
             collateralAmount:
-              loanRecord.collateralAmount.div(loanStore.getExp).toNumber() +
+              loanRecord.collateralAmount.div(loanStore.exp).toNumber() +
               " SGC",
             loanTerm: loanRecord.loanTerm.toNumber() + " Days",
             annualInterestRate:
               loanRecord.annualInterestRate
                 .mul(100)
-                .div(loanStore.getExp)
+                .div(loanStore.exp)
                 .toNumber() + "%",
             interest:
-              loanRecord.interest.div(loanStore.getExp).toNumber() + " SGC",
+              loanRecord.interest.div(loanStore.exp).toNumber() + " SGC",
             collateralCoverageRatio:
               loanRecord.collateralCoverageRatio
                 .mul(100)
-                .div(loanStore.getExp)
+                .div(loanStore.exp)
                 .toNumber() + "%",
             minCollateralCoverageRatio:
               loanRecord.minCollateralCoverageRatio
                 .mul(100)
-                .div(loanStore.getExp)
+                .div(loanStore.exp)
                 .toNumber() + "%",
             alreadyPaidAmount:
-              loanRecord.alreadyPaidAmount.div(loanStore.getExp).toNumber() +
+              loanRecord.alreadyPaidAmount.div(loanStore.exp).toNumber() +
               " SGC",
             liquidatedAmount:
-              loanRecord.liquidatedAmount.div(loanStore.getExp).toNumber() +
+              loanRecord.liquidatedAmount.div(loanStore.exp).toNumber() +
               " SGC",
             soldCollateralAmount:
-              loanRecord.soldCollateralAmount.div(loanStore.getExp).toNumber() +
+              loanRecord.soldCollateralAmount.div(loanStore.exp).toNumber() +
               " SGC",
             createdAt: utils.formatTimestamp(loanRecord.createdAt.toNumber()),
             dueAt: utils.formatTimestamp(loanRecord.dueAt.toNumber()),
             remainingDebt:
-              loanRecord.remainingDebt.div(loanStore.getExp).toNumber() +
+              loanRecord.remainingDebt.div(loanStore.exp).toNumber() +
               " SGC",
             isClosed: loanRecord.isClosed,
             isMarginCall:

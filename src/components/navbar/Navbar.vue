@@ -23,8 +23,8 @@
 
 <script lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { useAccountStore } from "@/store/Account.js";
-import { useNavbarStore } from "@/store/Navbar.js";
+import { useAccountStore } from "@/store/Account";
+import { useNavbarStore } from "@/store/Navbar";
 import { useColors } from "vuestic-ui";
 import VuesticLogo from "@/components/vuestic-logo.vue";
 import VaIconMenuCollapsed from "@/components/icons/VaIconMenuCollapsed.vue";
@@ -45,12 +45,12 @@ export default {
     const sidebarStore = useNavbarStore();
     const accountStore = useAccountStore();
     const isSidebarMinimized = computed({
-      get: () => sidebarStore.isSidebarMinimized,
+      get: () => sidebarStore.sidebarMinimized,
       set: (value) => sidebarStore.updateSidebarCollapsedState(value),
     });
     let isWalletConnect = ref(false);
     onMounted(async () => {
-      if (!accountStore.getInitStatus) {
+      if (!accountStore.isInited) {
         await accountStore.init();
       }
     });
