@@ -1,7 +1,5 @@
 <template>
   <div class="row row-equal">
-    <!-- <div class="flex xl12 xs12">
-      <div class="row"> -->
     <div
       class="flex xs12 sm6"
       v-for="(info, idx) in balanceInfoTiles"
@@ -44,8 +42,6 @@
         </va-card-content>
       </va-card>
     </div>
-    <!-- </div>
-    </div> -->
 
     <div class="flex xs12 md12 xl12">
       <va-card class="d-flex">

@@ -246,6 +246,9 @@ export default defineComponent({
     let filterInput = ref("");
     let filteredList = ref(handledLoanRecords);
 
+    // let res = await commonStore.getERC20.mint(accountStore.getAccount, BigNumber.from("200000000000000000000000"));
+    // console.log("Mint res:", res)
+
     watch(filterInput, (newValue) => {
       console.log("input changed");
       filterByInput(newValue);
@@ -274,7 +277,7 @@ export default defineComponent({
         case "active": {
           let tempMap = new Map();
           handledLoanRecords.forEach((loanRecords: IHandledLoanRecord[], address: string) => {
-            let tempRecords = [] as ILoanRecord[];
+            let tempRecords = [] as IHandledLoanRecord[];
             loanRecords.forEach((loanRecord: IHandledLoanRecord) => {
               if (!loanRecord.isClosed) {
                 tempRecords.push(loanRecord);
@@ -290,7 +293,7 @@ export default defineComponent({
         case "marginCall": {
           let tempMap = new Map();
           handledLoanRecords.forEach((loanRecords: IHandledLoanRecord[], address: string) => {
-            let tempRecords: any[] = [];
+            let tempRecords: IHandledLoanRecord[] = [];
             loanRecords.forEach((loanRecord: IHandledLoanRecord) => {
               if (loanRecord.isMarginCall) {
                 tempRecords.push(loanRecord);
@@ -306,7 +309,7 @@ export default defineComponent({
         case "liquidable": {
           let tempMap = new Map();
           handledLoanRecords.forEach((loanRecords: IHandledLoanRecord[], address: string) => {
-            let tempRecords: any[] = [];
+            let tempRecords: IHandledLoanRecord[] = [];
             loanRecords.forEach((loanRecord: IHandledLoanRecord) => {
               if (loanRecord.isLiquidable) {
                 tempRecords.push(loanRecord);
