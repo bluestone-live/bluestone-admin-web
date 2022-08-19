@@ -5,6 +5,7 @@ import { WalletSelector } from '@/services/types'
 export const useAccountStore = defineStore('account', {
   state: () => ({
     isInited: false,
+    preWallet: window.localStorage.getItem("wallet") as WalletSelector,
     commonStore: useCommonStore(),
     accounts: [] as string[],
   }),
@@ -26,14 +27,13 @@ export const useAccountStore = defineStore('account', {
     },
     async initAccounts() {
       this.accounts = await this.commonStore.getProvider.enable();
-      this.commonStore.initWallet(window.localStorage.getItem("wallet") as WalletSelector)
+      this.commonStore.initWallet(this.preWallet)
     },
     async disconnectAccount() {
       if(this.commonStore.wallet == WalletSelector.WalletConnect) {
         await this.commonStore.getProvider.disconnect();
-      } else if(this.commonStore.wallet == WalletSelector.MetaMask) {
-        await this.commonStore.getProvider.enable();
-      }
+      } 
+      this.preWallet = this.commonStore.wallet as WalletSelector;
       this.commonStore.initWallet(WalletSelector.Disconnect);
     }
   },

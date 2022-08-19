@@ -55,6 +55,7 @@ export const useCommonStore = defineStore('common', {
         initWallet(selectedWallet: WalletSelector) {
             this.wallet = selectedWallet as any
             window.localStorage.setItem("wallet", selectedWallet as string);
+            console.log("[Common]: Storage Wallet setted: ", this.wallet)
         },
 
         async initEthersInstance() {

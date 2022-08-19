@@ -140,7 +140,6 @@ export default defineComponent({
     async function selectWallet(wallet: WalletSelector) {
       if (wallet != WalletSelector.Disconnect) {
         commonStore.initWallet(wallet);
-        // window.localStorage.setItem("wallet", wallet as string);
         location.reload();
       } else {
         await accountStore.disconnectAccount();
