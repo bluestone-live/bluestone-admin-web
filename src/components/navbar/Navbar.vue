@@ -2,8 +2,12 @@
   <div class="app-layout__navbar">
     <va-navbar>
       <template v-slot:left>
-        <va-icon-menu-collapsed @click="isSidebarMinimized = !isSidebarMinimized"
-          :class="{ 'x-flip': isSidebarMinimized }" class="va-navbar__item" :color="colors.primary" />
+        <va-icon-menu-collapsed
+          @click="isSidebarMinimized = !isSidebarMinimized"
+          :class="{ 'x-flip': isSidebarMinimized }"
+          class="va-navbar__item"
+          :color="colors.primary"
+        />
         <router-link to="/">
           <vuestic-logo class="logo" />
         </router-link>
@@ -14,8 +18,10 @@
       </template>
 
       <template v-slot:right>
-        <app-navbar-actions class="app-navbar__actions md5 lg4" :user-name="accountAddress"
-          :is-wallet-connect="isWalletConnect" />
+        <Suspense>
+          <template #fallback> </template>
+          <app-navbar-actions class="app-navbar__actions md5 lg4" />
+        </Suspense>
       </template>
     </va-navbar>
   </div>
@@ -23,14 +29,13 @@
 
 <script lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { useAccountStore } from "@/store/Account";
+import { useCommonStore } from "@/store/Common";
 import { useNavbarStore } from "@/store/Navbar";
 import { useColors } from "vuestic-ui";
 import VuesticLogo from "@/components/vuestic-logo.vue";
 import VaIconMenuCollapsed from "@/components/icons/VaIconMenuCollapsed.vue";
 import AppNavbarActions from "./components/AppNavbarActions.vue";
-import utils from "@/utils";
-
+import { WalletSelector } from "@/services/types";
 
 export default {
   name: "Navbar",
@@ -43,32 +48,32 @@ export default {
     const { getColors } = useColors();
     const colors = computed(() => getColors());
     const sidebarStore = useNavbarStore();
-    const accountStore = useAccountStore();
+    const commonStore = useCommonStore();
     const isSidebarMinimized = computed({
       get: () => sidebarStore.sidebarMinimized,
       set: (value) => sidebarStore.updateSidebarCollapsedState(value),
     });
-    let isWalletConnect = ref(false);
-    onMounted(async () => {
-      if (!accountStore.isInited) {
-        await accountStore.init();
-      }
-    });
-    const accountAddress = computed(() => {
-      if (accountStore.getAccount) {
-        isWalletConnect.value = true;
-        return utils.shortenAddress(accountStore.getAccount);
-      } else {
-        isWalletConnect.value = false;
-        return "Connect Wallet";
-      }
+    onMounted(() => {
+      (commonStore.getEthersProvider as any).provider.on(
+        "accountsChanged",
+        () => {
+          location.reload();
+        }
+      );
+      (commonStore.getEthersProvider as any).provider.on("chainChanged", () => {
+        location.reload();
+      });
+      (commonStore.getEthersProvider as any).provider.on(
+        "disconnect",
+        (code: number, reason: string) => {
+          commonStore.initWallet(WalletSelector.Disconnect);
+        }
+      );
     });
 
     return {
       colors,
       isSidebarMinimized,
-      isWalletConnect,
-      accountAddress,
     };
   },
 };
@@ -110,11 +115,11 @@ export default {
   display: flex;
   align-items: center;
 
-  &>* {
+  & > * {
     margin-right: 1.5rem;
   }
 
-  &>*:last-child {
+  & > *:last-child {
     margin-right: 0;
   }
 }
@@ -123,7 +128,7 @@ export default {
   transform: scaleX(-100%);
 }
 
-.app-navbar__text>* {
+.app-navbar__text > * {
   margin-right: 0.5rem;
 
   &:last-child {

@@ -1,5 +1,4 @@
-// import './polyfills' 
-
+import './polyfills' 
 import { createApp } from 'vue'
 import { VuesticPlugin } from 'vuestic-ui'
 import { i18n } from './i18n'

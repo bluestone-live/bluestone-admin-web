@@ -40,7 +40,7 @@ export const useWhitelistStore = defineStore('whitelist', {
             this.whitelistInstance = new ethers.Contract(
                 whitelistAddress,
                 whitelistDeclareFile.abi,
-                this.commonState.getProvider.getSigner()
+                this.commonState.getEthersProvider.getSigner()
             )
         },
         async initAdministrators() {

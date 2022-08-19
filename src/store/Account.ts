@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useCommonStore } from "./Common"
+import { WalletSelector } from '@/services/types'
 
 export const useAccountStore = defineStore('account', {
   state: () => ({
@@ -24,7 +25,16 @@ export const useAccountStore = defineStore('account', {
       }
     },
     async initAccounts() {
-      this.accounts = await this.commonStore.getProvider.send("eth_requestAccounts", [])
+      this.accounts = await this.commonStore.getProvider.enable();
+      this.commonStore.initWallet(window.localStorage.getItem("wallet") as WalletSelector)
+    },
+    async disconnectAccount() {
+      if(this.commonStore.wallet == WalletSelector.WalletConnect) {
+        await this.commonStore.getProvider.disconnect();
+      } else if(this.commonStore.wallet == WalletSelector.MetaMask) {
+        await this.commonStore.getProvider.enable();
+      }
+      this.commonStore.initWallet(WalletSelector.Disconnect);
     }
   },
 })

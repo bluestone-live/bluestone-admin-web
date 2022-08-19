@@ -5,12 +5,13 @@ import { toRaw } from "@vue/reactivity"
 import protocolDeclareFile from "@/contracts/Protocol.json"
 import erc20DeclareFile from "@/contracts/ERC20Mock.json"
 import { WalletSelector, NetworkType, INetworkFile } from "@/services/types";
-// import WalletConnectProvider from "@walletconnect/web3-provider";
+import WalletConnectProvider from "@walletconnect/web3-provider";
 
 export const useCommonStore = defineStore('common', {
     state: () => ({
         isInited: false,
-        wallet: WalletSelector.MetaMask,
+        wallet: window.localStorage.getItem("wallet") || WalletSelector.MetaMask,
+        provider: {} as any,
         ethersInstance: {} as providers.Web3Provider,
         networkType: NetworkType.None,
         networkFile: {} as INetworkFile,
@@ -21,6 +22,9 @@ export const useCommonStore = defineStore('common', {
     }),
     getters: {
         getProvider(state) {
+            return toRaw(state.provider) 
+        },
+        getEthersProvider(state) {
             return toRaw(state.ethersInstance)
         },
         getProtocol(state) {
@@ -49,34 +53,32 @@ export const useCommonStore = defineStore('common', {
         },
 
         initWallet(selectedWallet: WalletSelector) {
-            this.wallet = selectedWallet
+            this.wallet = selectedWallet as any
+            window.localStorage.setItem("wallet", selectedWallet as string);
         },
 
         async initEthersInstance() {
             let provider;
-            // if (this.wallet == WalletSelector.MetaMask) {
-            //     console.log("MetaMask钱包")
-            //     if ((window as any).ethereum) {
-            //         // this.ethersInstance = new ethers.providers.Web3Provider((window as any).ethereum)
-            //         provider = (window as any).ethereum;
-            //     } else {
-            //         throw new Error(
-            //             'Ethers Instance init error: Require global web3 provider.'
-            //         )
-            //     }
-            // } else if (this.wallet == WalletSelector.WalletConnect) {
-            //     console.log("WalletConnect钱包")
-            //     provider = new WalletConnectProvider({
-            //         infuraId: "27e484dcd9e3efcfd25a83a78777cdf1",
-            //     })
-            // }
-            provider = (window as any).ethereum;
+            if (this.wallet == WalletSelector.MetaMask) {
+                if ((window as any).ethereum) {
+                    provider = (window as any).ethereum;
+                } else {
+                    throw new Error(
+                        'Ethers Instance init error: Require global web3 provider.'
+                    )
+                }
+            } else if (this.wallet == WalletSelector.WalletConnect) {
+                provider = new WalletConnectProvider({
+                    infuraId: "76eca7933f9a4b73a2438632bfd0180b",
+                })
+            }
+            this.provider = provider
             await provider.enable()
             this.ethersInstance = new ethers.providers.Web3Provider(provider)
         },
 
         async initNetworkType() {
-            const network = await ((this.getProvider as any) as any).getNetwork()
+            const network = await ((this.getEthersProvider as any) as any).getNetwork()
             this.networkType = network.chainId;
             console.log("networktype=", this.networkType)
         },
@@ -89,7 +91,7 @@ export const useCommonStore = defineStore('common', {
             this.protocolInstance = new ethers.Contract(
                 this.protocolAddress,
                 protocolDeclareFile.abi,
-                (this.getProvider as any).getSigner()
+                (this.getEthersProvider as any).getSigner()
             )
         },
 
@@ -98,7 +100,7 @@ export const useCommonStore = defineStore('common', {
             this.erc20Instance = new ethers.Contract(
                 sgcAddress,
                 erc20DeclareFile.abi,
-                (this.getProvider as any).getSigner()
+                (this.getEthersProvider as any).getSigner()
             )
         },
     },

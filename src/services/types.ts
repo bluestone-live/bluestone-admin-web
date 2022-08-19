@@ -1,11 +1,10 @@
 import { BigNumber } from "ethers";
 
 enum WalletSelector {
-    None,
+    Disconnect = "Disconnect",
 
-    MetaMask,
-    WalletConnect,
-    ImToken,
+    MetaMask = "MetaMask",
+    WalletConnect = "WalletConnect",
 }
 
 enum NetworkType {

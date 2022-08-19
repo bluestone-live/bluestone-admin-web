@@ -1,6 +1,26 @@
 <template>
   <div class="app-navbar-actions">
-    <va-badge left :text="badgePendingCount" color="warning" class="mr-4">
+    <va-dropdown fixed position="bottom">
+      <template #anchor>
+        <img
+          class="selected-dropdown-icons mr-3"
+          :src="dropdownMap.get(selectedWallet)"
+        />
+      </template>
+      <va-dropdown-content class="pl-4 pr-4 pt-2 pb-2">
+        <div
+          class="dropdown-items mt-3 mb-2"
+          v-for="item in dropdownMap"
+          @click="selectWallet(item[0])"
+          :key="item[1]"
+        >
+          <img class="mr-2" :src="item[1]" />
+          <span>{{ item[0] }}</span>
+        </div>
+      </va-dropdown-content>
+    </va-dropdown>
+
+    <va-badge right :text="badgePendingCount" color="warning" class="mr-4">
       <va-button
         v-if="isWalletConnect"
         :color="showPending ? 'success' : isNetworkErr ? 'danger' : 'primary'"
@@ -8,7 +28,7 @@
         <template #default>
           <div v-if="!showPending">
             <va-icon class="mr-1" name="settings"></va-icon>
-            {{ userName }}
+            {{ accountAddress }}
           </div>
           <div v-else>
             <va-icon
@@ -23,7 +43,7 @@
       <va-button v-else @click="connectWallet" color="danger">
         <template #default>
           <va-icon class="mr-1" name="wallet"></va-icon>
-          {{ userName }}
+          {{ accountAddress }}
         </template>
       </va-button>
     </va-badge>
@@ -31,39 +51,78 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, getCurrentInstance, onMounted, ref } from "vue";
+import {
+  defineComponent,
+  getCurrentInstance,
+  onMounted,
+  ref,
+  watch,
+} from "vue";
 import { usePendingStore } from "@/store/Pending";
 import { useAccountStore } from "@/store/Account";
 import { useCommonStore } from "@/store/Common";
-import { NetworkType } from "@/services/types";
+import { NetworkType, WalletSelector } from "@/services/types";
+import utils from "@/utils/index";
 export default defineComponent({
   name: "app-navbar-actions",
-  props: {
-    isWalletConnect: {
-      type: Boolean,
-      default: false,
-    },
-    userName: {
-      type: String,
-      default: "",
-    },
-    isTopBar: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  setup() {
+  async setup() {
     const instance = getCurrentInstance();
     const _this = instance?.appContext.config.globalProperties;
 
     const commonStore = useCommonStore();
-    const accountStore = useAccountStore();
     const pendingStore = usePendingStore();
+    const accountStore = useAccountStore();
+
+    if (!accountStore.isInited) {
+      await accountStore.init();
+    }
+
+    let isWalletConnect = ref(
+      commonStore.wallet == WalletSelector.Disconnect ? false : true
+    );
+    let accountAddress = ref(utils.shortenAddress(accountStore.getAccount));
+
+    const dropdownMap = new Map<WalletSelector, string>();
+    dropdownMap.set(WalletSelector.MetaMask, "src/assets/wallet/metamask.svg");
+    dropdownMap.set(
+      WalletSelector.WalletConnect,
+      "src/assets/wallet/walletconnect.svg"
+    );
+    dropdownMap.set(
+      WalletSelector.Disconnect,
+      "src/assets/wallet/disconnect.svg"
+    );
+
+    let selectedWallet = ref(commonStore.wallet);
 
     let iconName = ref("settings");
     let badgePendingCount = ref(0);
     let showPending = ref(false);
     let isNetworkErr = ref(false);
+
+    watch(
+      () => commonStore.wallet,
+      (cur) => {
+        if (commonStore.wallet == WalletSelector.Disconnect) {
+          isWalletConnect.value = false;
+          accountAddress.value = "Connect Wallet";
+        } else {
+          selectedWallet.value = cur;
+          accountAddress.value = utils.shortenAddress(accountStore.getAccount);
+          isWalletConnect.value = true;
+        }
+      }
+    );
+
+    watch(
+      () => commonStore.networkType,
+      (curNetwork) => {
+        if (curNetwork != NetworkType.Kovan) {
+          isNetworkErr.value = true;
+          openNotification("Please change Network to Kovan testnet.", "danger");
+        }
+      }
+    );
 
     pendingStore.$subscribe(() => {
       if (pendingStore.pendingCount === 0) {
@@ -74,21 +133,18 @@ export default defineComponent({
       badgePendingCount.value = pendingStore.pendingCount;
     });
 
-    onMounted(() => {
-      if (commonStore.networkType != NetworkType.Kovan) {
-        isNetworkErr.value = true;
-        openNotification("Please change Network to Kovan testnet.", "danger");
-      }
-      (commonStore.getProvider as any).provider.on("accountsChanged", () => {
-        location.reload();
-      });
-      (commonStore.getProvider as any).provider.on("chainChanged", () => {
-        location.reload();
-      });
-    });
-
     async function connectWallet() {
       await accountStore.init();
+    }
+
+    async function selectWallet(wallet: WalletSelector) {
+      if (wallet != WalletSelector.Disconnect) {
+        commonStore.initWallet(wallet);
+        // window.localStorage.setItem("wallet", wallet as string);
+        location.reload();
+      } else {
+        await accountStore.disconnectAccount();
+      }
     }
 
     const openNotification = (message: string, color: string) => {
@@ -103,28 +159,54 @@ export default defineComponent({
       });
     };
 
+    if (commonStore.networkType != NetworkType.Kovan) {
+      isNetworkErr.value = true;
+      openNotification("Please change Network to Kovan testnet.", "danger");
+    }
+
     return {
       iconName,
+      selectedWallet,
+      dropdownMap,
       showPending,
+      isWalletConnect,
+      accountAddress,
       isNetworkErr,
       badgePendingCount,
       connectWallet,
+      selectWallet,
     };
-  },
-  computed: {
-    isTopBarProxy: {
-      get() {
-        return this.isTopBar;
-      },
-      set(isTopBar: any) {
-        this.$emit("update:isTopBar", isTopBar);
-      },
-    },
   },
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.dropdown-items {
+  display: flex;
+  align-items: center;
+  span {
+    color: rgb(113, 114, 115);
+    font-size: 18px;
+  }
+  img {
+    width: 25px;
+    height: 25px;
+  }
+  :hover {
+    color: #154ec1;
+    cursor: pointer;
+  }
+}
+.selected-dropdown-icons {
+  width: 28px;
+  height: 28px;
+  transition: all 0.3;
+}
+.selected-dropdown-icons:hover {
+  transform: scale(1.1, 1.1);
+  cursor: pointer;
+}
+
 .app-navbar-actions {
   display: flex;
   align-items: center;

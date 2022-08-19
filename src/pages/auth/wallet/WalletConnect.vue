@@ -1,30 +1,24 @@
 <template>
   <div class="row wallets-container">
-    <div class="flex xs5 sm5 md5 mb-4 img-container">
+    <router-link class="flex xs5 sm5 md5 mb-4 img-container" to="/">
+        <img
+          @click="selectWallet('MetaMask')"
+          src="src/assets/metamaskLogo.svg"
+        />
+    </router-link>
+    <router-link class="flex xs5 sm5 md5 mb-4 img-container" to="/">
       <img
-        @click="selectWallet(1)"
-        src="src/assets/metamaskLogo.svg"
-      />
-    </div>
-    <div class="flex xs5 sm5 md5 mb-4 img-container">
-      <img
-        @click="selectWallet(2)"
+        @click="selectWallet('WalletConnect')"
         src="src/assets/walletConnectLogo.svg"
       />
-    </div>
-    <div class="flex xs5 sm5 md5 img-container">
-      <img
-        @click="selectWallet(3)"
-        src="src/assets/imTokenLogo.svg"
-      />
-    </div>
+    </router-link>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { VaImage } from "vuestic-ui";
-import {useCommonStore} from "@/store/Common"
+import { useCommonStore } from "@/store/Common";
 import { WalletSelector } from "@/services/types";
 
 export default defineComponent({
@@ -33,7 +27,7 @@ export default defineComponent({
     VaImage,
   },
   setup() {
-    const commonStore = useCommonStore()
+    const commonStore = useCommonStore();
     function selectWallet(type: WalletSelector) {
       switch (type) {
         case WalletSelector.MetaMask:
@@ -42,10 +36,6 @@ export default defineComponent({
           break;
         case WalletSelector.WalletConnect:
           console.log("WalletConnect: select WalletConnect.");
-          commonStore.initWallet(type);
-          break;
-        case WalletSelector.ImToken:
-          console.log("WalletConnect: select ImToken.");
           commonStore.initWallet(type);
           break;
       }

@@ -5,35 +5,35 @@ export default {
   },
   routes: [
     {
-      name: 'dashboard',
+      name: 'Dashboard',
       displayName: 'menu.dashboard',
       meta: {
         icon: 'vuestic-iconset-dashboard',
       },
     },
     {
-      name: 'whitelist',
+      name: 'Whitelist',
       displayName: 'menu.whitelist',
       meta: {
         icon: 'vuestic-iconset-forms',
       },
       children: [
         {
-          name: "administrator",
+          name: "Administrator",
           displayName: 'menu.administrator',
         },
         {
-          name: 'lender',
+          name: 'Lender',
           displayName: 'menu.lender'
         },
         {
-          name: 'borrower',
+          name: 'Borrower',
           displayName: 'menu.borrower'
         },
       ]
     },
     {
-      name: 'loanlist',
+      name: 'LoanList',
       displayName: 'menu.loanlist',
       meta: {
         icon: 'vuestic-iconset-tables',
