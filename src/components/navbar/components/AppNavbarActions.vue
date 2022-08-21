@@ -54,7 +54,6 @@
 import {
   defineComponent,
   getCurrentInstance,
-  onMounted,
   ref,
   watch,
 } from "vue";
@@ -83,14 +82,14 @@ export default defineComponent({
     let accountAddress = ref(utils.shortenAddress(accountStore.getAccount));
 
     const dropdownMap = new Map<WalletSelector, string>();
-    dropdownMap.set(WalletSelector.MetaMask, "src/assets/wallet/metamask.svg");
+    dropdownMap.set(WalletSelector.MetaMask, "@/assets/wallet/metamask.svg");
     dropdownMap.set(
       WalletSelector.WalletConnect,
-      "src/assets/wallet/walletconnect.svg"
+      "@/assets/wallet/walletconnect.svg"
     );
     dropdownMap.set(
       WalletSelector.Disconnect,
-      "src/assets/wallet/disconnect.svg"
+      "@/assets/wallet/disconnect.svg"
     );
 
     let selectedWallet = ref(commonStore.wallet);

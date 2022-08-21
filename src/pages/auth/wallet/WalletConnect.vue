@@ -3,13 +3,13 @@
     <router-link class="flex xs5 sm5 md5 mb-4 img-container" to="/">
         <img
           @click="selectWallet('MetaMask')"
-          src="src/assets/metamaskLogo.svg"
+          src="@/assets/metamaskLogo.svg"
         />
     </router-link>
     <router-link class="flex xs5 sm5 md5 mb-4 img-container" to="/">
       <img
         @click="selectWallet('WalletConnect')"
-        src="src/assets/walletConnectLogo.svg"
+        src="@/assets/walletConnectLogo.svg"
       />
     </router-link>
   </div>

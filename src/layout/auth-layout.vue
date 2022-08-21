@@ -2,7 +2,7 @@
   <div class="auth-layout row align-content--center">
     <div class="flex xs12 pa-3 flex-center">
       <router-link class="py-5 flex-center" to="/">
-        <img class="img-logo" src="src/assets/logo-large.svg" />
+        <img class="img-logo" src="@/assets/logo-large.svg" />
       </router-link>
     </div>
 
