@@ -55,7 +55,7 @@ export const useCommonStore = defineStore('common', {
 
         initWallet() {
             let history = window.localStorage.getItem("wallet");
-            if(history && history != null) {
+            if(history && history != "null") {
                 console.log("history=", history)
                 this.wallet = history
             } else {

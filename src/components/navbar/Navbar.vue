@@ -67,7 +67,7 @@ export default {
       (commonStore.getEthersProvider as any).provider.on(
         "disconnect",
         (code: number, reason: string) => {
-          commonStore.initWallet(WalletSelector.Disconnect);
+          commonStore.setWallet(WalletSelector.Disconnect);
         }
       );
     });
