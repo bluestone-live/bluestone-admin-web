@@ -43,10 +43,10 @@ export const useLoanStore = defineStore('loan', {
     actions: {
         async init() {
             try {
-                this.initBtcAddress()
-                this.initBtcBalance()
-                this.initEthAddress()
-                this.initEthBalance()
+                // this.initBtcAddress()
+                // this.initBtcBalance()
+                // this.initEthAddress()
+                // this.initEthBalance()
                 await this.initBorrowersAndTotalLoansCount()
                 await this.initBorrowersLoanRecords()
                 this.initActiveBorrowersAndActiveLoansCount()

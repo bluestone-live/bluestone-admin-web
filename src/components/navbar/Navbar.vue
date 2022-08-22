@@ -19,7 +19,8 @@
 
       <template v-slot:right>
         <Suspense>
-          <template #fallback> </template>
+          <template #fallback>
+          </template>
           <app-navbar-actions class="app-navbar__actions md5 lg4" />
         </Suspense>
       </template>

@@ -86,8 +86,10 @@ export default defineComponent({
     if (!oracleStore.isInited) {
       await oracleStore.init();
     }
-    let btcBalance = loanStore.getBtcBalance;
-    let ethBalance = loanStore.getEthBalance;
+    // let btcBalance = loanStore.getBtcBalance;
+    // let ethBalance = loanStore.getEthBalance;
+    // let btcPrice = oracleStore.getBtcPrice;
+    // let ethPrice = oracleStore.getEthPrice;
     let activeLoansCount = loanStore.activeLoansCount;
     let totalLoansCount = loanStore.totalLoansCount;
     let marginCallCount = loanStore.marginCallLoansCount;
@@ -96,8 +98,6 @@ export default defineComponent({
     let availableSgcPools = filterAvailableSgcPools(depositStore.sgcPools);
     let totalLoanOutstandingBalance =
       depositStore.getTotalLoanOutstandingBalance;
-    let btcPrice = oracleStore.getBtcPrice;
-    let ethPrice = oracleStore.getEthPrice;
     let sgcPrice = oracleStore.getSgcPrice;
 
     const columns = [
@@ -110,22 +110,22 @@ export default defineComponent({
     ];
 
     let balanceInfoTiles = [
-      {
-        color: "info",
-        balance: btcBalance,
-        price: (btcPrice as number) * btcBalance,
-        title: "BTC Balance",
-        text: "btc",
-        icon: "",
-      },
-      {
-        color: "info",
-        balance: ethBalance,
-        price: (ethPrice as number) * ethBalance,
-        title: "ETH Balance",
-        text: "eth",
-        icon: "",
-      },
+      // {
+      //   color: "info",
+      //   balance: btcBalance,
+      //   price: (btcPrice as number) * btcBalance,
+      //   title: "BTC Balance",
+      //   text: "btc",
+      //   icon: "",
+      // },
+      // {
+      //   color: "info",
+      //   balance: ethBalance,
+      //   price: (ethPrice as number) * ethBalance,
+      //   title: "ETH Balance",
+      //   text: "eth",
+      //   icon: "",
+      // },
       {
         color: "danger",
         balance: sgcBalance,

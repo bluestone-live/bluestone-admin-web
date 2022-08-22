@@ -16,5 +16,10 @@ export default defineConfig({
           replacement: '$1',
         },
       ],
+  },
+  build: {
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
   }
 })

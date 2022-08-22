@@ -82,14 +82,14 @@ export default defineComponent({
     let accountAddress = ref(utils.shortenAddress(accountStore.getAccount));
 
     const dropdownMap = new Map<WalletSelector, any>();
-    dropdownMap.set(WalletSelector.MetaMask, "/static/wallet/metamask.svg");
+    dropdownMap.set(WalletSelector.MetaMask, new URL("../../../assets/wallet/metamask.svg", import.meta.url).href);
     dropdownMap.set(
       WalletSelector.WalletConnect,
-      "/static/wallet/walletconnect.svg"
+      new URL("../../../assets/wallet/walletconnect.svg", import.meta.url).href
     );
     dropdownMap.set(
       WalletSelector.Disconnect,
-      "/static/wallet/disconnect.svg"
+      new URL("../../../assets/wallet/disconnect.svg", import.meta.url).href
     );
 
     let selectedWallet = ref(commonStore.wallet);
