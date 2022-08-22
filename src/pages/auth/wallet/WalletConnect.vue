@@ -32,11 +32,11 @@ export default defineComponent({
       switch (type) {
         case WalletSelector.MetaMask:
           console.log("WalletConnect: select MetaMask.");
-          commonStore.initWallet(type);
+          commonStore.setWallet(type);
           break;
         case WalletSelector.WalletConnect:
           console.log("WalletConnect: select WalletConnect.");
-          commonStore.initWallet(type);
+          commonStore.setWallet(type);
           break;
       }
     }
