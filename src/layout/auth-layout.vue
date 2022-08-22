@@ -1,16 +1,17 @@
 <template>
   <div class="auth-layout row align-content--center">
     <div class="flex xs12 pa-3 flex-center">
-      <router-link class="py-5 flex-center" to="/">
+      <router-link class="py-1 flex-center" to="/">
         <img class="img-logo" src="@/assets/logo-large.svg" />
       </router-link>
     </div>
-
     <div class="flex xs12 pa-3">
       <div class="d-flex justify--center">
         <va-card class="auth-layout__card">
+          <va-card-title>
+            Select a Wallet
+          </va-card-title>
           <va-card-content>
-            <va-separator />
             <div class="pa-3">
               <router-view />
             </div>

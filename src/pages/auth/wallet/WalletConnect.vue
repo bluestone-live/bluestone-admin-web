@@ -54,10 +54,8 @@ export default defineComponent({
   justify-content: space-between;
 }
 .img-container {
-  /* height: 80px; */
   display: flex;
   padding: 6px 12px;
-  /* border: 1px solid rgb(204, 203, 203); */
   align-items: center;
   border-radius: 5px;
 }

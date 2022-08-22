@@ -40,7 +40,6 @@ export const useCommonStore = defineStore('common', {
     actions: {
         async init() {
             try {
-                this.initWallet()
                 await this.initEthersInstance()
                 await this.initNetworkType()
                 await this.initProtocolRelated()
@@ -50,16 +49,6 @@ export const useCommonStore = defineStore('common', {
             } catch (error) {
                 console.log("[Common]: Common Store init failed.")
                 console.error(error)
-            }
-        },
-
-        initWallet() {
-            let history = window.localStorage.getItem("wallet");
-            if(history && history != "null") {
-                console.log("history=", history)
-                this.wallet = history
-            } else {
-                this.wallet = WalletSelector.MetaMask
             }
         },
 
