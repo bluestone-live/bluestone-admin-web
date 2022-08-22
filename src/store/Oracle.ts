@@ -31,8 +31,8 @@ export const useOracleStore = defineStore('oracle', {
         async init() {
             try {
                 await Promise.all([
-                    this.initBtcPrice(),
-                    this.initEthPrice(),
+                    // this.initBtcPrice(),
+                    // this.initEthPrice(),
                     this.initSgcPrice()
                 ])
                 // console.log("btcPrice=", this.getBtcPrice)

@@ -21,7 +21,7 @@ export const useCommonStore = defineStore('common', {
         tokens: {} as INetworkFile["tokens"],
     }),
     getters: {
-        getProvider(state) {
+        getWallectConnectProvider(state) {
             return toRaw(state.provider) 
         },
         getEthersProvider(state) {
@@ -59,23 +59,21 @@ export const useCommonStore = defineStore('common', {
         },
 
         async initEthersInstance() {
-            let provider;
             if (this.wallet == WalletSelector.MetaMask) {
                 if ((window as any).ethereum) {
-                    provider = (window as any).ethereum;
+                    this.ethersInstance = new ethers.providers.Web3Provider((window as any).ethereum)
                 } else {
                     throw new Error(
                         'Ethers Instance init error: Require global web3 provider.'
                     )
                 }
             } else if (this.wallet == WalletSelector.WalletConnect) {
-                provider = new WalletConnectProvider({
+                this.provider = new WalletConnectProvider({
                     infuraId: "76eca7933f9a4b73a2438632bfd0180b",
                 })
+                await this.provider.enable()
+                this.ethersInstance = new ethers.providers.Web3Provider(this.provider)
             }
-            this.provider = provider
-            await provider.enable()
-            this.ethersInstance = new ethers.providers.Web3Provider(provider)
         },
 
         async initNetworkType() {

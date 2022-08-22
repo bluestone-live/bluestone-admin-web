@@ -26,12 +26,16 @@ export const useAccountStore = defineStore('account', {
       }
     },
     async initAccounts() {
-      this.accounts = await this.commonStore.getProvider.enable();
+      if (this.commonStore.wallet == WalletSelector.WalletConnect) {
+        this.accounts = await this.commonStore.getWallectConnectProvider.enable();
+      } else if (this.commonStore.wallet == WalletSelector.MetaMask) {
+        this.accounts = await this.commonStore.getEthersProvider.send("eth_requestAccounts", []);
+      }
       this.commonStore.initWallet(this.preWallet)
     },
     async disconnectAccount() {
       if(this.commonStore.wallet == WalletSelector.WalletConnect) {
-        await this.commonStore.getProvider.disconnect();
+        await this.commonStore.getWallectConnectProvider.disconnect();
       } 
       this.preWallet = this.commonStore.wallet as WalletSelector;
       this.commonStore.initWallet(WalletSelector.Disconnect);
