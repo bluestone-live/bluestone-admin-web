@@ -133,7 +133,7 @@ export default defineComponent({
     });
 
     async function connectWallet() {
-      await accountStore.init();
+      await accountStore.reconnectWallet();
     }
 
     async function selectWallet(wallet: WalletSelector) {
@@ -141,7 +141,7 @@ export default defineComponent({
         commonStore.setWallet(wallet);
         location.reload();
       } else {
-        await accountStore.disconnectAccount();
+        await accountStore.disconnectWallet();
       }
     }
 

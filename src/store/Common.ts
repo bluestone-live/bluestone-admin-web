@@ -10,7 +10,7 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 export const useCommonStore = defineStore('common', {
     state: () => ({
         isInited: false,
-        wallet: window.localStorage.getItem("wallet") || WalletSelector.MetaMask,
+        wallet: WalletSelector.Disconnect,
         provider: {} as any,
         ethersInstance: {} as providers.Web3Provider,
         networkType: NetworkType.None,
@@ -40,7 +40,6 @@ export const useCommonStore = defineStore('common', {
     actions: {
         async init() {
             try {
-                this.initWallet()
                 await this.initEthersInstance()
                 await this.initNetworkType()
                 await this.initProtocolRelated()
@@ -54,13 +53,19 @@ export const useCommonStore = defineStore('common', {
         },
 
         initWallet() {
-            let history = window.localStorage.getItem("wallet");
-            if(history && history != "null") {
-                console.log("history=", history)
-                this.wallet = history
-            } else {
-                this.wallet = WalletSelector.MetaMask
+            let walletString = window.localStorage.getItem("wallet")
+            switch(walletString) {
+                case WalletSelector.MetaMask:
+                    this.wallet = WalletSelector.MetaMask;
+                    break;
+                case WalletSelector.WalletConnect:
+                    this.wallet = WalletSelector.WalletConnect;
+                    break;
+                default:
+                    // this.wallet = WalletSelector.Disconnect;
+                    break;
             }
+            console.log("initWallet = ", this.wallet)
         },
 
         setWallet(selectedWallet: WalletSelector) {
