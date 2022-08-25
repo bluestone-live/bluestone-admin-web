@@ -4,7 +4,7 @@ import Page404Layout from '@/layout/page-404-layout.vue'
 import AuthLayout from '@/layout/auth-layout.vue'
 import RouteViewComponent from './route-view.vue'
 import { useCommonStore } from '@/store/Common.js'
-// import { WalletSelector } from '@/services/types'
+import { WalletSelector } from '@/services/types'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -82,9 +82,9 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const commonStore = useCommonStore()
+  commonStore.initWallet();
   if (to.name === 'Wallet') { next() } 
-  if (commonStore.wallet == 'Disconnect') {
-    console.log("commonStore.wallet = ", commonStore.wallet)
+  if (commonStore.wallet == WalletSelector.Disconnect) {
     next({ name: "Wallet" })
   } else {
     if (!commonStore.isInited) {
