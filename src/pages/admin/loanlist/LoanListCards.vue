@@ -161,13 +161,7 @@
 </template>
 
 <script lang="ts">
-import {
-  computed,
-  watch,
-  ref,
-  defineComponent,
-  getCurrentInstance,
-} from "vue";
+import { computed, watch, ref, defineComponent, getCurrentInstance } from "vue";
 import { useGlobalConfig } from "vuestic-ui";
 
 import { useLoanStore } from "@/store/Loan";
@@ -238,10 +232,11 @@ export default defineComponent({
     let marginCallLoadingMap = ref(new Map<string, boolean>());
 
     let whitelistedBorrowers = whitelistStore.whitelistedBorrowers;
-    let handledLoanRecords: Map<string, IHandledLoanRecord[]> = handleRawLoanRecords(
-      loanStore.getBorrowers,
-      loanStore.getBorrowersLoanRecords
-    );
+    let handledLoanRecords: Map<string, IHandledLoanRecord[]> =
+      handleRawLoanRecords(
+        loanStore.getBorrowers,
+        loanStore.getBorrowersLoanRecords
+      );
 
     let filterInput = ref("");
     let filteredList = ref(handledLoanRecords);
@@ -261,11 +256,15 @@ export default defineComponent({
 
     function filterByInput(newInputValue: string) {
       let tempMap = new Map();
-      handledLoanRecords.forEach((loanRecords: IHandledLoanRecord[], address: string) => {
-        if (address.toLowerCase().search(newInputValue.toLowerCase()) !== -1) {
-          tempMap.set(address, loanRecords);
+      handledLoanRecords.forEach(
+        (loanRecords: IHandledLoanRecord[], address: string) => {
+          if (
+            address.toLowerCase().search(newInputValue.toLowerCase()) !== -1
+          ) {
+            tempMap.set(address, loanRecords);
+          }
         }
-      });
+      );
       filteredList.value = tempMap;
     }
 
@@ -276,49 +275,55 @@ export default defineComponent({
           break;
         case "active": {
           let tempMap = new Map();
-          handledLoanRecords.forEach((loanRecords: IHandledLoanRecord[], address: string) => {
-            let tempRecords = [] as IHandledLoanRecord[];
-            loanRecords.forEach((loanRecord: IHandledLoanRecord) => {
-              if (!loanRecord.isClosed) {
-                tempRecords.push(loanRecord);
+          handledLoanRecords.forEach(
+            (loanRecords: IHandledLoanRecord[], address: string) => {
+              let tempRecords = [] as IHandledLoanRecord[];
+              loanRecords.forEach((loanRecord: IHandledLoanRecord) => {
+                if (!loanRecord.isClosed) {
+                  tempRecords.push(loanRecord);
+                }
+              });
+              if (tempRecords.length > 0) {
+                tempMap.set(address, tempRecords);
               }
-            });
-            if (tempRecords.length > 0) {
-              tempMap.set(address, tempRecords);
             }
-          });
+          );
           filteredList.value = tempMap;
           break;
         }
         case "marginCall": {
           let tempMap = new Map();
-          handledLoanRecords.forEach((loanRecords: IHandledLoanRecord[], address: string) => {
-            let tempRecords: IHandledLoanRecord[] = [];
-            loanRecords.forEach((loanRecord: IHandledLoanRecord) => {
-              if (loanRecord.isMarginCall) {
-                tempRecords.push(loanRecord);
+          handledLoanRecords.forEach(
+            (loanRecords: IHandledLoanRecord[], address: string) => {
+              let tempRecords: IHandledLoanRecord[] = [];
+              loanRecords.forEach((loanRecord: IHandledLoanRecord) => {
+                if (loanRecord.isMarginCall) {
+                  tempRecords.push(loanRecord);
+                }
+              });
+              if (tempRecords.length > 0) {
+                tempMap.set(address, tempRecords);
               }
-            });
-            if (tempRecords.length > 0) {
-              tempMap.set(address, tempRecords);
             }
-          });
+          );
           filteredList.value = tempMap;
           break;
         }
         case "liquidable": {
           let tempMap = new Map();
-          handledLoanRecords.forEach((loanRecords: IHandledLoanRecord[], address: string) => {
-            let tempRecords: IHandledLoanRecord[] = [];
-            loanRecords.forEach((loanRecord: IHandledLoanRecord) => {
-              if (loanRecord.isLiquidable) {
-                tempRecords.push(loanRecord);
+          handledLoanRecords.forEach(
+            (loanRecords: IHandledLoanRecord[], address: string) => {
+              let tempRecords: IHandledLoanRecord[] = [];
+              loanRecords.forEach((loanRecord: IHandledLoanRecord) => {
+                if (loanRecord.isLiquidable) {
+                  tempRecords.push(loanRecord);
+                }
+              });
+              if (tempRecords.length > 0) {
+                tempMap.set(address, tempRecords);
               }
-            });
-            if (tempRecords.length > 0) {
-              tempMap.set(address, tempRecords);
             }
-          });
+          );
           filteredList.value = tempMap;
           break;
         }
@@ -492,42 +497,103 @@ export default defineComponent({
             loanTokenAddress: loanRecord.loanTokenAddress,
             collateralTokenAddress: loanRecord.collateralTokenAddress,
             loanAmount:
-              loanRecord.loanAmount.div(loanStore.exp).toNumber() + " SGC",
+              loanRecord.loanAmount
+                .mul(BigNumber.from("10").pow(4))
+                .div(loanStore.exp)
+                .toNumber() /
+                10000 +
+              " " +
+              utils.getTokenNameFromAddress(
+                loanRecord.loanTokenAddress,
+                commonStore.networkType
+              ),
             collateralAmount:
-              loanRecord.collateralAmount.div(loanStore.exp).toNumber() +
-              " SGC",
+              loanRecord.collateralAmount
+                .mul(10000)
+                .div(loanStore.exp)
+                .toNumber() /
+                10000 +
+              " " +
+              utils.getTokenNameFromAddress(
+                loanRecord.collateralTokenAddress,
+                commonStore.networkType
+              ),
             loanTerm: loanRecord.loanTerm.toNumber() + " Days",
             annualInterestRate:
               loanRecord.annualInterestRate
-                .mul(100)
+                .mul(10000)
                 .div(loanStore.exp)
-                .toNumber() + "%",
+                .toNumber() /
+                100 +
+              "%",
             interest:
-              loanRecord.interest.div(loanStore.exp).toNumber() + " SGC",
+              loanRecord.interest.mul(10000).div(loanStore.exp).toNumber() /
+                10000 +
+              " " +
+              utils.getTokenNameFromAddress(
+                loanRecord.loanTokenAddress,
+                commonStore.networkType
+              ),
             collateralCoverageRatio:
               loanRecord.collateralCoverageRatio
-                .mul(100)
+                .mul(10000)
                 .div(loanStore.exp)
-                .toNumber() + "%",
+                .toNumber() /
+                100 +
+              "%",
             minCollateralCoverageRatio:
               loanRecord.minCollateralCoverageRatio
-                .mul(100)
+                .mul(10000)
                 .div(loanStore.exp)
-                .toNumber() + "%",
+                .toNumber() /
+                100 +
+              "%",
             alreadyPaidAmount:
-              loanRecord.alreadyPaidAmount.div(loanStore.exp).toNumber() +
-              " SGC",
+              loanRecord.alreadyPaidAmount
+                .mul(10000)
+                .div(loanStore.exp)
+                .toNumber() /
+                10000 +
+              " " +
+              utils.getTokenNameFromAddress(
+                loanRecord.loanTokenAddress,
+                commonStore.networkType
+              ),
             liquidatedAmount:
-              loanRecord.liquidatedAmount.div(loanStore.exp).toNumber() +
-              " SGC",
+              loanRecord.liquidatedAmount
+                .mul(10000)
+                .div(loanStore.exp)
+                .toNumber() /
+                10000 +
+              " " +
+              utils.getTokenNameFromAddress(
+                loanRecord.loanTokenAddress,
+                commonStore.networkType
+              ),
             soldCollateralAmount:
-              loanRecord.soldCollateralAmount.div(loanStore.exp).toNumber() +
-              " SGC",
+              loanRecord.soldCollateralAmount
+                .mul(10000)
+                .div(loanStore.exp)
+                .toNumber() /
+                10000 +
+              " " +
+              utils.getTokenNameFromAddress(
+                loanRecord.loanTokenAddress,
+                commonStore.networkType
+              ),
             createdAt: utils.formatTimestamp(loanRecord.createdAt.toNumber()),
             dueAt: utils.formatTimestamp(loanRecord.dueAt.toNumber()),
             remainingDebt:
-              loanRecord.remainingDebt.div(loanStore.exp).toNumber() +
-              " SGC",
+              loanRecord.remainingDebt
+                .mul(10000)
+                .div(loanStore.exp)
+                .toNumber() /
+                10000 +
+              " " +
+              utils.getTokenNameFromAddress(
+                loanRecord.loanTokenAddress,
+                commonStore.networkType
+              ),
             isClosed: loanRecord.isClosed,
             isMarginCall:
               !loanRecord.isClosed &&
