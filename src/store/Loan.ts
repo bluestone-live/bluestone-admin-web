@@ -110,7 +110,6 @@ export const useLoanStore = defineStore('loan', {
             this.getBorrowersLoanRecords.forEach((loanRecordsArr: ILoanRecord[], borrowerAddress: string) => {
                 let activeFlag: boolean = false
                 loanRecordsArr.forEach((loanRecord, loanIdx) => {
-                    console.log("loanRecord=", loanRecord)
                     if (!loanRecord.isClosed) {
                         tempCount++
                         activeFlag = true

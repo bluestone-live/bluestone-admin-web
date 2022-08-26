@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { useCommonStore } from "./Common"
 import { BigNumber } from "ethers"
-import {IPool} from "@/services/types"
+import { IPool } from "@/services/types"
 
 export const useDepositStore = defineStore('deposit', {
     state: () => ({
@@ -17,10 +17,10 @@ export const useDepositStore = defineStore('deposit', {
     }),
     getters: {
         getSgcBalance(): Number {
-            return this.sgcBalance.div(this.exp).toNumber()
+            return this.sgcBalance.mul(10000).div(this.exp).toNumber() / 10000
         },
         getTotalLoanOutstandingBalance(): Number {
-            return this.totalLoanOutstandingBalance.div(this.exp).toNumber()
+            return this.totalLoanOutstandingBalance.mul(10000).div(this.exp).toNumber() / 10000
         },
     },
     actions: {

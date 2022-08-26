@@ -17,6 +17,12 @@ enum NetworkType {
     Kovan = 42
 }
 
+enum TokenType {
+    ETH = "ETH",
+    xBTC = "xBTC",
+    SGC = "SGC"
+}
+
 interface ITokenDeclaration {
     name: string;
     symbol: string;
@@ -78,5 +84,5 @@ interface IHandledLoanRecord {
     dueAt: string;
 }
 
-export { WalletSelector, NetworkType };
+export { WalletSelector, NetworkType, TokenType };
 export type { INetworkFile, IPool, ILoanRecord, IHandledLoanRecord };

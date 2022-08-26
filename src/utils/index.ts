@@ -1,9 +1,26 @@
-import {NetworkType, INetworkFile} from "@/services/types"
+import { TokenType, NetworkType, INetworkFile } from "@/services/types"
 
 const utils = {
+    getTokenNameFromAddress(address: string, networkType: NetworkType) {
+        switch (networkType) {
+            case NetworkType.Main:
+                break;
+            case NetworkType.Kovan:
+                switch (address.toLowerCase()) {
+                    case "0x0000000000000000000000000000000000000001":
+                        return TokenType.ETH
+                    case "0x81F9fA3c2F2989f5a76B6Ad8790CE8D66aF27f64".toLowerCase():
+                        return TokenType.xBTC
+                    case "0x3c432c6169df59BA09442bcF12D752710A8EEF9B".toLowerCase():
+                        return TokenType.SGC;
+                }
+                break;
+        }
+    },
+
     async getNetworkFile(networkType: NetworkType): Promise<INetworkFile> {
         let currentNetwork: string;
-        switch(networkType) {
+        switch (networkType) {
             case NetworkType.Main:
                 currentNetwork = "main"
                 break
@@ -36,7 +53,7 @@ const utils = {
     },
 
     formatObjectKey(keyStr: string) {
-        let tempStr = keyStr.slice(0,1).toUpperCase() +keyStr.slice(1)
+        let tempStr = keyStr.slice(0, 1).toUpperCase() + keyStr.slice(1)
         return tempStr.replace(/([A-Z])/g, ($1) => {
             return " " + $1
         });

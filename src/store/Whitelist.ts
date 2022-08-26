@@ -46,7 +46,6 @@ export const useWhitelistStore = defineStore('whitelist', {
         async initAdministrators() {
             const tempArr = await this.getWhitelistInstance.getAdministrators()
             this.administrators = tempArr
-            console.log("admin whitelist", tempArr)
         },
         async initWhitelistedLenders() {
             const tempArr = await this.getWhitelistInstance.getWhitelistedLenders()

@@ -174,14 +174,20 @@ export default defineComponent({
           tempArr.push({
             poolId: pool.poolId.toNumber(),
             availableAmount:
-              pool.availableAmount.div(depositStore.exp).toNumber() + " SGC",
+              pool.availableAmount.mul(10000).div(depositStore.exp).toNumber() /
+                10000 +
+              " SGC",
             depositAmount:
-              pool.depositAmount.div(depositStore.exp).toNumber() + " SGC",
+              pool.depositAmount.mul(10000).div(depositStore.exp).toNumber() /
+                10000 +
+              " SGC",
             loanInterest:
-              pool.loanInterest.div(depositStore.exp).toNumber() + " SGC",
+              pool.loanInterest.mul(10000).div(depositStore.exp).toNumber() /
+                10000 +
+              " SGC",
             totalDepositWeight:
               pool.totalDepositWeight.div(depositStore.exp).toNumber() +
-              " SGC*Days",
+              " SGC·Days",
             dueDate: utils.formatTimestamp(pool.poolId.mul(86400).toNumber()),
           });
         }
