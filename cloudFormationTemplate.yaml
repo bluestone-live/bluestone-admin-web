@@ -1,0 +1,103 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  ApplicationDomain:
+    Description: Application domain
+    Type: String
+
+Conditions:
+  IsProd: !Equals [!Ref ApplicationDomain, prod.admin.bluestone.dev]
+
+Resources:
+  DeployBucket:
+    Type: AWS::S3::Bucket
+    Properties: {}
+
+  DeployBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref DeployBucket
+      PolicyDocument:
+        Statement:
+          - Action: "s3:GetObject"
+            Effect: Allow
+            Principal:
+              CanonicalUser: !GetAtt OriginAccessIdentity.S3CanonicalUserId
+            Resource: !Join ["", [!GetAtt DeployBucket.Arn, "/*"]]
+
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases: !If [IsProd, [!Ref ApplicationDomain, "admin.bluestone.dev"], [!Ref ApplicationDomain]]
+        CustomErrorResponses:
+          - ErrorCachingMinTTL: 86400
+            ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          DefaultTTL: 86400
+          ForwardedValues:
+            QueryString: false
+          MaxTTL: 31536000
+          MinTTL: 0
+          TargetOriginId: !Ref DeployBucket
+          ViewerProtocolPolicy: redirect-to-https
+        DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http2
+        IPV6Enabled: true
+        Origins:
+          - DomainName: !GetAtt DeployBucket.DomainName
+            Id: !Ref DeployBucket
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${OriginAccessIdentity}"
+        PriceClass: PriceClass_All
+        ViewerCertificate:
+          # Use hardcoded arn for now. Need to change to create certificate for each domain
+          # when we can validate the certificate automatically using DNS.
+          # AcmCertificateArn: !Ref Certificate
+          AcmCertificateArn: "arn:aws:acm:us-east-1:025751355141:certificate/47aa3076-e42b-4a79-abd9-6a46bedeefa4"
+          MinimumProtocolVersion: TLSv1.2_2019
+          SslSupportMethod: sni-only
+
+  OriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub "CloudFront access to S3 bucket for ${ApplicationDomain}"
+
+#  Certificate:
+#    Type: AWS::CertificateManager::Certificate
+#    Properties:
+#      DomainName: !Ref ApplicationDomain
+#      ValidationMethod: DNS
+
+  DomainRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName: !GetAtt Distribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+      # Use hardcoded hosted zone id for now. It's pointing to bluestone.dev hosted zone.
+      HostedZoneId: Z04917313CQH111LVIPMU
+      Name: !Ref ApplicationDomain
+      Type: A
+
+  RootDomainRecord:
+    Condition: IsProd
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName: !GetAtt Distribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+      # Use hardcoded hosted zone id for now. It's pointing to bluestone.dev hosted zone.
+      HostedZoneId: Z04917313CQH111LVIPMU
+      Name: admin.bluestone.dev
+      Type: A
