@@ -1,7 +1,6 @@
 {
   "contracts": {
     "Protocol": "0x3232DbdbF053835F12dd2012519d60Fe73cB7DF8",
-    "Whitelist": "0x3232DbdbF053835F12dd2012519d60Fe73cB7DF8",
     "InterestModel": "0xEa980739A3719B334064a2F861e09798cD194C4B",
     "OasisDexMock": "0xeaF8f06Bc00eFf8E6Fb1eF79eDfec3Cb1113e164",
     "MedianizerMock": "0xEC1B1Da4637817895bd6e592c0BD5f8Acc2C08fA"

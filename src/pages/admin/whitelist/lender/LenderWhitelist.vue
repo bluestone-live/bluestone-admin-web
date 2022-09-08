@@ -94,7 +94,6 @@ export default defineComponent({
     whitelistedLenders.value.forEach((borrowerAddress: string) => {
       removeLoadingMap.value.set(borrowerAddress, false);
     });
-    console.log("removeLoadingMap=", removeLoadingMap.value);
     const columns = [{ key: "id" }, { key: "address" }, { key: "option" }];
 
     let filter = ref("");

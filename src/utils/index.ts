@@ -1,21 +1,29 @@
 import { TokenType, NetworkType, INetworkFile } from "@/services/types"
+import { useCommonStore } from "@/store/Common";
 
 const utils = {
-    getTokenNameFromAddress(address: string, networkType: NetworkType) {
-        switch (networkType) {
-            case NetworkType.Main:
-                break;
-            case NetworkType.Kovan:
-                switch (address.toLowerCase()) {
-                    case "0x0000000000000000000000000000000000000001":
-                        return TokenType.ETH
-                    case "0x81F9fA3c2F2989f5a76B6Ad8790CE8D66aF27f64".toLowerCase():
-                        return TokenType.xBTC
-                    case "0x3c432c6169df59BA09442bcF12D752710A8EEF9B".toLowerCase():
-                        return TokenType.SGC;
-                }
-                break;
+    getTokenNameFromAddress(address: string) {
+        const commonStore = useCommonStore();
+        // let networkFile = await this.getNetworkFile(networkType);
+
+        // console.log("networkFile=", commonStore.networkFile)
+        // let networkFile = commonStore.networkFile;
+        // switch (networkType) {
+        //     case NetworkType.Main:
+        //         break;
+        //     case NetworkType.Kovan:
+        switch (address.toLowerCase()) {
+            case "0x0000000000000000000000000000000000000001":
+                return TokenType.ETH
+            case commonStore.networkFile.tokens.xBTC.address.toLowerCase():
+                return TokenType.xBTC
+            case commonStore.networkFile.tokens.SGC.address.toLowerCase():
+                return TokenType.SGC;
         }
+        //         break;
+        //     case NetworkType.Goerli:
+
+        // }
     },
 
     async getNetworkFile(networkType: NetworkType): Promise<INetworkFile> {
@@ -26,9 +34,12 @@ const utils = {
                 break
             case NetworkType.Kovan:
                 currentNetwork = "kovan"
-                break;
+                break
             case NetworkType.Rinkeby:
                 currentNetwork = "rinkeby"
+                break
+            case NetworkType.Goerli:
+                currentNetwork = "goerli"
                 break
             default:
                 currentNetwork = "private"

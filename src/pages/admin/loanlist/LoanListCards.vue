@@ -503,10 +503,7 @@ export default defineComponent({
                 .toNumber() /
                 10000 +
               " " +
-              utils.getTokenNameFromAddress(
-                loanRecord.loanTokenAddress,
-                commonStore.networkType
-              ),
+              utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
             collateralAmount:
               loanRecord.collateralAmount
                 .mul(10000)
@@ -514,10 +511,7 @@ export default defineComponent({
                 .toNumber() /
                 10000 +
               " " +
-              utils.getTokenNameFromAddress(
-                loanRecord.collateralTokenAddress,
-                commonStore.networkType
-              ),
+              utils.getTokenNameFromAddress(loanRecord.collateralTokenAddress),
             loanTerm: loanRecord.loanTerm.toNumber() + " Days",
             annualInterestRate:
               loanRecord.annualInterestRate
@@ -530,10 +524,7 @@ export default defineComponent({
               loanRecord.interest.mul(10000).div(loanStore.exp).toNumber() /
                 10000 +
               " " +
-              utils.getTokenNameFromAddress(
-                loanRecord.loanTokenAddress,
-                commonStore.networkType
-              ),
+              utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
             collateralCoverageRatio:
               loanRecord.collateralCoverageRatio
                 .mul(10000)
@@ -555,10 +546,7 @@ export default defineComponent({
                 .toNumber() /
                 10000 +
               " " +
-              utils.getTokenNameFromAddress(
-                loanRecord.loanTokenAddress,
-                commonStore.networkType
-              ),
+              utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
             liquidatedAmount:
               loanRecord.liquidatedAmount
                 .mul(10000)
@@ -566,10 +554,7 @@ export default defineComponent({
                 .toNumber() /
                 10000 +
               " " +
-              utils.getTokenNameFromAddress(
-                loanRecord.loanTokenAddress,
-                commonStore.networkType
-              ),
+              utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
             soldCollateralAmount:
               loanRecord.soldCollateralAmount
                 .mul(10000)
@@ -577,10 +562,7 @@ export default defineComponent({
                 .toNumber() /
                 10000 +
               " " +
-              utils.getTokenNameFromAddress(
-                loanRecord.loanTokenAddress,
-                commonStore.networkType
-              ),
+              utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
             createdAt: utils.formatTimestamp(loanRecord.createdAt.toNumber()),
             dueAt: utils.formatTimestamp(loanRecord.dueAt.toNumber()),
             remainingDebt:
@@ -590,10 +572,7 @@ export default defineComponent({
                 .toNumber() /
                 10000 +
               " " +
-              utils.getTokenNameFromAddress(
-                loanRecord.loanTokenAddress,
-                commonStore.networkType
-              ),
+              utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
             isClosed: loanRecord.isClosed,
             isMarginCall:
               !loanRecord.isClosed &&

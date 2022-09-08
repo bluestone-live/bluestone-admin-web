@@ -36,9 +36,8 @@ export const useWhitelistStore = defineStore('whitelist', {
             }
         },
         initWhitelistInstance() {
-            const whitelistAddress = this.commonState.networkFile.contracts[whitelistDeclareFile.contractName]
             this.whitelistInstance = new ethers.Contract(
-                whitelistAddress,
+                this.commonState.protocolAddress,
                 whitelistDeclareFile.abi,
                 this.commonState.getEthersProvider.getSigner()
             )

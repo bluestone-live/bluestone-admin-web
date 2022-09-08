@@ -65,7 +65,7 @@ export const useCommonStore = defineStore('common', {
                     // this.wallet = WalletSelector.Disconnect;
                     break;
             }
-            console.log("initWallet = ", this.wallet)
+            console.log("wallet = ", this.wallet)
         },
 
         setWallet(selectedWallet: WalletSelector) {
@@ -95,7 +95,7 @@ export const useCommonStore = defineStore('common', {
         async initNetworkType() {
             const network = await ((this.getEthersProvider as any) as any).getNetwork()
             this.networkType = network.chainId;
-            console.log("networktype=", this.networkType)
+            console.log("network=", this.networkType)
         },
 
         async initProtocolRelated() {

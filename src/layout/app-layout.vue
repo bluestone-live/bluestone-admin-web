@@ -66,7 +66,6 @@ export default {
     onBeforeRouteUpdate(() => {
       if (checkIsTablet()) {
         // Collapse sidebar after route change for Mobile
-        // store.commit("updateSidebarCollapsedState", true);
         sidebarStore.updateSidebarCollapsedState(true);
       }
     });
@@ -78,7 +77,6 @@ export default {
     );
 
     const onCloseSidebarButtonClick = () => {
-      // store.commit("updateSidebarCollapsedState", true);
       sidebarStore.updateSidebarCollapsedState(true)
     };
 
