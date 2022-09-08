@@ -157,9 +157,9 @@ export default defineComponent({
       });
     };
 
-    if (commonStore.networkType != NetworkType.Kovan) {
+    if (commonStore.networkType != NetworkType.Kovan && commonStore.networkType != NetworkType.Goerli ) {
       isNetworkErr.value = true;
-      openNotification("Please change Network to Kovan testnet.", "danger");
+      openNotification("Please change Network to Kovan, Goerli testnet.", "danger");
     }
 
     return {

@@ -1,16 +1,12 @@
 import { defineStore } from 'pinia'
 import { useCommonStore } from "./Common"
-import { useLoanStore } from './Loan'
 import { BigNumber } from "ethers"
-import { useDepositStore } from './Deposit'
 
 
 export const useOracleStore = defineStore('oracle', {
     state: () => ({
         isInited: false,
         commonState: useCommonStore(),
-        loanStore: useLoanStore(),
-        depositStore: useDepositStore(),
         btcPrice: BigNumber.from("0"),
         ethPrice: BigNumber.from("0"),
         sgcPrice: BigNumber.from("0"),
@@ -24,7 +20,7 @@ export const useOracleStore = defineStore('oracle', {
             return this.ethPrice.div(this.exp).toNumber()
         },
         getSgcPrice(): Number {
-            return this.sgcPrice.toNumber()
+            return this.sgcPrice.div(this.exp).toNumber()
         }
     },
     actions: {
@@ -47,14 +43,14 @@ export const useOracleStore = defineStore('oracle', {
         },
 
         async initBtcPrice() {
-            this.btcPrice = await this.commonState.getProtocol.getTokenPrice(this.loanStore.btcAddress)
+            this.btcPrice = await this.commonState.getProtocol.getTokenPrice(this.commonState.getTokens.xBTC.address)
         },
         async initEthPrice() {
-            this.ethPrice = await this.commonState.getProtocol.getTokenPrice(this.loanStore.ethAddress)
+            this.ethPrice = await this.commonState.getProtocol.getTokenPrice(this.commonState.getTokens.ETH.address)
         },
         async initSgcPrice() {
-            this.sgcPrice = BigNumber.from("1")
-            // this.sgcPrice = await this.commonState.getProtocol.getTokenPrice(this.loanStore.getSgcAddress)
+            this.sgcPrice = this.exp;
+            // this.sgcPrice = await this.commonState.getProtocol.getTokenPrice(this.commonState.getTokens.SGC.address)
         },
     }
 })
