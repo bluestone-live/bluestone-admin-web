@@ -11,15 +11,16 @@ export const useOracleStore = defineStore('oracle', {
         ethPrice: BigNumber.from("0"),
         sgcPrice: BigNumber.from("0"),
         exp: BigNumber.from("10").pow(18),
+        precision: BigNumber.from("10").pow(4),
     }),
     getters: {
-        getBtcPrice(): Number {
-            return this.btcPrice.div(this.exp).toNumber()
+        getBtcPrice(): number {
+            return this.btcPrice.div(this.exp.div(this.precision)).toNumber() / 10000
         },
-        getEthPrice(): Number {
-            return this.ethPrice.div(this.exp).toNumber()
+        getEthPrice(): number {
+            return this.ethPrice.div(this.exp.div(this.precision)).toNumber() / 10000
         },
-        getSgcPrice(): Number {
+        getSgcPrice(): number {
             return this.sgcPrice.div(this.exp).toNumber()
         }
     },
@@ -27,8 +28,8 @@ export const useOracleStore = defineStore('oracle', {
         async init() {
             try {
                 await Promise.all([
-                    // this.initBtcPrice(),
-                    // this.initEthPrice(),
+                    this.initBtcPrice(),
+                    this.initEthPrice(),
                     this.initSgcPrice()
                 ])
                 // console.log("btcPrice=", this.getBtcPrice)
