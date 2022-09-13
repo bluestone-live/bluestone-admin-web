@@ -2,10 +2,25 @@
   <div class="row row-equal">
     <div
       class="flex xs12 sm6"
+      v-for="(info, idx) in priceInfoTiles"
+      :key="idx"
+    >
+      <va-card class="mb-4" square outlined stripe stripe-color="success" :color="info.color">
+        <va-card-title>{{ info.title }}</va-card-title>
+        <va-card-content>
+          <p class="display-2 mb-0" style="color: #545454">
+            {{ info.price + " $" }}
+          </p>
+        </va-card-content>
+      </va-card>
+    </div>
+
+    <div
+      class="flex xs12 sm6"
       v-for="(info, idx) in balanceInfoTiles"
       :key="idx"
     >
-      <va-card class="mb-4" :color="info.color">
+      <va-card class="mb-4" :color="info.color" gradient>
         <va-card-title>{{ info.title }}</va-card-title>
         <va-card-content>
           <p class="display-2 mb-0" style="color: white">
@@ -88,8 +103,8 @@ export default defineComponent({
     }
     // let btcBalance = loanStore.getBtcBalance;
     // let ethBalance = loanStore.getEthBalance;
-    // let btcPrice = oracleStore.getBtcPrice;
-    // let ethPrice = oracleStore.getEthPrice;
+    let btcPrice = oracleStore.getBtcPrice;
+    let ethPrice = oracleStore.getEthPrice;
     let activeLoansCount = loanStore.activeLoansCount;
     let totalLoansCount = loanStore.totalLoansCount;
     let marginCallCount = loanStore.marginCallLoansCount;
@@ -109,27 +124,26 @@ export default defineComponent({
       { key: "dueDate" },
     ];
 
+    let priceInfoTiles = [
+      {
+        price: btcPrice,
+        title: "xBTC/USD",
+        text: "update per hour",
+        icon: "",
+      },
+      {
+        price: ethPrice,
+        title: "ETH/USD",
+        text: "ETH/USD",
+        icon: "",
+      },
+    ]
+
     let balanceInfoTiles = [
-      // {
-      //   color: "info",
-      //   balance: btcBalance,
-      //   price: (btcPrice as number) * btcBalance,
-      //   title: "BTC Balance",
-      //   text: "btc",
-      //   icon: "",
-      // },
-      // {
-      //   color: "info",
-      //   balance: ethBalance,
-      //   price: (ethPrice as number) * ethBalance,
-      //   title: "ETH Balance",
-      //   text: "eth",
-      //   icon: "",
-      // },
       {
         color: "danger",
         balance: sgcBalance,
-        price: (sgcPrice as number) * sgcBalance,
+        price: sgcPrice * (sgcBalance as number),
         title: "SGC Balance",
         text: "sgc",
         icon: "",
@@ -137,7 +151,7 @@ export default defineComponent({
       {
         color: "secondary",
         balance: totalLoanOutstandingBalance,
-        price: (sgcPrice as number) * totalLoanOutstandingBalance,
+        price: sgcPrice * (totalLoanOutstandingBalance as number),
         title: "Total Loan Outstanding Balance",
         text: "sgc",
         icon: "",
@@ -200,6 +214,7 @@ export default defineComponent({
     });
 
     return {
+      priceInfoTiles,
       balanceInfoTiles,
       statusInfoTiles,
       theme,
@@ -225,6 +240,7 @@ export default defineComponent({
 
 .rich-theme-card-text {
   line-height: 24px;
+  color: rgb(133, 133, 133);
 }
 
 .dashboard {

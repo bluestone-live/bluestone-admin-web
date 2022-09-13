@@ -105,7 +105,7 @@ export default defineComponent({
     const ownerAccount: String =
       await whitelistStore.getWhitelistInstance.owner();
 
-    let isOwner = computed(() => {
+    const isOwner = computed(() => {
       return currentAccount.toLowerCase() == ownerAccount.toLowerCase();
     });
 

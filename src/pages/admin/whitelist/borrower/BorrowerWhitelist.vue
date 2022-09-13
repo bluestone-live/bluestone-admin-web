@@ -1,6 +1,6 @@
 <template>
   <div class="flex xs12 md12 xl12">
-    <va-card class="mb-4">
+    <va-card class="mb-4" :disabled="!isAdministrator">
       <va-card-title>
         <h1>{{ $t("whitelist.borrower.newTitle") }}</h1>
       </va-card-title>
@@ -19,7 +19,7 @@
         >
       </va-card-content>
     </va-card>
-    <va-card class="d-flex" stripe stripe-color="info">
+    <va-card class="d-flex" stripe stripe-color="info"  :disabled="!isAdministrator">
       <va-card-title>
         <h1>{{ $t("whitelist.borrower.addedTitle") }}</h1>
       </va-card-title>
@@ -78,8 +78,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, getCurrentInstance } from "vue";
+import { defineComponent, ref, getCurrentInstance, computed } from "vue";
+import { useCommonStore } from "@/store/Common";
 import { useLoanStore } from "@/store/Loan";
+import { useAccountStore } from "@/store/Account";
 import { useWhitelistStore } from "@/store/Whitelist";
 import { usePendingStore } from "@/store/Pending";
 import utils from "@/utils";
@@ -102,15 +104,19 @@ export default defineComponent({
     const instance = getCurrentInstance();
     const _this = instance?.appContext.config.globalProperties;
 
+    const commonStore = useCommonStore();
     const pendingStore = usePendingStore();
+    const accountStore = useAccountStore();
     const whitelistStore = useWhitelistStore();
     const loanStore = useLoanStore();
-    if (!whitelistStore.getInitStatus) {
+    if (!whitelistStore.isInited) {
       await whitelistStore.init();
     }
     if (!loanStore.isInited) {
       await loanStore.init();
     }
+
+    const isAdministrator = await commonStore.getProtocol.isAdministrator(accountStore.getAccount);
 
     const borrowersOnWhitelists = whitelistStore.whitelistedBorrowers;
     const activeBorrowers = loanStore.getActiveBorrowers;
@@ -127,7 +133,6 @@ export default defineComponent({
       });
       removeLoadingMap.value.set(borrowerAddress, false);
     });
-    console.log("removeLoadingMap=", removeLoadingMap.value);
     const columns = [
       { key: "id" },
       { key: "address" },
@@ -264,6 +269,7 @@ export default defineComponent({
     };
 
     return {
+      isAdministrator,
       whitelist,
       removeLoadingMap,
       columns,
