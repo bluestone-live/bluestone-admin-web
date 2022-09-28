@@ -47,6 +47,11 @@ const routes: Array<RouteRecordRaw> = [
         name: 'LoanList',
         path: 'loanlist',
         component: () => import('@/pages/admin/loanlist/LoanList.vue')
+      },
+      {
+        name: 'Configuration',
+        path: 'configuration',
+        component: () => import('@/pages/admin/configuration/Configuration.vue')
       }
     ]
   },

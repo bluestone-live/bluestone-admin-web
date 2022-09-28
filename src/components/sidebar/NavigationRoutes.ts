@@ -38,6 +38,13 @@ export default {
       meta: {
         icon: 'vuestic-iconset-tables',
       },
+    },
+    {
+      name: 'Configuration',
+      displayName: 'menu.configuration',
+      meta: {
+        icon: 'vuestic-iconset-settings',
+      },
     }
   ],
 }
