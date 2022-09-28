@@ -17,7 +17,8 @@
         "administrator": "Administrator",
         "lender": "Lender",
         "borrower": "Borrower",
-        "loanlist": "Loan List"
+        "loanlist": "Loan List",
+        "configuration": "Configuration"
     },
     "auth": {
         "title": "Please Select a Wallet"
