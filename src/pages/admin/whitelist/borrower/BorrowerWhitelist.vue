@@ -52,6 +52,7 @@
               outline
               size="small"
               :color="value == 'active' ? 'success' : 'danger'"
+              :icon="value == 'active' ? 'credit_score': 'credit_card_off'"
               >{{ value }}</va-chip
             >
           </template>
