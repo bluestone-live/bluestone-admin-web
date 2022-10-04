@@ -87,7 +87,6 @@
                       :icon="loanRecordsKeyIcon[itemIndex]"
                       size="small"
                     >
-                      <!-- <va-icon name="label_outline" size="2rem" color="gray" /> -->
                     </va-avatar>
                   </va-list-item-section>
                   <va-list-item-section>

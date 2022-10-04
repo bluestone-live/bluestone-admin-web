@@ -101,8 +101,7 @@ export default defineComponent({
     if (!oracleStore.isInited) {
       await oracleStore.init();
     }
-    // let btcBalance = loanStore.getBtcBalance;
-    // let ethBalance = loanStore.getEthBalance;
+
     let btcPrice = oracleStore.getBtcPrice;
     let ethPrice = oracleStore.getEthPrice;
     let activeLoansCount = loanStore.activeLoansCount;
