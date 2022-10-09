@@ -52,6 +52,17 @@ const utils = {
         return address.substring(0, 5) + "..." + address.substring(address.length - 4)
     },
 
+    filterRevertMsg(msg: string): string {
+        let indexStart = msg.indexOf(`(reason="`);
+        if (indexStart === -1) {
+            return msg;
+        }
+
+        indexStart += 9;
+        let indexEnd = msg.indexOf(`", method=`);
+        return msg.slice(indexStart, indexEnd);
+    },
+
     formatTimestamp(timestamp: any) {
         var date = new Date(parseInt(timestamp) * 1000);
         var Y = date.getFullYear() + '-';
