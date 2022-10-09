@@ -1,10 +1,57 @@
 <template>
   <div class="row row-equal">
     <va-modal
-      v-model="showModal"
+      v-model="showMarginCallModal"
       message="Please contact the borrower to add more collaterals."
       title="Margin Call"
     />
+    <va-modal
+      v-model="showLiquidateModal"
+      title="Liquidate Amount"
+      hide-default-actions
+    >
+      <va-input
+        v-model="inputLiquidateAmount"
+        type="text"
+        class="mb-4"
+        :rules="[
+          (v) =>
+            Number(v) >= Number(minLiquidateAmount) ||
+            `Lower than minimum value.`,
+          (v) =>
+            Number(v) <= Number(maxLiquidateAmount) || `Exceeds maximum value.`,
+        ]"
+      >
+        <template #prepend>
+          <va-button
+            class="mr-2"
+            :rounded="false"
+            flat
+            size="small"
+            @click="inputLiquidateAmount = minLiquidateAmount"
+            >Min</va-button
+          >
+        </template>
+        <template #append>
+          <va-button
+            class="ml-2"
+            :rounded="false"
+            flat
+            size="small"
+            color="danger"
+            @click="inputLiquidateAmount = maxLiquidateAmount"
+            >All</va-button
+          >
+        </template>
+      </va-input>
+      <div>Current CCR: </div>
+      <div>CCR: 100%</div>
+      <template #footer>
+        <va-button @click="liquidateLoan(currentLoanId, inputLiquidateAmount)">
+          Liquidate
+        </va-button>
+      </template>
+    </va-modal>
     <div class="xs12 sm12 loanList-select">
       <va-input
         class="flex md4 mt-1"
@@ -137,7 +184,7 @@
                     class="mr-4 mb-2"
                     :disabled="!loanRecord.isMarginCall"
                     :loading="marginCallLoadingMap.get(loanRecord.loanId)"
-                    @click="marginCall()"
+                    @click="clickMarginCall()"
                     color="warning"
                     >Margin Call</va-button
                   >
@@ -145,7 +192,7 @@
                     class="mr-4 mb-2"
                     :disabled="!loanRecord.isLiquidable"
                     :loading="liquidateLoadingMap.get(loanRecord.loanId)"
-                    @click="liquidateLoan(loanRecord.loanId)"
+                    @click="clickLiquidate(loanRecord.loanId)"
                     color="danger"
                     >Liquidate</va-button
                   >
@@ -160,8 +207,15 @@
 </template>
 
 <script lang="ts">
-import { computed, watch, ref, defineComponent, getCurrentInstance } from "vue";
-import { useGlobalConfig } from "vuestic-ui";
+import {
+  computed,
+  watch,
+  ref,
+  defineComponent,
+  getCurrentInstance,
+  reactive,
+} from "vue";
+// import { useGlobalConfig } from "vuestic-ui";
 
 import { useLoanStore } from "@/store/Loan";
 import { useCommonStore } from "@/store/Common";
@@ -202,7 +256,9 @@ export default defineComponent({
     ];
     let toggleValue = ref("all");
 
-    let showModal = ref(false);
+    let showMarginCallModal = ref(false);
+    let showLiquidateModal = ref(false);
+    let liquidateAmount = ref(0);
 
     const loanRecordsKeyIcon = [
       "label",
@@ -240,16 +296,11 @@ export default defineComponent({
     let filterInput = ref("");
     let filteredList = ref(handledLoanRecords);
 
-    // let res = await commonStore.getERC20.mint(accountStore.getAccount, BigNumber.from("200000000000000000000000"));
-    // console.log("Mint res:", res)
-
     watch(filterInput, (newValue) => {
-      console.log("input changed");
       filterByInput(newValue);
     });
 
     watch(toggleValue, () => {
-      console.log("select changed.");
       filterByToggle();
     });
 
@@ -360,16 +411,30 @@ export default defineComponent({
       }
     }
 
-    async function marginCall() {
-      try {
-        showModal.value = true;
-      } catch (error) {
-        console.error(error);
-      }
+    let currentLoanId = ref("");
+    let inputLiquidateAmount = ref("");
+    let minLiquidateAmount = ref("");
+    let maxLiquidateAmount = ref("");
+    function clickMarginCall() {
+      showMarginCallModal.value = true;
     }
 
-    async function liquidateLoan(loanId: string) {
-      const liquidateAmount = remainingAmountMap.value.get(loanId)!;
+    function clickLiquidate(loanId: string) {
+      currentLoanId.value = loanId;
+      minLiquidateAmount.value = "0.00001";
+      maxLiquidateAmount.value = ethers.utils.formatEther(
+        remainingAmountMap.value.get(currentLoanId.value)!
+      );
+      inputLiquidateAmount = minLiquidateAmount;
+      showLiquidateModal.value = true;
+    }
+
+    watch(inputLiquidateAmount, (newValue) => {
+
+    });
+
+    async function liquidateLoan(loanId: string, inputAmount: string) {
+      const liquidateAmount = ethers.utils.parseUnits(inputAmount, "ether");
       try {
         // 1.Whether need Approve
         const isSufficent = await isAllowanceSufficient(
@@ -451,7 +516,12 @@ export default defineComponent({
         );
       } catch (error) {
         console.error(error);
-        openNotification("MetaMask execute [liquidateLoan] failed.", "danger");
+        openNotification(
+          `MetaMask execute [liquidateLoan] failed. (${utils.filterRevertMsg(
+            (error as any).message
+          )})`,
+          "danger"
+        );
         throw error;
       }
       try {
@@ -470,16 +540,14 @@ export default defineComponent({
         liquidateLoadingMap.value.set(loanId, false);
         pendingStore.decrement();
         openNotification(
-          "Liquidate loan [" + utils.shortenAddress(loanId) + "] failed.",
+          `Liquidate loan [${utils.shortenAddress(
+            loanId
+          )}] failed. (${utils.filterRevertMsg((error as any).message)})`,
           "danger"
         );
         throw error;
       }
     }
-
-    const theme = computed(() => {
-      return useGlobalConfig().getGlobalConfig().colors || {};
-    });
 
     function handleRawLoanRecords(
       borrowers: Array<string>,
@@ -496,19 +564,11 @@ export default defineComponent({
             loanTokenAddress: loanRecord.loanTokenAddress,
             collateralTokenAddress: loanRecord.collateralTokenAddress,
             loanAmount:
-              loanRecord.loanAmount
-                .mul(BigNumber.from("10").pow(4))
-                .div(loanStore.exp)
-                .toNumber() /
-                10000 +
+              ethers.utils.formatEther(loanRecord.loanAmount) +
               " " +
               utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
             collateralAmount:
-              loanRecord.collateralAmount
-                .mul(10000)
-                .div(loanStore.exp)
-                .toNumber() /
-                10000 +
+              ethers.utils.formatEther(loanRecord.collateralAmount) +
               " " +
               utils.getTokenNameFromAddress(loanRecord.collateralTokenAddress),
             loanTerm: loanRecord.loanTerm.toNumber() + " Days",
@@ -520,8 +580,7 @@ export default defineComponent({
                 100 +
               "%",
             interest:
-              loanRecord.interest.mul(10000).div(loanStore.exp).toNumber() /
-                10000 +
+              ethers.utils.formatEther(loanRecord.interest) +
               " " +
               utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
             collateralCoverageRatio:
@@ -539,37 +598,21 @@ export default defineComponent({
                 100 +
               "%",
             alreadyPaidAmount:
-              loanRecord.alreadyPaidAmount
-                .mul(10000)
-                .div(loanStore.exp)
-                .toNumber() /
-                10000 +
+              ethers.utils.formatEther(loanRecord.alreadyPaidAmount) +
               " " +
               utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
             liquidatedAmount:
-              loanRecord.liquidatedAmount
-                .mul(10000)
-                .div(loanStore.exp)
-                .toNumber() /
-                10000 +
+              ethers.utils.formatEther(loanRecord.liquidatedAmount) +
               " " +
               utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
             soldCollateralAmount:
-              loanRecord.soldCollateralAmount
-                .mul(10000)
-                .div(loanStore.exp)
-                .toNumber() /
-                10000 +
+              ethers.utils.formatEther(loanRecord.soldCollateralAmount) +
               " " +
               utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
             createdAt: utils.formatTimestamp(loanRecord.createdAt.toNumber()),
             dueAt: utils.formatTimestamp(loanRecord.dueAt.toNumber()),
             remainingDebt:
-              loanRecord.remainingDebt
-                .mul(10000)
-                .div(loanStore.exp)
-                .toNumber() /
-                10000 +
+              ethers.utils.formatEther(loanRecord.remainingDebt) +
               " " +
               utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
             isClosed: loanRecord.isClosed,
@@ -627,8 +670,13 @@ export default defineComponent({
     };
 
     return {
-      theme,
-      showModal,
+      currentLoanId,
+      liquidateAmount,
+      inputLiquidateAmount,
+      showMarginCallModal,
+      showLiquidateModal,
+      minLiquidateAmount,
+      maxLiquidateAmount,
       reloadMap,
       loanRecordsKeyIcon,
       toggleOptions,
@@ -638,7 +686,8 @@ export default defineComponent({
       loanRecords: filteredList,
       formatObjectKey: utils.formatObjectKey,
       getCollapseColor,
-      marginCall,
+      clickMarginCall,
+      clickLiquidate,
       liquidateLoan,
       copyToClipboard,
       marginCallLoadingMap,
