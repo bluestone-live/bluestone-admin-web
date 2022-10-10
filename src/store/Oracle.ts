@@ -32,9 +32,6 @@ export const useOracleStore = defineStore('oracle', {
                     this.initEthPrice(),
                     this.initSgcPrice()
                 ])
-                // console.log("btcPrice=", this.getBtcPrice)
-                // console.log("ethPrice=", this.getEthPrice)
-                // console.log("sgcPrice=", this.sgcPrice)
                 this.isInited = true
                 console.log("[Oracle]: Oracle Store init success.")
             } catch (error) {

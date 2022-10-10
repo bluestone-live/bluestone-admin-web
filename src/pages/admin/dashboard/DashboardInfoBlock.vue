@@ -2,10 +2,17 @@
   <div class="row row-equal">
     <div
       class="flex xs12 sm6"
-      v-for="(info, idx) in priceInfoTiles"
+      v-for="(info, idx) in state.priceInfoTiles"
       :key="idx"
     >
-      <va-card class="mb-4" square outlined stripe stripe-color="success" :color="info.color">
+      <va-card
+        class="mb-4"
+        square
+        outlined
+        stripe
+        stripe-color="success"
+        :color="info.color"
+      >
         <va-card-title>{{ info.title }}</va-card-title>
         <va-card-content>
           <p class="display-2 mb-0" style="color: #545454">
@@ -17,7 +24,7 @@
 
     <div
       class="flex xs12 sm6"
-      v-for="(info, idx) in balanceInfoTiles"
+      v-for="(info, idx) in state.balanceInfoTiles"
       :key="idx"
     >
       <va-card class="mb-4" :color="info.color" gradient>
@@ -40,7 +47,7 @@
           <div class="row row-separated">
             <div
               class="flex xs3"
-              v-for="(info, idx) in statusInfoTiles"
+              v-for="(info, idx) in state.statusInfoTiles"
               :key="idx"
             >
               <p
@@ -64,7 +71,10 @@
           <h1>{{ $t("dashboard.pools.title") }}</h1>
         </va-card-title>
         <va-card-content>
-          <va-data-table :items="items" :columns="columns">
+          <va-data-table
+            :items="state.availableSgcPools"
+            :columns="state.columns"
+          >
             <template #colgroup>
               <col span="5" />
               <col class="table-example--slots" />
@@ -77,13 +87,11 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from "vue";
-import { useGlobalConfig } from "vuestic-ui";
+import { defineComponent } from "vue";
 import { useLoanStore } from "@/store/Loan";
 import { useDepositStore } from "@/store/Deposit";
 import { useOracleStore } from "@/store/Oracle";
-import { BigNumber } from "ethers";
-import utils from "@/utils";
+import { useDashboard } from "@/services/dashboard";
 
 export default defineComponent({
   name: "DashboardInfoBlock",
@@ -91,7 +99,6 @@ export default defineComponent({
     const loanStore = useLoanStore();
     const depositStore = useDepositStore();
     const oracleStore = useOracleStore();
-
     if (!loanStore.isInited) {
       await loanStore.init();
     }
@@ -102,123 +109,10 @@ export default defineComponent({
       await oracleStore.init();
     }
 
-    let btcPrice = oracleStore.getBtcPrice;
-    let ethPrice = oracleStore.getEthPrice;
-    let activeLoansCount = loanStore.activeLoansCount;
-    let totalLoansCount = loanStore.totalLoansCount;
-    let marginCallCount = loanStore.marginCallLoansCount;
-    let liquidableCount = loanStore.liquidableLoansCount;
-    let sgcBalance = depositStore.getSgcBalance;
-    let availableSgcPools = filterAvailableSgcPools(depositStore.sgcPools);
-    let totalLoanOutstandingBalance =
-      depositStore.getTotalLoanOutstandingBalance;
-    let sgcPrice = oracleStore.getSgcPrice;
-
-    const columns = [
-      { key: "poolId" },
-      { key: "availableAmount" },
-      { key: "depositAmount" },
-      { key: "loanInterest" },
-      { key: "totalDepositWeight" },
-      { key: "dueDate" },
-    ];
-
-    let priceInfoTiles = [
-      {
-        price: btcPrice,
-        title: "xBTC/USD",
-        text: "update per hour",
-        icon: "",
-      },
-      {
-        price: ethPrice,
-        title: "ETH/USD",
-        text: "ETH/USD",
-        icon: "",
-      },
-    ]
-
-    let balanceInfoTiles = [
-      {
-        color: "danger",
-        balance: sgcBalance,
-        price: sgcPrice * (sgcBalance as number),
-        title: "SGC Balance",
-        text: "sgc",
-        icon: "",
-      },
-      {
-        color: "secondary",
-        balance: totalLoanOutstandingBalance,
-        price: sgcPrice * (totalLoanOutstandingBalance as number),
-        title: "Total Loan Outstanding Balance",
-        text: "sgc",
-        icon: "",
-      },
-    ];
-
-    const statusInfoTiles = [
-      {
-        color: "#3d9209",
-        value: activeLoansCount,
-        text: "activeLoans",
-      },
-      {
-        color: "#2c82e0",
-        value: totalLoansCount,
-        text: "totalLoans",
-      },
-      {
-        color: "#ffd43a",
-        value: marginCallCount,
-        text: "marginCall",
-      },
-      {
-        color: "#e42222",
-        value: liquidableCount,
-        text: "liquidable",
-      },
-    ];
-
-    function filterAvailableSgcPools(sgcPools: any) {
-      let tempArr: any[] = [];
-      sgcPools.forEach((pool: any) => {
-        if (pool.availableAmount.gt(BigNumber.from(0))) {
-          tempArr.push({
-            poolId: pool.poolId.toNumber(),
-            availableAmount:
-              pool.availableAmount.mul(10000).div(depositStore.exp).toNumber() /
-                10000 +
-              " SGC",
-            depositAmount:
-              pool.depositAmount.mul(10000).div(depositStore.exp).toNumber() /
-                10000 +
-              " SGC",
-            loanInterest:
-              pool.loanInterest.mul(10000).div(depositStore.exp).toNumber() /
-                10000 +
-              " SGC",
-            totalDepositWeight:
-              pool.totalDepositWeight.div(depositStore.exp).toNumber() +
-              " SGC·Days",
-            dueDate: utils.formatTimestamp(pool.poolId.mul(86400).toNumber()),
-          });
-        }
-      });
-      return tempArr;
-    }
-
-    const theme = computed(() => {
-      return useGlobalConfig().getGlobalConfig().colors || {};
-    });
+    let { state } = useDashboard(loanStore, depositStore, oracleStore);
 
     return {
-      priceInfoTiles,
-      balanceInfoTiles,
-      statusInfoTiles,
-      theme,
-      items: availableSgcPools,
-      columns,
+      state,
     };
   },
 });

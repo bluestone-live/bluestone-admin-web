@@ -17,15 +17,11 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { VaImage } from "vuestic-ui";
 import { useCommonStore } from "@/store/Common";
 import { WalletSelector } from "@/services/types";
 
 export default defineComponent({
   name: "wallet-connect",
-  components: {
-    VaImage,
-  },
   setup() {
     const commonStore = useCommonStore();
     function selectWallet(type: WalletSelector) {

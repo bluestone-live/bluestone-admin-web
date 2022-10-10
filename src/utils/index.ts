@@ -2,16 +2,18 @@ import { TokenType, NetworkType, INetworkFile } from "@/services/types"
 import { useCommonStore } from "@/store/Common";
 
 const utils = {
+    isNumber(val: string) {
+        const regPos = /^\d+(\.\d+)?$/; 
+        const regNeg = /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/;
+        if (regPos.test(val) || regNeg.test(val)) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+
     getTokenNameFromAddress(address: string) {
         const commonStore = useCommonStore();
-        // let networkFile = await this.getNetworkFile(networkType);
-
-        // console.log("networkFile=", commonStore.networkFile)
-        // let networkFile = commonStore.networkFile;
-        // switch (networkType) {
-        //     case NetworkType.Main:
-        //         break;
-        //     case NetworkType.Kovan:
         switch (address.toLowerCase()) {
             case "0x0000000000000000000000000000000000000001":
                 return TokenType.ETH
@@ -20,10 +22,6 @@ const utils = {
             case commonStore.networkFile.tokens.SGC.address.toLowerCase():
                 return TokenType.SGC;
         }
-        //         break;
-        //     case NetworkType.Goerli:
-
-        // }
     },
 
     async getNetworkFile(networkType: NetworkType): Promise<INetworkFile> {

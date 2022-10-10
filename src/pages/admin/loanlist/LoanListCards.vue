@@ -1,53 +1,81 @@
 <template>
   <div class="row row-equal">
     <va-modal
-      v-model="showMarginCallModal"
+      v-model="state.showMarginCallModal"
       message="Please contact the borrower to add more collaterals."
       title="Margin Call"
     />
     <va-modal
-      v-model="showLiquidateModal"
+      v-model="state.showLiquidateModal"
       title="Liquidate Amount"
       hide-default-actions
     >
-      <va-input
-        v-model="inputLiquidateAmount"
-        type="text"
-        class="mb-4"
-        :rules="[
-          (v) =>
-            Number(v) >= Number(minLiquidateAmount) ||
-            `Lower than minimum value.`,
-          (v) =>
-            Number(v) <= Number(maxLiquidateAmount) || `Exceeds maximum value.`,
-        ]"
-      >
-        <template #prepend>
-          <va-button
-            class="mr-2"
-            :rounded="false"
-            flat
-            size="small"
-            @click="inputLiquidateAmount = minLiquidateAmount"
-            >Min</va-button
+      <va-card stripe stripe-color="success" class="mb-4 modal-width">
+        <va-card-content>
+          <div>
+            {{
+              `Current CCR:
+          ${
+            state.selectedLoanRecord.collateralCoverageRatio
+              .mul(10000)
+              .div(state.exp)
+              .toNumber() / 100
+          }%
+            `
+            }}
+          </div>
+        </va-card-content>
+      </va-card>
+      <va-card>
+        <va-card-content>
+          <va-input
+            v-model="state.inputLiquidateAmount"
+            type="text"
+            class="mb-4"
+            :rules="[
+              (v) =>
+                Number(v) >= Number(state.minLiquidateAmount) ||
+                `Lower than minimum value.`,
+              (v) =>
+                Number(v) <= Number(state.maxLiquidateAmount) ||
+                `Exceeds maximum value.`,
+            ]"
           >
-        </template>
-        <template #append>
-          <va-button
-            class="ml-2"
-            :rounded="false"
-            flat
-            size="small"
-            color="danger"
-            @click="inputLiquidateAmount = maxLiquidateAmount"
-            >All</va-button
-          >
-        </template>
-      </va-input>
-      <div>Current CCR: </div>
-      <div>CCR: 100%</div>
+            <template #prepend>
+              <va-button
+                class="mr-2"
+                :rounded="false"
+                flat
+                size="small"
+                @click="state.inputLiquidateAmount = state.minLiquidateAmount"
+                >Min</va-button
+              >
+            </template>
+            <template #append>
+              <va-button
+                class="ml-2"
+                :rounded="false"
+                flat
+                size="small"
+                color="danger"
+                @click="state.inputLiquidateAmount = state.maxLiquidateAmount"
+                >All</va-button
+              >
+            </template>
+          </va-input>
+          <div class="mb-3">{{ `Safe CCR: ${state.safeCCR}%` }}</div>
+          <div>{{ `CCR: ${state.liquidatedCCR}%` }}</div>
+        </va-card-content>
+      </va-card>
       <template #footer>
-        <va-button @click="liquidateLoan(currentLoanId, inputLiquidateAmount)">
+        <va-button
+          @click="
+            liquidateLoan(
+              state.selectedLoanRecord.loanId,
+              state.inputLiquidateAmount
+            )
+          "
+        >
           Liquidate
         </va-button>
       </template>
@@ -57,7 +85,7 @@
         class="flex md4 mt-1"
         label="Borrower Address"
         placeholder="Filter..."
-        v-model="filterInput"
+        v-model="state.borrowerValueForFilter"
       >
         <template #prependInner>
           <va-icon name="search" />
@@ -66,14 +94,14 @@
       <va-button-toggle
         flat
         gradient
-        v-model="toggleValue"
-        :options="toggleOptions"
+        v-model="state.toggleValueForFilter"
+        :options="state.toggleOptions"
         class="mt-3"
       />
     </div>
     <div
       class="flex xs12 sm12"
-      v-for="(loanDetail, borrowersIdx) in loanRecords"
+      v-for="(loanDetail, borrowersIdx) in state.filteredLoanRecords"
       :key="borrowersIdx"
     >
       <va-card class="mb-4">
@@ -99,12 +127,12 @@
             <va-badge
               size="small"
               :color="
-                whitelistedBorrowers.indexOf(loanDetail[0]) >= 0
+                state.whitelistedBorrowers.indexOf(loanDetail[0]) >= 0
                   ? 'success'
                   : 'danger'
               "
               :text="
-                whitelistedBorrowers.indexOf(loanDetail[0]) >= 0
+                state.whitelistedBorrowers.indexOf(loanDetail[0]) >= 0
                   ? 'On Whitelist'
                   : 'Out Whitelist'
               "
@@ -131,7 +159,7 @@
                 <va-list-item>
                   <va-list-item-section avatar>
                     <va-avatar
-                      :icon="loanRecordsKeyIcon[itemIndex]"
+                      :icon="state.loanRecordsKeyIcon[itemIndex]"
                       size="small"
                     >
                     </va-avatar>
@@ -183,7 +211,6 @@
                   <va-button
                     class="mr-4 mb-2"
                     :disabled="!loanRecord.isMarginCall"
-                    :loading="marginCallLoadingMap.get(loanRecord.loanId)"
                     @click="clickMarginCall()"
                     color="warning"
                     >Margin Call</va-button
@@ -191,7 +218,6 @@
                   <va-button
                     class="mr-4 mb-2"
                     :disabled="!loanRecord.isLiquidable"
-                    :loading="liquidateLoadingMap.get(loanRecord.loanId)"
                     @click="clickLiquidate(loanRecord.loanId)"
                     color="danger"
                     >Liquidate</va-button
@@ -207,37 +233,26 @@
 </template>
 
 <script lang="ts">
-import {
-  computed,
-  watch,
-  ref,
-  defineComponent,
-  getCurrentInstance,
-  reactive,
-} from "vue";
-// import { useGlobalConfig } from "vuestic-ui";
-
+import { watch, defineComponent } from "vue";
 import { useLoanStore } from "@/store/Loan";
 import { useCommonStore } from "@/store/Common";
 import { useWhitelistStore } from "@/store/Whitelist";
 import { useAccountStore } from "@/store/Account";
 import { usePendingStore } from "@/store/Pending";
-import { marginCollateralCoverageRatio } from "@/margin/index";
-import { ILoanRecord, IHandledLoanRecord } from "@/services/types";
-import { BigNumber, ethers } from "ethers";
+import { useOracleStore } from "@/store/Oracle";
+import { useLoanList } from "@/services/loan-list";
 import utils from "@/utils";
+import { ethers } from "ethers";
 
 export default defineComponent({
   name: "LoanListCards",
   async setup() {
-    const instance = getCurrentInstance();
-    const _this = instance?.appContext.config.globalProperties;
-
     const accountStore = useAccountStore();
     const loanStore = useLoanStore();
     const pendingStore = usePendingStore();
     const commonStore = useCommonStore();
     const whitelistStore = useWhitelistStore();
+    const oracleStore = useOracleStore();
     if (!commonStore.isInited) {
       await commonStore.init();
     }
@@ -247,452 +262,68 @@ export default defineComponent({
     if (!loanStore.isInited) {
       await loanStore.init();
     }
+    if (!oracleStore.isInited) {
+      await oracleStore.init();
+    }
 
-    const toggleOptions = [
-      { label: "All", value: "all" },
-      { label: "Active", value: "active" },
-      { label: "Margin", value: "marginCall" },
-      { label: "Liquidable", value: "liquidable" },
-    ];
-    let toggleValue = ref("all");
+    let {
+      state,
+      clickMarginCall,
+      clickLiquidate,
+      getCollapseColor,
+      filterByInput,
+      filterByToggle,
+      calcCollateralCoverageRatio,
+      liquidateLoan,
+      copyToClipboard,
+    } = useLoanList(
+      commonStore,
+      accountStore,
+      pendingStore,
+      loanStore,
+      whitelistStore,
+      oracleStore
+    );
 
-    let showMarginCallModal = ref(false);
-    let showLiquidateModal = ref(false);
-    let liquidateAmount = ref(0);
+    watch(
+      () => state.borrowerValueForFilter,
+      (newValue) => {
+        state.filteredLoanRecords = filterByInput(newValue);
+      }
+    );
 
-    const loanRecordsKeyIcon = [
-      "label",
-      "label",
-      "label",
-      "paid",
-      "paid",
-      "date_range",
-      "donut_small",
-      "paid",
-      "donut_small",
-      "donut_small",
-      "paid",
-      "paid",
-      "paid",
-      "date_range",
-      "date_range",
-      "paid",
-      "priority_high",
-      "priority_high",
-      "priority_high",
-    ];
+    watch(
+      () => state.toggleValueForFilter,
+      () => {
+        state.filteredLoanRecords = filterByToggle();
+      }
+    );
 
-    let remainingAmountMap = ref(new Map<string, BigNumber>());
-    let liquidateLoadingMap = ref(new Map<string, boolean>());
-    let marginCallLoadingMap = ref(new Map<string, boolean>());
-
-    let whitelistedBorrowers = whitelistStore.whitelistedBorrowers;
-    let handledLoanRecords: Map<string, IHandledLoanRecord[]> =
-      handleRawLoanRecords(
-        loanStore.getBorrowers,
-        loanStore.getBorrowersLoanRecords
-      );
-
-    let filterInput = ref("");
-    let filteredList = ref(handledLoanRecords);
-
-    watch(filterInput, (newValue) => {
-      filterByInput(newValue);
-    });
-
-    watch(toggleValue, () => {
-      filterByToggle();
-    });
-
-    function filterByInput(newInputValue: string) {
-      let tempMap = new Map();
-      handledLoanRecords.forEach(
-        (loanRecords: IHandledLoanRecord[], address: string) => {
-          if (
-            address.toLowerCase().search(newInputValue.toLowerCase()) !== -1
-          ) {
-            tempMap.set(address, loanRecords);
+    watch(
+      () => state.inputLiquidateAmount,
+      (newValue) => {
+        if (utils.isNumber(newValue)) {
+          const liquidateAmount = ethers.utils.parseUnits(newValue, "ether");
+          try {
+            state.liquidatedCCR = calcCollateralCoverageRatio(
+              state.selectedLoanRecord,
+              liquidateAmount
+            );
+          } catch (err) {
+            state.liquidatedCCR = Infinity;
           }
         }
-      );
-      filteredList.value = tempMap;
-    }
-
-    function filterByToggle() {
-      switch (toggleValue.value) {
-        case "all":
-          filteredList.value = handledLoanRecords;
-          break;
-        case "active": {
-          let tempMap = new Map();
-          handledLoanRecords.forEach(
-            (loanRecords: IHandledLoanRecord[], address: string) => {
-              let tempRecords = [] as IHandledLoanRecord[];
-              loanRecords.forEach((loanRecord: IHandledLoanRecord) => {
-                if (!loanRecord.isClosed) {
-                  tempRecords.push(loanRecord);
-                }
-              });
-              if (tempRecords.length > 0) {
-                tempMap.set(address, tempRecords);
-              }
-            }
-          );
-          filteredList.value = tempMap;
-          break;
-        }
-        case "marginCall": {
-          let tempMap = new Map();
-          handledLoanRecords.forEach(
-            (loanRecords: IHandledLoanRecord[], address: string) => {
-              let tempRecords: IHandledLoanRecord[] = [];
-              loanRecords.forEach((loanRecord: IHandledLoanRecord) => {
-                if (loanRecord.isMarginCall) {
-                  tempRecords.push(loanRecord);
-                }
-              });
-              if (tempRecords.length > 0) {
-                tempMap.set(address, tempRecords);
-              }
-            }
-          );
-          filteredList.value = tempMap;
-          break;
-        }
-        case "liquidable": {
-          let tempMap = new Map();
-          handledLoanRecords.forEach(
-            (loanRecords: IHandledLoanRecord[], address: string) => {
-              let tempRecords: IHandledLoanRecord[] = [];
-              loanRecords.forEach((loanRecord: IHandledLoanRecord) => {
-                if (loanRecord.isLiquidable) {
-                  tempRecords.push(loanRecord);
-                }
-              });
-              if (tempRecords.length > 0) {
-                tempMap.set(address, tempRecords);
-              }
-            }
-          );
-          filteredList.value = tempMap;
-          break;
-        }
       }
-    }
-
-    function getCollapseColor(loanDetail: any) {
-      if (loanDetail.isClosed) {
-        return "gray";
-      } else {
-        if (loanDetail.isLiquidable) {
-          return "danger";
-        } else if (loanDetail.isMarginCall) {
-          return "warning";
-        } else {
-          return "background";
-        }
-      }
-    }
-
-    async function reloadMap() {
-      try {
-        await loanStore.initBorrowersLoanRecords();
-        handledLoanRecords = handleRawLoanRecords(
-          loanStore.getBorrowers,
-          loanStore.getBorrowersLoanRecords
-        );
-        filteredList.value = handledLoanRecords;
-      } catch (error) {
-        console.error(error);
-        openNotification(
-          "Refresh loan list failed. Please refresh page manually.",
-          "warning"
-        );
-      }
-    }
-
-    let currentLoanId = ref("");
-    let inputLiquidateAmount = ref("");
-    let minLiquidateAmount = ref("");
-    let maxLiquidateAmount = ref("");
-    function clickMarginCall() {
-      showMarginCallModal.value = true;
-    }
-
-    function clickLiquidate(loanId: string) {
-      currentLoanId.value = loanId;
-      minLiquidateAmount.value = "0.00001";
-      maxLiquidateAmount.value = ethers.utils.formatEther(
-        remainingAmountMap.value.get(currentLoanId.value)!
-      );
-      inputLiquidateAmount = minLiquidateAmount;
-      showLiquidateModal.value = true;
-    }
-
-    watch(inputLiquidateAmount, (newValue) => {
-
-    });
-
-    async function liquidateLoan(loanId: string, inputAmount: string) {
-      const liquidateAmount = ethers.utils.parseUnits(inputAmount, "ether");
-      try {
-        // 1.Whether need Approve
-        const isSufficent = await isAllowanceSufficient(
-          accountStore.getAccount,
-          commonStore.protocolAddress,
-          liquidateAmount
-        );
-        if (!isSufficent) {
-          await approveProtocol(loanId, commonStore.protocolAddress);
-        }
-
-        // 2.Liquidate
-        await liquidate(loanId, liquidateAmount);
-      } catch (error) {
-        console.error(error);
-        return;
-      }
-
-      // 3.refresh page
-      await reloadMap();
-    }
-
-    async function isAllowanceSufficient(
-      owner: string,
-      spender: string,
-      liquidateAmount: BigNumber
-    ) {
-      try {
-        const allowance: BigNumber = await commonStore.getERC20.allowance(
-          owner,
-          spender
-        );
-        return allowance.gt(liquidateAmount) ? true : false;
-      } catch (error) {
-        console.error(error);
-        openNotification("Get allowance failed. Please retry.", "danger");
-        throw error;
-      }
-    }
-
-    async function approveProtocol(loanId: string, protocol: string) {
-      const approveAmount = BigNumber.from(2).pow(256).sub(1);
-      let approveTx;
-      try {
-        approveTx = await commonStore.getERC20.approve(protocol, approveAmount);
-      } catch (error) {
-        console.log(error);
-        openNotification("MetaMask execute [approve] failed.", "danger");
-        throw error;
-      }
-      try {
-        liquidateLoadingMap.value.set(loanId, true);
-        pendingStore.increment();
-        const result = await approveTx.wait();
-        liquidateLoadingMap.value.set(loanId, false);
-        pendingStore.decrement();
-        console.log("Approve result:", result);
-      } catch (error) {
-        console.error(error);
-        liquidateLoadingMap.value.set(loanId, false);
-        pendingStore.decrement();
-        openNotification(
-          "Approved account [" +
-            utils.shortenAddress(accountStore.getAccount) +
-            "] failed.",
-          "danger"
-        );
-        throw error;
-      }
-    }
-
-    async function liquidate(loanId: string, liquidateAmount: BigNumber) {
-      let tx;
-      let result;
-      try {
-        tx = await commonStore.getProtocol.liquidateLoan(
-          loanId,
-          liquidateAmount
-        );
-      } catch (error) {
-        console.error(error);
-        openNotification(
-          `MetaMask execute [liquidateLoan] failed. (${utils.filterRevertMsg(
-            (error as any).message
-          )})`,
-          "danger"
-        );
-        throw error;
-      }
-      try {
-        liquidateLoadingMap.value.set(loanId, true);
-        pendingStore.increment();
-        result = await tx.wait();
-        liquidateLoadingMap.value.set(loanId, false);
-        pendingStore.decrement();
-        openNotification(
-          "Liquidate loan [" + utils.shortenAddress(loanId) + "] success.",
-          "success"
-        );
-        console.log("liquidateLoan result:", result);
-      } catch (error) {
-        console.error(error);
-        liquidateLoadingMap.value.set(loanId, false);
-        pendingStore.decrement();
-        openNotification(
-          `Liquidate loan [${utils.shortenAddress(
-            loanId
-          )}] failed. (${utils.filterRevertMsg((error as any).message)})`,
-          "danger"
-        );
-        throw error;
-      }
-    }
-
-    function handleRawLoanRecords(
-      borrowers: Array<string>,
-      rawLoanRecords: Map<string, ILoanRecord[]>
-    ): Map<string, IHandledLoanRecord[]> {
-      let tempMap = new Map();
-      let date = new Date();
-      borrowers.forEach((borrower) => {
-        let loanRecords = rawLoanRecords.get(borrower);
-        let tempRecords = [] as IHandledLoanRecord[];
-        loanRecords?.forEach((loanRecord: ILoanRecord) => {
-          let tempRecord: IHandledLoanRecord = {
-            loanId: loanRecord.loanId,
-            loanTokenAddress: loanRecord.loanTokenAddress,
-            collateralTokenAddress: loanRecord.collateralTokenAddress,
-            loanAmount:
-              ethers.utils.formatEther(loanRecord.loanAmount) +
-              " " +
-              utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
-            collateralAmount:
-              ethers.utils.formatEther(loanRecord.collateralAmount) +
-              " " +
-              utils.getTokenNameFromAddress(loanRecord.collateralTokenAddress),
-            loanTerm: loanRecord.loanTerm.toNumber() + " Days",
-            annualInterestRate:
-              loanRecord.annualInterestRate
-                .mul(10000)
-                .div(loanStore.exp)
-                .toNumber() /
-                100 +
-              "%",
-            interest:
-              ethers.utils.formatEther(loanRecord.interest) +
-              " " +
-              utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
-            collateralCoverageRatio:
-              loanRecord.collateralCoverageRatio
-                .mul(10000)
-                .div(loanStore.exp)
-                .toNumber() /
-                100 +
-              "%",
-            minCollateralCoverageRatio:
-              loanRecord.minCollateralCoverageRatio
-                .mul(10000)
-                .div(loanStore.exp)
-                .toNumber() /
-                100 +
-              "%",
-            alreadyPaidAmount:
-              ethers.utils.formatEther(loanRecord.alreadyPaidAmount) +
-              " " +
-              utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
-            liquidatedAmount:
-              ethers.utils.formatEther(loanRecord.liquidatedAmount) +
-              " " +
-              utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
-            soldCollateralAmount:
-              ethers.utils.formatEther(loanRecord.soldCollateralAmount) +
-              " " +
-              utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
-            createdAt: utils.formatTimestamp(loanRecord.createdAt.toNumber()),
-            dueAt: utils.formatTimestamp(loanRecord.dueAt.toNumber()),
-            remainingDebt:
-              ethers.utils.formatEther(loanRecord.remainingDebt) +
-              " " +
-              utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
-            isClosed: loanRecord.isClosed,
-            isMarginCall:
-              !loanRecord.isClosed &&
-              loanRecord.collateralCoverageRatio.lte(
-                marginCollateralCoverageRatio
-              ),
-            isLiquidable:
-              !loanRecord.isClosed &&
-              (loanRecord.collateralCoverageRatio.lt(
-                loanRecord.minCollateralCoverageRatio
-              ) ||
-                loanRecord.dueAt.mul(1000).lt(BigNumber.from(date.getTime()))),
-          };
-          tempRecords.push(tempRecord);
-
-          remainingAmountMap.value.set(
-            loanRecord.loanId,
-            loanRecord.remainingDebt
-          );
-          liquidateLoadingMap.value.set(loanRecord.loanId, false);
-          marginCallLoadingMap.value.set(loanRecord.loanId, false);
-        });
-        tempMap.set(borrower, tempRecords);
-      });
-      return tempMap;
-    }
-
-    function copyToClipboard(copyValue: string) {
-      //create new element
-      let oInput = document.createElement("input");
-      //assign value
-      oInput.value = copyValue;
-      //add new element to body
-      document.body.appendChild(oInput);
-      //select object
-      oInput.select();
-      //execute copy method
-      document.execCommand("Copy");
-      //delete new element
-      document.body.removeChild(oInput);
-    }
-
-    const openNotification = (message: string, color: string) => {
-      _this?.$vaToast.init({
-        message: message,
-        color: color,
-        iconClass: "fa-star-o",
-        position: "bottom-right",
-        duration: Number(10000),
-        title: "Loan List",
-        fullWidth: false,
-      });
-    };
+    );
 
     return {
-      currentLoanId,
-      liquidateAmount,
-      inputLiquidateAmount,
-      showMarginCallModal,
-      showLiquidateModal,
-      minLiquidateAmount,
-      maxLiquidateAmount,
-      reloadMap,
-      loanRecordsKeyIcon,
-      toggleOptions,
-      toggleValue,
-      filterInput,
-      whitelistedBorrowers,
-      loanRecords: filteredList,
+      state,
       formatObjectKey: utils.formatObjectKey,
       getCollapseColor,
       clickMarginCall,
       clickLiquidate,
       liquidateLoan,
       copyToClipboard,
-      marginCallLoadingMap,
-      liquidateLoadingMap,
-      collapseControl: false,
     };
   },
 });
@@ -710,11 +341,13 @@ export default defineComponent({
   //   }
   // }
 }
+.modal-width {
+  min-width: 400px;
+}
 
 .loanList-select {
   display: flex;
   justify-content: space-between;
-  // background-color: white;
   width: 100%;
   height: 100%;
 }

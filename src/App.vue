@@ -3,11 +3,44 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, getCurrentInstance, watch } from "vue";
+import { usePendingStore } from "@/store/Pending";
 
 export default defineComponent({
   name: "App",
-  setup() {},
+  setup() {
+    const pendingStore = usePendingStore();
+    const instance = getCurrentInstance();
+    const _this = instance?.appContext.config.globalProperties;
+
+    const openNotification = (
+      title: string,
+      message: string,
+      color: string
+    ) => {
+      _this?.$vaToast.init({
+        message,
+        color,
+        iconClass: "fa-star-o",
+        position: "bottom-right",
+        duration: Number(10000),
+        title,
+        fullWidth: false,
+      });
+    };
+
+    watch(
+      () => pendingStore.queueLenth,
+      (newValue) => {
+        if (newValue > 0) {
+          console.log("before, pendingStore.notifyQueue=", pendingStore.notifyQueue)
+          const { title, message, color } = pendingStore.dequeue();
+          console.log("after, pendingStore.notifyQueue=", pendingStore.notifyQueue)
+          openNotification(title, message, color);
+        }
+      }
+    );
+  },
 });
 </script>
 

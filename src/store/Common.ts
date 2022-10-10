@@ -11,6 +11,7 @@ export const useCommonStore = defineStore('common', {
     state: () => ({
         isInited: false,
         wallet: WalletSelector.Disconnect,
+        walletInited: false,
         provider: {} as any,
         ethersInstance: {} as providers.Web3Provider,
         networkType: NetworkType.None,
@@ -65,7 +66,7 @@ export const useCommonStore = defineStore('common', {
                     // this.wallet = WalletSelector.Disconnect;
                     break;
             }
-            console.log("wallet = ", this.wallet)
+            this.walletInited = true;
         },
 
         setWallet(selectedWallet: WalletSelector) {
