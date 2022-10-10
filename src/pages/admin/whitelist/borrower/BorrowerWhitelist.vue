@@ -1,25 +1,30 @@
 <template>
   <div class="flex xs12 md12 xl12">
-    <va-card class="mb-4" :disabled="!isAdministrator">
+    <va-card class="mb-4" :disabled="!state.isAdministrator">
       <va-card-title>
         <h1>{{ $t("whitelist.borrower.newTitle") }}</h1>
       </va-card-title>
       <va-card-content>
         <va-input
           class="mb-4"
-          v-model="newBorrowerAddress"
+          v-model="state.newBorrowerAddress"
           label="Borrower Address"
           placeholder="0x..."
-          :disabled="isAddLoading"
+          :disabled="state.isAddLoading"
         />
         <va-button
-          @click="addWhitelist(newBorrowerAddress)"
-          :loading="isAddLoading"
+          @click="addWhitelist(state.newBorrowerAddress)"
+          :loading="state.isAddLoading"
           >{{ $t("whitelist.borrower.newButton") }}</va-button
         >
       </va-card-content>
     </va-card>
-    <va-card class="d-flex" stripe stripe-color="info"  :disabled="!isAdministrator">
+    <va-card
+      class="d-flex"
+      stripe
+      stripe-color="info"
+      :disabled="!state.isAdministrator"
+    >
       <va-card-title>
         <h1>{{ $t("whitelist.borrower.addedTitle") }}</h1>
       </va-card-title>
@@ -28,17 +33,17 @@
           <va-input
             class="flex mb-2 md6"
             placeholder="Filter..."
-            v-model="filter"
+            v-model="state.filter"
           />
         </div>
 
         <va-data-table
           striped
-          :loading="isTableLoading"
-          :items="whitelist"
-          :columns="columns"
-          :filter="filter"
-          @filtered="filteredCount = $event.items.length"
+          :loading="state.isTableLoading"
+          :items="state.whitelist"
+          :columns="state.columns"
+          :filter="state.filter"
+          @filtered="state.filteredCount = $event.items.length"
         >
           <template #cell(id)="{ rowIndex }">
             {{ rowIndex }}
@@ -52,17 +57,19 @@
               outline
               size="small"
               :color="value == 'active' ? 'success' : 'danger'"
-              :icon="value == 'active' ? 'credit_score': 'credit_card_off'"
+              :icon="value == 'active' ? 'credit_score' : 'credit_card_off'"
               >{{ value }}</va-chip
             >
           </template>
-          <template #cell(option)="{ value, rowIndex }">
+          <template #cell(option)="{ rowIndex }">
             <va-button
               size="small"
               color="danger"
-              :loading="removeLoadingMap.get(whitelist[rowIndex].address)"
-              @click="removeWhitelist(whitelist[rowIndex].address)"
-              >{{ value }}</va-button
+              :loading="
+                state.removeLoadingMap.get(state.whitelist[rowIndex].address)
+              "
+              @click="removeWhitelist(state.whitelist[rowIndex].address)"
+              >Remove</va-button
             >
           </template>
         </va-data-table>
@@ -70,7 +77,7 @@
         <va-alert class="mt-3" color="info" outline>
           <span>
             {{ $t("whitelist.borrower.filteredCount") }}
-            <va-chip>{{ filteredCount }}</va-chip>
+            <va-chip>{{ state.filteredCount }}</va-chip>
           </span>
         </va-alert>
       </va-card-content>
@@ -79,32 +86,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, getCurrentInstance, computed } from "vue";
+import { defineComponent } from "vue";
 import { useCommonStore } from "@/store/Common";
 import { useLoanStore } from "@/store/Loan";
 import { useAccountStore } from "@/store/Account";
 import { useWhitelistStore } from "@/store/Whitelist";
 import { usePendingStore } from "@/store/Pending";
-import utils from "@/utils";
-class WhiteListItem {
-  address: string;
-  status: string;
-  option: string;
-
-  constructor(address: string, status: string, option: string) {
-    this.address = address;
-    this.status = status;
-    this.option = option;
-  }
-}
+import { useBorrowerWhitelist } from "@/services/whitelist/borrower";
 
 export default defineComponent({
   name: "BorrowerWhitelist",
-  components: {},
   async setup(props, ctx) {
-    const instance = getCurrentInstance();
-    const _this = instance?.appContext.config.globalProperties;
-
     const commonStore = useCommonStore();
     const pendingStore = usePendingStore();
     const accountStore = useAccountStore();
@@ -117,170 +109,16 @@ export default defineComponent({
       await loanStore.init();
     }
 
-    const isAdministrator = await commonStore.getProtocol.isAdministrator(accountStore.getAccount);
-
-    const borrowersOnWhitelists = whitelistStore.whitelistedBorrowers;
-    const activeBorrowers = loanStore.getActiveBorrowers;
-    let whitelist = ref(Array<WhiteListItem>());
-    let removeLoadingMap = ref(new Map<string, boolean>());
-
-    borrowersOnWhitelists.forEach((borrowerAddress: string) => {
-      let borrowerStatus =
-        activeBorrowers.indexOf(borrowerAddress) >= 0 ? "active" : "inactive";
-      whitelist.value.push({
-        address: borrowerAddress,
-        status: borrowerStatus,
-        option: "Remove",
-      });
-      removeLoadingMap.value.set(borrowerAddress, false);
-    });
-    const columns = [
-      { key: "id" },
-      { key: "address" },
-      { key: "status" },
-      { key: "option" },
-    ];
-
-    let filter = ref("");
-    let filteredCount = ref(whitelist.value.length);
-    let newBorrowerAddress = ref("");
-    let isAddLoading = ref(false);
-    let isRemoveLoading = ref(false);
-    let isTableLoading = ref(false);
-    let removeLoadingId = ref(-1);
-
-    async function reloadTable() {
-      try {
-        isTableLoading.value = true;
-        let tempWhitelist: Array<WhiteListItem> = [];
-        await whitelistStore.initWhitelistedBorrowers();
-        // let borrowersOnWhitelists = loanStore.getWhitelist;
-        let borrowersOnWhitelists = whitelistStore.whitelistedBorrowers;
-        borrowersOnWhitelists.forEach((borrowerAddress: any) => {
-          let borrowerStatus =
-            activeBorrowers.indexOf(borrowerAddress) >= 0
-              ? "active"
-              : "inactive";
-          tempWhitelist.push(
-            new WhiteListItem(borrowerAddress, borrowerStatus, "Remove")
-          );
-        });
-        whitelist.value = tempWhitelist;
-        isTableLoading.value = false;
-      } catch (error) {
-        isTableLoading.value = false;
-        console.error(error);
-        openNotification(
-          "Refresh table failed. Please refresh page manually.",
-          "warning"
-        );
-      }
-    }
-
-    async function removeWhitelist(address: string) {
-      let tx;
-      let result;
-      try {
-        tx =
-          await whitelistStore.getWhitelistInstance.removeBorrowerWhitelisted(
-            address
-          );
-        console.log(tx);
-      } catch (error) {
-        console.error(error);
-        return;
-      }
-      try {
-        removeLoadingMap.value.set(address, true);
-        pendingStore.increment();
-        result = await tx.wait();
-        console.log("remove result: ", result);
-        pendingStore.decrement();
-        reloadTable();
-        removeLoadingMap.value.set(address, false);
-        openNotification(
-          "Remove account [" +
-            utils.shortenAddress(address) +
-            "] from whitelist success.",
-          "success"
-        );
-      } catch (error) {
-        console.error(error);
-        pendingStore.decrement();
-        removeLoadingMap.value.set(address, false);
-        openNotification(
-          "Remove account [" +
-            utils.shortenAddress(address) +
-            "] from whitelist failed.",
-          "danger"
-        );
-      }
-    }
-
-    async function addWhitelist(address: string) {
-      let tx;
-      let result;
-      try {
-        tx = await whitelistStore.getWhitelistInstance.addBorrowerWhitelisted(
-          address
-        );
-        isAddLoading.value = true;
-        pendingStore.increment();
-        isAddLoading.value = false;
-        newBorrowerAddress.value = "";
-        console.log(tx);
-      } catch (error) {
-        console.error(error);
-        return;
-      }
-      try {
-        result = await tx.wait();
-        pendingStore.decrement();
-        console.log("add result: ", result);
-        reloadTable();
-        openNotification(
-          "Add account [" +
-            utils.shortenAddress(address) +
-            "] to whitelist success.",
-          "success"
-        );
-      } catch (error) {
-        console.error(error);
-        pendingStore.decrement();
-        openNotification(
-          "Add account [" +
-            utils.shortenAddress(address) +
-            "] to whitelist failed.",
-          "danger"
-        );
-        isAddLoading.value = false;
-      }
-    }
-
-    const openNotification = (message: string, color: string) => {
-      _this?.$vaToast.init({
-        message: message,
-        color: color,
-        iconClass: "fa-star-o",
-        position: "bottom-right",
-        duration: Number(10000),
-        title: "Whitelist: Borrower",
-        fullWidth: false,
-      });
-    };
+    let { state, removeWhitelist, addWhitelist } = await useBorrowerWhitelist(
+      commonStore,
+      accountStore,
+      pendingStore,
+      whitelistStore,
+      loanStore
+    );
 
     return {
-      isAdministrator,
-      whitelist,
-      removeLoadingMap,
-      columns,
-      filteredCount,
-      filter,
-      newBorrowerAddress,
-      isAddLoading,
-      isRemoveLoading,
-      isTableLoading,
-      removeLoadingId,
+      state,
       removeWhitelist,
       addWhitelist,
     };

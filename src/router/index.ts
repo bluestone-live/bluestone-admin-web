@@ -87,7 +87,9 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const commonStore = useCommonStore()
-  commonStore.initWallet();
+  if(!commonStore.walletInited) {
+    commonStore.initWallet();
+  }
   if (to.name === 'Wallet') { next() } 
   if (commonStore.wallet == WalletSelector.Disconnect) {
     next({ name: "Wallet" })
