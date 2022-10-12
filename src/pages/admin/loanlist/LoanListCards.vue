@@ -34,8 +34,8 @@
             class="mb-4"
             :rules="[
               (v) =>
-                Number(v) >= Number(state.minLiquidateAmount) ||
-                `Lower than minimum value.`,
+                Number(v) > Number(state.minLiquidateAmount) ||
+                `Must be greater than 0.`,
               (v) =>
                 Number(v) <= Number(state.maxLiquidateAmount) ||
                 `Exceeds maximum value.`,
@@ -47,8 +47,8 @@
                 :rounded="false"
                 flat
                 size="small"
-                @click="state.inputLiquidateAmount = state.minLiquidateAmount"
-                >Min</va-button
+                @click="state.inputLiquidateAmount = state.safeLiquidateAmount"
+                >Safe</va-button
               >
             </template>
             <template #append>

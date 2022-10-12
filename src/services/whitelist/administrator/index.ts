@@ -9,7 +9,7 @@ export const useAdminWhitelist = async (pendingStore: any, accountStore: any, wh
         columns: [{ key: "id" }, { key: "address" }, { key: "option" }],
         filter: "",
         filteredCount: whitelistStore.administrators.length,
-        administrators: whitelistStore.administrators,
+        whitelist: [] as any,
         newAdministratorAddress: "",
         isAddLoading: false,
         isRemoveLoading: false,
@@ -19,15 +19,25 @@ export const useAdminWhitelist = async (pendingStore: any, accountStore: any, wh
 
     state.ownerAccount = await whitelistStore.getWhitelistInstance.owner();
     state.isOwner = state.currentAccount.toLowerCase() == state.ownerAccount.toLowerCase()
-    state.administrators.forEach((borrowerAddress: string) => {
-        state.removeLoadingMap.set(borrowerAddress, false);
+    whitelistStore.administrators.forEach((adminAddress: string) => {
+        state.removeLoadingMap.set(adminAddress, false);
+        state.whitelist.push({
+            address: adminAddress
+        });
     });
 
     const reloadTable = async () => {
         try {
             state.isTableLoading = true;
+            let tempWhitelist = [] as any;
             await whitelistStore.initAdministrators();
-            state.administrators = whitelistStore.administrators;
+            whitelistStore.administrators.forEach((adminAddress: string) => {
+                tempWhitelist.push({
+                    address: adminAddress
+                });
+                state.removeLoadingMap.set(adminAddress, false);
+            });
+            state.whitelist = tempWhitelist;
             state.isTableLoading = false;
         } catch (error) {
             state.isTableLoading = false;

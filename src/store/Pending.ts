@@ -1,26 +1,29 @@
 import { defineStore } from 'pinia'
+import { INotifyParams } from '@/services/types';
 
 export const usePendingStore = defineStore('pending', {
     state: () => ({
         pendingCount: 0,
         queueLenth: 0,
-        notifyQueue: [] as any,
+        notifyQueue: [] as INotifyParams[],
     }),
     actions: {
         increment() {
             this.pendingCount++
         },
         decrement() {
-            if(this.pendingCount > 0) {
+            if (this.pendingCount > 0) {
                 this.pendingCount--
             }
         },
-        enqueue(notifyParams: any) {
+        enqueue(notifyParams: INotifyParams) {
             this.notifyQueue.push(notifyParams);
             this.queueLenth++;
         },
         dequeue() {
-            this.queueLenth--;
+            if (this.queueLenth > 0) {
+                this.queueLenth--;
+            } 
             return this.notifyQueue.shift();
         }
     },

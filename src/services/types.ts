@@ -23,6 +23,12 @@ enum TokenType {
     SGC = "SGC"
 }
 
+interface INotifyParams {
+    title: string;
+    message: string;
+    color: string;
+}
+
 interface ITokenDeclaration {
     name: string;
     symbol: string;
@@ -85,4 +91,4 @@ interface IHandledLoanRecord {
 }
 
 export { WalletSelector, NetworkType, TokenType };
-export type { INetworkFile, IPool, ILoanRecord, IHandledLoanRecord };
+export type { INetworkFile, IPool, ILoanRecord, IHandledLoanRecord, INotifyParams };

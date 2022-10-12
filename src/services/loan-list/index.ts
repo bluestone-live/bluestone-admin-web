@@ -47,7 +47,8 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
         showLiquidateModal: false,
         selectedLoanRecord: {} as ILoanRecord,
         inputLiquidateAmount: "",
-        minLiquidateAmount: "",
+        minLiquidateAmount: "0",
+        safeLiquidateAmount: "",
         maxLiquidateAmount: "",
         liquidatedCCR: 0,
         safeCCR: 220,   // 220%
@@ -66,11 +67,10 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
 
     const clickLiquidate = (loanId: string) => {
         state.selectedLoanRecord = state.loanRecordsMap.get(loanId);
-        state.minLiquidateAmount = calcMinLiquidateValue(state.selectedLoanRecord);
+        state.safeLiquidateAmount = calcMinLiquidateValue(state.selectedLoanRecord);
         state.maxLiquidateAmount = ethers.utils.formatEther(
             state.selectedLoanRecord.remainingDebt
         );
-        state.inputLiquidateAmount = state.minLiquidateAmount;
         state.showLiquidateModal = true;
     }
 
@@ -434,21 +434,6 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
         document.execCommand("Copy");
         document.body.removeChild(oInput);
     }
-
-    // const openNotification = (message: string, color: string) => {
-    //     const instance = getCurrentInstance();
-    //     const _this = instance?.appContext.config.globalProperties;
-
-    //     _this?.$vaToast.init({
-    //         message: message,
-    //         color: color,
-    //         iconClass: "fa-star-o",
-    //         position: "bottom-right",
-    //         duration: Number(10000),
-    //         title: "Loan List",
-    //         fullWidth: false,
-    //     });
-    // };
 
     return {
         state,
