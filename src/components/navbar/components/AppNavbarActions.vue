@@ -51,12 +51,7 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  getCurrentInstance,
-  ref,
-  watch,
-} from "vue";
+import { defineComponent, getCurrentInstance, ref, watch } from "vue";
 import { usePendingStore } from "@/store/Pending";
 import { useAccountStore } from "@/store/Account";
 import { useCommonStore } from "@/store/Common";
@@ -82,7 +77,10 @@ export default defineComponent({
     let accountAddress = ref(utils.shortenAddress(accountStore.getAccount));
 
     const dropdownMap = new Map<WalletSelector, any>();
-    dropdownMap.set(WalletSelector.MetaMask, new URL("../../../assets/wallet/metamask.svg", import.meta.url).href);
+    dropdownMap.set(
+      WalletSelector.MetaMask,
+      new URL("../../../assets/wallet/metamask.svg", import.meta.url).href
+    );
     dropdownMap.set(
       WalletSelector.WalletConnect,
       new URL("../../../assets/wallet/walletconnect.svg", import.meta.url).href
@@ -157,9 +155,15 @@ export default defineComponent({
       });
     };
 
-    if (commonStore.networkType != NetworkType.Kovan && commonStore.networkType != NetworkType.Goerli ) {
+    if (
+      commonStore.networkType != NetworkType.Kovan &&
+      commonStore.networkType != NetworkType.Goerli
+    ) {
       isNetworkErr.value = true;
-      openNotification("Please change Network to Kovan, Goerli testnet.", "danger");
+      openNotification(
+        "Please change Network to Kovan, Goerli testnet.",
+        "danger"
+      );
     }
 
     return {

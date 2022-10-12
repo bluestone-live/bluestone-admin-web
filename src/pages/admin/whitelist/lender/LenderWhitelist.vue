@@ -40,7 +40,7 @@
         <va-data-table
           striped
           :loading="state.isTableLoading"
-          :items="state.whitelistedLenders"
+          :items="state.whitelist"
           :columns="state.columns"
           :filter="state.filter"
           @filtered="state.filteredCount = $event.items.length"
@@ -48,17 +48,17 @@
           <template #cell(id)="{ rowIndex }">
             {{ rowIndex }}
           </template>
-          <template #cell(address)="{ rowIndex }">
-            {{ state.whitelistedLenders[rowIndex] }}
+          <template #cell(address)="{ value }">
+            {{ value }}
           </template>
           <template #cell(option)="{ rowIndex }">
             <va-button
               size="small"
               color="danger"
               :loading="
-                state.removeLoadingMap.get(state.whitelistedLenders[rowIndex])
+                state.removeLoadingMap.get(state.whitelist[rowIndex].address)
               "
-              @click="removeWhitelist(state.whitelistedLenders[rowIndex])"
+              @click="removeWhitelist(state.whitelist[rowIndex].address)"
             >
               Remove
             </va-button>

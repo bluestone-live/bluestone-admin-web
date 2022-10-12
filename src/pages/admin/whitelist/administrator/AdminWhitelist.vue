@@ -40,7 +40,7 @@
         <va-data-table
           striped
           :loading="state.isTableLoading"
-          :items="state.administrators"
+          :items="state.whitelist"
           :columns="state.columns"
           :filter="state.filter"
           @filtered="state.filteredCount = $event.items.length"
@@ -48,23 +48,23 @@
           <template #cell(id)="{ rowIndex }">
             {{ rowIndex }}
           </template>
-          <template #cell(address)="{ rowIndex }">
+          <template #cell(address)="{ value }">
             <va-icon
-              v-if="state.administrators[rowIndex] == state.ownerAccount"
+              v-if="value == state.ownerAccount"
               class="mr-1"
               name="settings"
             ></va-icon>
-            {{ state.administrators[rowIndex] }}
+            {{ value }}
           </template>
           <template #cell(option)="{ rowIndex }">
             <va-button
               size="small"
               color="danger"
-              :disabled="state.administrators[rowIndex] == state.ownerAccount"
+              :disabled="state.whitelist[rowIndex].address == state.ownerAccount"
               :loading="
-                state.removeLoadingMap.get(state.administrators[rowIndex])
+                state.removeLoadingMap.get(state.whitelist[rowIndex].address)
               "
-              @click="removeWhitelist(state.administrators[rowIndex])"
+              @click="removeWhitelist(state.whitelist[rowIndex].address)"
             >
               Remove
             </va-button>

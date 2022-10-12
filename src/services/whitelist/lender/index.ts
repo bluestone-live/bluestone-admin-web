@@ -9,7 +9,6 @@ export const useLenderWhitelist = async (commonStore: any, pendingStore: any, wh
             { key: "address" },
             { key: "option" },
         ],
-        whitelistedLenders: whitelistStore.whitelistedLenders,
         whitelist: [] as any,
         filter: "",
         filteredCount: whitelistStore.whitelistedLenders.length,
@@ -20,15 +19,25 @@ export const useLenderWhitelist = async (commonStore: any, pendingStore: any, wh
     })
 
     state.isAdministrator = await commonStore.getProtocol.isAdministrator(accountStore.getAccount);
-    state.whitelistedLenders.forEach((borrowerAddress: string) => {
-        state.removeLoadingMap.set(borrowerAddress, false);
+    whitelistStore.whitelistedLenders.forEach((lenderAddress: string) => {
+        state.removeLoadingMap.set(lenderAddress, false);
+        state.whitelist.push({
+            address: lenderAddress
+        });
     });
 
     const reloadTable = async () => {
         try {
             state.isTableLoading = true;
+            let tempWhitelist = [] as any;
             await whitelistStore.initWhitelistedLenders();
-            state.whitelistedLenders = whitelistStore.whitelistedLenders;
+            whitelistStore.whitelistedLenders.forEach((lenderAddress: string) => {
+                state.removeLoadingMap.set(lenderAddress, false);
+                tempWhitelist.push({
+                    address: lenderAddress
+                });
+            });
+            state.whitelist = tempWhitelist;
             state.isTableLoading = false;
         } catch (error) {
             state.isTableLoading = false;
@@ -104,7 +113,7 @@ export const useLenderWhitelist = async (commonStore: any, pendingStore: any, wh
                 title: "Whitelist: Lender",
                 message: "Add account [" +
                     utils.shortenAddress(address) +
-                    "] to administrators whitelist success.",
+                    "] to whitelist success.",
                 color: "success"
             });
         } catch (error) {
@@ -112,7 +121,7 @@ export const useLenderWhitelist = async (commonStore: any, pendingStore: any, wh
             pendingStore.decrement();
             pendingStore.enqueue({
                 title: "Whitelist: Lender",
-                message: `Add account [${utils.shortenAddress(address)}] to administrators whitelist failed. (${utils.filterRevertMsg((error as any).message)})`,
+                message: `Add account [${utils.shortenAddress(address)}] to whitelist failed. (${utils.filterRevertMsg((error as any).message)})`,
                 color: "danger"
             });
             state.isAddLoading = false;

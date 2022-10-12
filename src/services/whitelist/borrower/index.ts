@@ -10,8 +10,8 @@ export const useBorrowerWhitelist = async (commonStore: any, accountStore: any, 
             { key: "status" },
             { key: "option" },
         ],
-        borrowersOnWhitelists: whitelistStore.whitelistedBorrowers,
-        activeBorrowers: loanStore.getActiveBorrowers,
+        // borrowersOnWhitelists: whitelistStore.whitelistedBorrowers,
+        // activeBorrowers: loanStore.getActiveBorrowers,
         whitelist: [] as any,
         filter: "",
         filteredCount: whitelistStore.whitelistedBorrowers.length,
@@ -22,9 +22,9 @@ export const useBorrowerWhitelist = async (commonStore: any, accountStore: any, 
     })
 
     state.isAdministrator = await commonStore.getProtocol.isAdministrator(accountStore.getAccount);
-    state.borrowersOnWhitelists.forEach((borrowerAddress: string) => {
+    whitelistStore.whitelistedBorrowers.forEach((borrowerAddress: string) => {
         let borrowerStatus =
-            state.activeBorrowers.indexOf(borrowerAddress) >= 0 ? "active" : "inactive";
+            loanStore.getActiveBorrowers.indexOf(borrowerAddress) >= 0 ? "active" : "inactive";
         state.whitelist.push({
             address: borrowerAddress,
             status: borrowerStatus,
@@ -38,18 +38,18 @@ export const useBorrowerWhitelist = async (commonStore: any, accountStore: any, 
             let tempWhitelist = [] as any;
             await whitelistStore.initWhitelistedBorrowers();
             whitelistStore.whitelistedBorrowers.forEach((borrowerAddress: any) => {
-                let borrowerStatus =
-                    state.activeBorrowers.indexOf(borrowerAddress) >= 0
+                const borrowerStatus =
+                    loanStore.getActiveBorrowers.indexOf(borrowerAddress) >= 0
                         ? "active"
                         : "inactive";
                 tempWhitelist.push(
-                    { address: borrowerAddress, status: borrowerStatus, option: "Remove" })
+                    { address: borrowerAddress, status: borrowerStatus })
+                state.removeLoadingMap.set(borrowerAddress, false);
             });
             state.whitelist = tempWhitelist;
             state.isTableLoading = false;
         } catch (error) {
             state.isTableLoading = false;
-            console.log("table error")
             console.error(error);
             pendingStore.enqueue({
                 title: "Whitelist: Borrower",
@@ -78,7 +78,6 @@ export const useBorrowerWhitelist = async (commonStore: any, accountStore: any, 
             result = await tx.wait();
             console.log("remove result: ", result);
             pendingStore.decrement();
-            reloadTable();
             state.removeLoadingMap.set(address, false);
             pendingStore.enqueue({
                 title: "Whitelist: Borrower",
@@ -87,6 +86,7 @@ export const useBorrowerWhitelist = async (commonStore: any, accountStore: any, 
                     "] from whitelist success.",
                 color: "success"
             });
+            await reloadTable();
         } catch (error) {
             console.error(error);
             pendingStore.decrement();
@@ -113,13 +113,17 @@ export const useBorrowerWhitelist = async (commonStore: any, accountStore: any, 
             console.log(tx);
         } catch (error) {
             console.error(error);
+            pendingStore.enqueue({
+                title: "Whitelist: Borrower",
+                message: `Add account [${utils.shortenAddress(address)}] to whitelist failed. (${utils.filterRevertMsg((error as any).message)})`,
+                color: "danger"
+            });
             return;
         }
         try {
             result = await tx.wait();
             pendingStore.decrement();
             console.log("add result: ", result);
-            reloadTable();
             pendingStore.enqueue({
                 title: "Whitelist: Borrower",
                 message: "Add account [" +
@@ -127,6 +131,7 @@ export const useBorrowerWhitelist = async (commonStore: any, accountStore: any, 
                     "] to whitelist success.",
                 color: "success"
             });
+            await reloadTable();
         } catch (error) {
             console.error(error);
             pendingStore.decrement();
@@ -135,7 +140,6 @@ export const useBorrowerWhitelist = async (commonStore: any, accountStore: any, 
                 message: `Add account [${utils.shortenAddress(address)}] to whitelist failed. (${utils.filterRevertMsg((error as any).message)})`,
                 color: "danger"
             });
-            state.isAddLoading = false;
         }
     }
 
