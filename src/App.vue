@@ -32,18 +32,8 @@ export default defineComponent({
     watch(
       () => pendingStore.queueLenth,
       (newValue) => {
-        if (newValue > 0) {
-          console.log(
-            "before, pendingStore.notifyQueue=",
-            pendingStore.notifyQueue
-          );
-          const { title, message, color } = pendingStore.dequeue()!;
-          console.log(
-            "after, pendingStore.notifyQueue=",
-            pendingStore.notifyQueue
-          );
+          const { title, message, color } = pendingStore.notifyQueue[newValue-1];
           openNotification(title, message, color);
-        }
       }
     );
   },

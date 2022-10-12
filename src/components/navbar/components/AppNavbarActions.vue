@@ -51,7 +51,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, getCurrentInstance, ref, watch } from "vue";
+import { defineComponent, ref, watch } from "vue";
 import { usePendingStore } from "@/store/Pending";
 import { useAccountStore } from "@/store/Account";
 import { useCommonStore } from "@/store/Common";
@@ -60,9 +60,6 @@ import utils from "@/utils/index";
 export default defineComponent({
   name: "app-navbar-actions",
   async setup() {
-    const instance = getCurrentInstance();
-    const _this = instance?.appContext.config.globalProperties;
-
     const commonStore = useCommonStore();
     const pendingStore = usePendingStore();
     const accountStore = useAccountStore();
@@ -111,16 +108,6 @@ export default defineComponent({
       }
     );
 
-    watch(
-      () => commonStore.networkType,
-      (curNetwork) => {
-        if (curNetwork != NetworkType.Kovan) {
-          isNetworkErr.value = true;
-          openNotification("Please change Network to Kovan testnet.", "danger");
-        }
-      }
-    );
-
     pendingStore.$subscribe(() => {
       if (pendingStore.pendingCount === 0) {
         showPending.value = false;
@@ -143,27 +130,16 @@ export default defineComponent({
       }
     }
 
-    const openNotification = (message: string, color: string) => {
-      _this?.$vaToast.init({
-        message: message,
-        color: color,
-        iconClass: "fa-star-o",
-        position: "bottom-right",
-        duration: Number(1000000),
-        title: "Metamask",
-        fullWidth: false,
-      });
-    };
-
     if (
       commonStore.networkType != NetworkType.Kovan &&
       commonStore.networkType != NetworkType.Goerli
     ) {
       isNetworkErr.value = true;
-      openNotification(
-        "Please change Network to Kovan, Goerli testnet.",
-        "danger"
-      );
+      pendingStore.enqueue({
+        title: "MetaMask",
+        message: "Please change Network to Kovan, Goerli testnet.",
+        color: "danger",
+      });
     }
 
     return {
