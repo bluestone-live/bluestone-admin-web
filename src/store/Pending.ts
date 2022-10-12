@@ -20,11 +20,5 @@ export const usePendingStore = defineStore('pending', {
             this.notifyQueue.push(notifyParams);
             this.queueLenth++;
         },
-        dequeue() {
-            if (this.queueLenth > 0) {
-                this.queueLenth--;
-            } 
-            return this.notifyQueue.shift();
-        }
     },
 })

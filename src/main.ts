@@ -1,4 +1,4 @@
-import './polyfills' 
+import './polyfills'
 import { createApp } from 'vue'
 import { VuesticPlugin } from 'vuestic-ui'
 import { i18n } from './i18n'
@@ -7,7 +7,6 @@ import router from './router'
 import store from './store/index.js'
 import vuesticGlobalConfig from './services/vuestic-ui/global-config'
 import 'vuestic-ui/css'
-
 
 const app = createApp(App)
 
