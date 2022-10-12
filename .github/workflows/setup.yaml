@@ -26,12 +26,12 @@ jobs:
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          key: npm-${{ hashFiles('package-lock.json') }}
       - name: Install Dependencies
         if: steps.cacheDep.outputs.cache-hit != 'true'
-        run: yarn install
+        run: npm install
       - name: Test
-        run: yarn test
+        run: npm test
 
   build:
     needs: test
@@ -47,7 +47,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          key: npm-${{ hashFiles('package-lock.json') }}
       - name: Retrieve Cached Build
         # if the cache key doesn't exist, it will create one when the job completes
         id: cacheBuild
@@ -57,7 +57,7 @@ jobs:
           key: ${{ env.BUILD_CACHE_KEY }}
       - name: Build
         if: steps.cacheBuild.outputs.cache-hit != 'true'
-        run: yarn build
+        run: npm run build
 
   deploy:
     needs: build
