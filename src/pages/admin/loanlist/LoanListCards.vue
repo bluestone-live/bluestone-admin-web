@@ -14,7 +14,7 @@
         <va-card-content>
           <div>
             {{
-              `Current CCR:
+              `Collateral Ratio:
           ${
             state.selectedLoanRecord.collateralCoverageRatio
               .mul(10000)
@@ -32,6 +32,7 @@
             v-model="state.inputLiquidateAmount"
             type="text"
             class="mb-4"
+            :disabled="state.isLiquidateLoading"
             :rules="[
               (v) =>
                 Number(v) > Number(state.minLiquidateAmount) ||
@@ -63,12 +64,17 @@
               >
             </template>
           </va-input>
-          <div class="mb-3">{{ `Safe CCR: ${state.safeCCR}%` }}</div>
-          <div>{{ `CCR: ${state.liquidatedCCR}%` }}</div>
+          <div class="mb-3">
+            {{ `Safe Collateral Ratio: ${state.safeCCR}%` }}
+          </div>
+          <div>
+            {{ `Collateral Ratio(Calculation): ${state.liquidatedCCR}%` }}
+          </div>
         </va-card-content>
       </va-card>
       <template #footer>
         <va-button
+          :loading="state.isLiquidateLoading"
           @click="
             liquidateLoan(
               state.selectedLoanRecord.loanId,
@@ -218,6 +224,7 @@
                   <va-button
                     class="mr-4 mb-2"
                     :disabled="!loanRecord.isLiquidable"
+                    :loading="state.liquidateLoadingMap.get(loanRecord.loanId)"
                     @click="clickLiquidate(loanRecord.loanId)"
                     color="danger"
                     >Liquidate</va-button

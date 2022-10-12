@@ -52,6 +52,8 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
         maxLiquidateAmount: "",
         liquidatedCCR: 0,
         safeCCR: 220,   // 220%
+        liquidateLoadingMap: new Map(),
+        isLiquidateLoading: false,
     });
 
     state.handledLoanRecords = handleRawLoanRecords(
@@ -67,7 +69,7 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
 
     const clickLiquidate = (loanId: string) => {
         state.selectedLoanRecord = state.loanRecordsMap.get(loanId);
-        state.safeLiquidateAmount = calcMinLiquidateValue(state.selectedLoanRecord);
+        state.safeLiquidateAmount = calcSafeLiquidateValue(state.selectedLoanRecord);
         state.maxLiquidateAmount = ethers.utils.formatEther(
             state.selectedLoanRecord.remainingDebt
         );
@@ -252,7 +254,7 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
         return tempMap;
     }
 
-    const calcMinLiquidateValue = (loanRecord: ILoanRecord) => {
+    const calcSafeLiquidateValue = (loanRecord: ILoanRecord) => {
         let collateralTokenPrice;
         const collateralToken = utils.getTokenNameFromAddress(loanRecord.collateralTokenAddress);
         if (collateralToken === TokenType.ETH) {
@@ -359,15 +361,18 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
             throw error;
         }
         try {
-            //   liquidateLoadingMap.value.set(loanId, true);
+            state.isLiquidateLoading = true;
+            state.liquidateLoadingMap.set(loanId, true);
             pendingStore.increment();
             const result = await approveTx.wait();
-            //   liquidateLoadingMap.value.set(loanId, false);
+            state.isLiquidateLoading = false;
+            state.liquidateLoadingMap.set(loanId, false);
             pendingStore.decrement();
             console.log("Approve result:", result);
         } catch (error) {
             console.error(error);
-            //   liquidateLoadingMap.value.set(loanId, false);
+            state.isLiquidateLoading = false;
+            state.liquidateLoadingMap.set(loanId, false);
             pendingStore.decrement();
             pendingStore.enqueue({
                 title: "Configuration",
@@ -400,10 +405,13 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
             throw error;
         }
         try {
-            // liquidateLoadingMap.value.set(loanId, true);
+            state.isLiquidateLoading = true;
+            state.liquidateLoadingMap.set(loanId, true);
             pendingStore.increment();
             result = await tx.wait();
-            // liquidateLoadingMap.value.set(loanId, false);
+            state.isLiquidateLoading = false;
+            state.liquidateLoadingMap.set(loanId, false);
+            state.showLiquidateModal = false;
             pendingStore.decrement();
             pendingStore.enqueue({
                 title: "Configuration",
@@ -413,7 +421,8 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
             console.log("liquidateLoan result:", result);
         } catch (error) {
             console.error(error);
-            // liquidateLoadingMap.value.set(loanId, false);
+            state.isLiquidateLoading = false;
+            state.liquidateLoadingMap.set(loanId, false);
             pendingStore.decrement();
             pendingStore.enqueue({
                 title: "Configuration",
