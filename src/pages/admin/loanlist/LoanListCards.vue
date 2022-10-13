@@ -48,6 +48,7 @@
                 :rounded="false"
                 flat
                 size="small"
+                :disabled="Number(state.safeLiquidateAmount) === 0"
                 @click="state.inputLiquidateAmount = state.safeLiquidateAmount"
                 >Safe</va-button
               >
@@ -75,6 +76,7 @@
       <template #footer>
         <va-button
           :loading="state.isLiquidateLoading"
+          :disabled="state.inputLiquidateAmount === '' || Number(state.inputLiquidateAmount) <= 0"
           @click="
             liquidateLoan(
               state.selectedLoanRecord.loanId,

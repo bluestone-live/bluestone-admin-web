@@ -68,11 +68,13 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
     }
 
     const clickLiquidate = (loanId: string) => {
+        state.inputLiquidateAmount = "";
         state.selectedLoanRecord = state.loanRecordsMap.get(loanId);
         state.safeLiquidateAmount = calcSafeLiquidateValue(state.selectedLoanRecord);
         state.maxLiquidateAmount = ethers.utils.formatEther(
             state.selectedLoanRecord.remainingDebt
         );
+        state.liquidatedCCR = calcCollateralCoverageRatio(state.selectedLoanRecord, BigNumber.from("0"));
         state.showLiquidateModal = true;
     }
 
@@ -222,7 +224,7 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
                     soldCollateralAmount:
                         ethers.utils.formatEther(loanRecord.soldCollateralAmount) +
                         " " +
-                        utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
+                        utils.getTokenNameFromAddress(loanRecord.collateralTokenAddress),
                     createdAt: utils.formatTimestamp(loanRecord.createdAt.toNumber()),
                     dueAt: utils.formatTimestamp(loanRecord.dueAt.toNumber()),
                     remainingDebt:
@@ -255,15 +257,31 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
     }
 
     const calcSafeLiquidateValue = (loanRecord: ILoanRecord) => {
-        let collateralTokenPrice;
-        const collateralToken = utils.getTokenNameFromAddress(loanRecord.collateralTokenAddress);
-        if (collateralToken === TokenType.ETH) {
-            collateralTokenPrice = oracleStore.ethPrice;
+        const precision = 0.00001;
+        const currentCCR = loanRecord.collateralCoverageRatio
+            .mul(10000)
+            .div(state.exp)
+            .toNumber() / 100;
+        if (Math.abs(currentCCR - state.safeCCR) / state.safeCCR <= precision) {
+            return "0";
         }
-        if (collateralToken === TokenType.xBTC) {
-            collateralTokenPrice = oracleStore.btcPrice;
+
+        let high = BigNumber.from(loanRecord.remainingDebt);
+        let low = BigNumber.from("0");
+        let targetBigNumberValue: BigNumber;
+        while (true) {
+            targetBigNumberValue = high.add(low).div(2);
+            const ccr = calcCollateralCoverageRatio(loanRecord, targetBigNumberValue);
+            if (Math.abs(ccr - state.safeCCR) / state.safeCCR <= precision) {
+                break;
+            } else {
+                if (ccr > state.safeCCR) {
+                    high = targetBigNumberValue;
+                } else {
+                    low = targetBigNumberValue;
+                }
+            }
         }
-        const targetBigNumberValue = loanRecord.remainingDebt.sub(loanRecord.collateralAmount.mul(collateralTokenPrice).mul(100).div(oracleStore.sgcPrice).div(BigNumber.from(state.safeCCR)));
         return ethers.utils.formatEther(targetBigNumberValue);
     }
 
@@ -276,7 +294,17 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
         if (collateralToken === TokenType.xBTC) {
             collateralTokenPrice = oracleStore.btcPrice;
         }
-        return loanRecord.collateralAmount.mul(collateralTokenPrice).mul(10000).div(loanRecord.remainingDebt.sub(liquidateAmount)).div(oracleStore.sgcPrice).toNumber() / 100;
+        const remainingDebt = loanRecord.remainingDebt
+            .sub(liquidateAmount);
+        const remainingCollateralAmount = loanRecord.collateralAmount
+            .sub(loanRecord.soldCollateralAmount)
+            .sub(liquidateAmount.mul(oracleStore.sgcPrice).div(collateralTokenPrice));
+        const targetValue = remainingCollateralAmount
+            .mul(collateralTokenPrice)
+            .mul(10000)
+            .div(remainingDebt)
+            .div(oracleStore.sgcPrice).toNumber() / 100;
+        return targetValue;
     }
 
     // 3. on-chain logic
