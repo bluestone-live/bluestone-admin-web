@@ -9,6 +9,8 @@
     "test": "echo 'No testing specified'"
   },
   "dependencies": {
+    "@gnosis.pm/safe-apps-provider": "^0.14.0",
+    "@gnosis.pm/safe-apps-sdk": "^7.8.0",
     "@walletconnect/web3-provider": "^1.8.0",
     "axios": "^0.27.2",
     "echarts": "^5.4.0",
