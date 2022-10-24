@@ -39,6 +39,7 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
 
         borrowerValueForFilter: "",   // filter loaner records by input
         toggleValueForFilter: "all",    // filter loaner records
+        lastFilter: "",               // 'toggle' or 'input'
         loanRecordsMap: new Map(),      // loanId => rawLoanRecord
         handledLoanRecords: new Map(),  // borrower => handledLoanRecord
         filteredLoanRecords: new Map(), // borrower => handledLoanRecord
@@ -93,18 +94,19 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
     }
 
     // 2. data handler
-    const filterByInput = (newInputValue: string) => {
+    const filterByInput = () => {
         let tempMap = new Map();
         state.handledLoanRecords.forEach(
             (loanRecords: IHandledLoanRecord[], address: string) => {
                 if (
-                    address.toLowerCase().search(newInputValue.toLowerCase()) !== -1
+                    address.toLowerCase().search(state.borrowerValueForFilter.toLowerCase()) !== -1
                 ) {
                     tempMap.set(address, loanRecords);
                 }
             }
         );
-        return tempMap;
+        state.filteredLoanRecords = tempMap;
+        state.lastFilter = "input";
     }
 
     const filterByToggle = () => {
@@ -162,7 +164,8 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
                 break;
             }
         }
-        return tempMap;
+        state.filteredLoanRecords = tempMap;
+        state.lastFilter = "toggle";
     }
 
     function handleRawLoanRecords(
@@ -257,12 +260,12 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
     }
 
     const calcSafeLiquidateValue = (loanRecord: ILoanRecord) => {
-        const precision = 0.00001;
+        const precision = 0.000000001;
         const currentCCR = loanRecord.collateralCoverageRatio
             .mul(10000)
             .div(state.exp)
             .toNumber() / 100;
-        if (Math.abs(currentCCR - state.safeCCR) / state.safeCCR <= precision) {
+        if (currentCCR >= state.safeCCR || (state.safeCCR - currentCCR) / state.safeCCR <= precision) {
             return "0";
         }
 
@@ -294,16 +297,22 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
         if (collateralToken === TokenType.xBTC) {
             collateralTokenPrice = oracleStore.btcPrice;
         }
-        const remainingDebt = loanRecord.remainingDebt
+        const remainingDebt = loanRecord.loanAmount
+            .add(loanRecord.interest)
+            .sub(loanRecord.alreadyPaidAmount)
+            .sub(loanRecord.liquidatedAmount)
             .sub(liquidateAmount);
         const remainingCollateralAmount = loanRecord.collateralAmount
             .sub(loanRecord.soldCollateralAmount)
-            .sub(liquidateAmount.mul(oracleStore.sgcPrice).div(collateralTokenPrice));
+            .sub(liquidateAmount
+                .mul(oracleStore.sgcPrice)
+                .div(collateralTokenPrice));
         const targetValue = remainingCollateralAmount
             .mul(collateralTokenPrice)
-            .mul(10000)
+            .mul(BigNumber.from("10000"))
             .div(remainingDebt)
-            .div(oracleStore.sgcPrice).toNumber() / 100;
+            .div(oracleStore.sgcPrice)
+            .toNumber() / 100;
         return targetValue;
     }
 
@@ -315,7 +324,12 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
                 loanStore.getBorrowers,
                 loanStore.getBorrowersLoanRecords
             );
-            state.filteredLoanRecords = state.handledLoanRecords;
+            if (state.lastFilter === "input") {
+                filterByInput();
+            }
+            if (state.lastFilter === "toggle") {
+                filterByToggle();
+            }
         } catch (error) {
             console.error(error);
             pendingStore.enqueue({

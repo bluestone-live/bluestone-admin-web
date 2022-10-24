@@ -76,7 +76,10 @@
       <template #footer>
         <va-button
           :loading="state.isLiquidateLoading"
-          :disabled="state.inputLiquidateAmount === '' || Number(state.inputLiquidateAmount) <= 0"
+          :disabled="
+            state.inputLiquidateAmount === '' ||
+            Number(state.inputLiquidateAmount) <= 0
+          "
           @click="
             liquidateLoan(
               state.selectedLoanRecord.loanId,
@@ -88,6 +91,7 @@
         </va-button>
       </template>
     </va-modal>
+
     <div class="xs12 sm12 loanList-select">
       <va-input
         class="flex md4 mt-1"
@@ -296,15 +300,15 @@ export default defineComponent({
 
     watch(
       () => state.borrowerValueForFilter,
-      (newValue) => {
-        state.filteredLoanRecords = filterByInput(newValue);
+      () => {
+        setTimeout(filterByInput, 500);
       }
     );
 
     watch(
       () => state.toggleValueForFilter,
       () => {
-        state.filteredLoanRecords = filterByToggle();
+        setTimeout(filterByToggle, 300);
       }
     );
 
