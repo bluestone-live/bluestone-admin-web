@@ -14,7 +14,7 @@
         <va-card-content>
           <div>
             {{
-              `Current CCR:
+              `Collateral Ratio:
           ${
             state.selectedLoanRecord.collateralCoverageRatio
               .mul(10000)
@@ -32,6 +32,7 @@
             v-model="state.inputLiquidateAmount"
             type="text"
             class="mb-4"
+            :disabled="state.isLiquidateLoading"
             :rules="[
               (v) =>
                 Number(v) > Number(state.minLiquidateAmount) ||
@@ -47,6 +48,7 @@
                 :rounded="false"
                 flat
                 size="small"
+                :disabled="Number(state.safeLiquidateAmount) === 0"
                 @click="state.inputLiquidateAmount = state.safeLiquidateAmount"
                 >Safe</va-button
               >
@@ -63,12 +65,21 @@
               >
             </template>
           </va-input>
-          <div class="mb-3">{{ `Safe CCR: ${state.safeCCR}%` }}</div>
-          <div>{{ `CCR: ${state.liquidatedCCR}%` }}</div>
+          <div class="mb-3">
+            {{ `Safe Collateral Ratio: ${state.safeCCR}%` }}
+          </div>
+          <div>
+            {{ `Collateral Ratio(Calculation): ${state.liquidatedCCR}%` }}
+          </div>
         </va-card-content>
       </va-card>
       <template #footer>
         <va-button
+          :loading="state.isLiquidateLoading"
+          :disabled="
+            state.inputLiquidateAmount === '' ||
+            Number(state.inputLiquidateAmount) <= 0
+          "
           @click="
             liquidateLoan(
               state.selectedLoanRecord.loanId,
@@ -80,6 +91,7 @@
         </va-button>
       </template>
     </va-modal>
+
     <div class="xs12 sm12 loanList-select">
       <va-input
         class="flex md4 mt-1"
@@ -218,6 +230,7 @@
                   <va-button
                     class="mr-4 mb-2"
                     :disabled="!loanRecord.isLiquidable"
+                    :loading="state.liquidateLoadingMap.get(loanRecord.loanId)"
                     @click="clickLiquidate(loanRecord.loanId)"
                     color="danger"
                     >Liquidate</va-button
@@ -287,15 +300,15 @@ export default defineComponent({
 
     watch(
       () => state.borrowerValueForFilter,
-      (newValue) => {
-        state.filteredLoanRecords = filterByInput(newValue);
+      () => {
+        setTimeout(filterByInput, 500);
       }
     );
 
     watch(
       () => state.toggleValueForFilter,
       () => {
-        state.filteredLoanRecords = filterByToggle();
+        setTimeout(filterByToggle, 300);
       }
     );
 

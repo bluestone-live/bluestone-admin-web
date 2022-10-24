@@ -3,6 +3,7 @@ import utils from "@/utils"
 import { ethers, Contract, providers } from "ethers"
 import { toRaw } from "@vue/reactivity"
 import protocolDeclareFile from "@/contracts/Protocol.json"
+import mappingInterestRateModelDeclareFile from "@/contracts/MappingInterestRateModel.json"
 import erc20DeclareFile from "@/contracts/ERC20Mock.json"
 import { WalletSelector, NetworkType, INetworkFile } from "@/services/types";
 import WalletConnectProvider from "@walletconnect/web3-provider";
@@ -18,6 +19,8 @@ export const useCommonStore = defineStore('common', {
         networkFile: {} as INetworkFile,
         protocolAddress: "",
         protocolInstance: {} as Contract,
+        interestRateModelAddress: "",
+        interestRateModelInstance: {} as Contract,
         erc20Instance: {} as Contract,
         tokens: {} as INetworkFile["tokens"],
     }),
@@ -30,6 +33,9 @@ export const useCommonStore = defineStore('common', {
         },
         getProtocol(state) {
             return toRaw(state.protocolInstance)
+        },
+        getInterestRateModel(state) {
+            return toRaw(state.interestRateModelInstance)
         },
         getERC20(state) {
             return toRaw(state.erc20Instance)
@@ -102,13 +108,19 @@ export const useCommonStore = defineStore('common', {
         async initProtocolRelated() {
             this.networkFile = await utils.getNetworkFile(this.networkType)
             this.protocolAddress = this.networkFile.contracts[protocolDeclareFile.contractName]
-            this.tokens = this.networkFile.tokens
-
             this.protocolInstance = new ethers.Contract(
                 this.protocolAddress,
                 protocolDeclareFile.abi,
                 (this.getEthersProvider as any).getSigner()
             )
+            this.interestRateModelAddress = this.networkFile.contracts[mappingInterestRateModelDeclareFile.contractName]
+            this.interestRateModelInstance = new ethers.Contract(
+                this.interestRateModelAddress,
+                mappingInterestRateModelDeclareFile.abi,
+                (this.getEthersProvider as any).getSigner()
+            )
+            
+            this.tokens = this.networkFile.tokens
         },
 
         initERC20Instance() {

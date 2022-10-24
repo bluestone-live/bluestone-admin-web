@@ -39,6 +39,7 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
 
         borrowerValueForFilter: "",   // filter loaner records by input
         toggleValueForFilter: "all",    // filter loaner records
+        lastFilter: "",               // 'toggle' or 'input'
         loanRecordsMap: new Map(),      // loanId => rawLoanRecord
         handledLoanRecords: new Map(),  // borrower => handledLoanRecord
         filteredLoanRecords: new Map(), // borrower => handledLoanRecord
@@ -52,6 +53,8 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
         maxLiquidateAmount: "",
         liquidatedCCR: 0,
         safeCCR: 220,   // 220%
+        liquidateLoadingMap: new Map(),
+        isLiquidateLoading: false,
     });
 
     state.handledLoanRecords = handleRawLoanRecords(
@@ -66,11 +69,13 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
     }
 
     const clickLiquidate = (loanId: string) => {
+        state.inputLiquidateAmount = "";
         state.selectedLoanRecord = state.loanRecordsMap.get(loanId);
-        state.safeLiquidateAmount = calcMinLiquidateValue(state.selectedLoanRecord);
+        state.safeLiquidateAmount = calcSafeLiquidateValue(state.selectedLoanRecord);
         state.maxLiquidateAmount = ethers.utils.formatEther(
             state.selectedLoanRecord.remainingDebt
         );
+        state.liquidatedCCR = calcCollateralCoverageRatio(state.selectedLoanRecord, BigNumber.from("0"));
         state.showLiquidateModal = true;
     }
 
@@ -89,18 +94,19 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
     }
 
     // 2. data handler
-    const filterByInput = (newInputValue: string) => {
+    const filterByInput = () => {
         let tempMap = new Map();
         state.handledLoanRecords.forEach(
             (loanRecords: IHandledLoanRecord[], address: string) => {
                 if (
-                    address.toLowerCase().search(newInputValue.toLowerCase()) !== -1
+                    address.toLowerCase().search(state.borrowerValueForFilter.toLowerCase()) !== -1
                 ) {
                     tempMap.set(address, loanRecords);
                 }
             }
         );
-        return tempMap;
+        state.filteredLoanRecords = tempMap;
+        state.lastFilter = "input";
     }
 
     const filterByToggle = () => {
@@ -158,7 +164,8 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
                 break;
             }
         }
-        return tempMap;
+        state.filteredLoanRecords = tempMap;
+        state.lastFilter = "toggle";
     }
 
     function handleRawLoanRecords(
@@ -220,7 +227,7 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
                     soldCollateralAmount:
                         ethers.utils.formatEther(loanRecord.soldCollateralAmount) +
                         " " +
-                        utils.getTokenNameFromAddress(loanRecord.loanTokenAddress),
+                        utils.getTokenNameFromAddress(loanRecord.collateralTokenAddress),
                     createdAt: utils.formatTimestamp(loanRecord.createdAt.toNumber()),
                     dueAt: utils.formatTimestamp(loanRecord.dueAt.toNumber()),
                     remainingDebt:
@@ -252,16 +259,32 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
         return tempMap;
     }
 
-    const calcMinLiquidateValue = (loanRecord: ILoanRecord) => {
-        let collateralTokenPrice;
-        const collateralToken = utils.getTokenNameFromAddress(loanRecord.collateralTokenAddress);
-        if (collateralToken === TokenType.ETH) {
-            collateralTokenPrice = oracleStore.ethPrice;
+    const calcSafeLiquidateValue = (loanRecord: ILoanRecord) => {
+        const precision = 0.000000001;
+        const currentCCR = loanRecord.collateralCoverageRatio
+            .mul(10000)
+            .div(state.exp)
+            .toNumber() / 100;
+        if (currentCCR >= state.safeCCR || (state.safeCCR - currentCCR) / state.safeCCR <= precision) {
+            return "0";
         }
-        if (collateralToken === TokenType.xBTC) {
-            collateralTokenPrice = oracleStore.btcPrice;
+
+        let high = BigNumber.from(loanRecord.remainingDebt);
+        let low = BigNumber.from("0");
+        let targetBigNumberValue: BigNumber;
+        while (true) {
+            targetBigNumberValue = high.add(low).div(2);
+            const ccr = calcCollateralCoverageRatio(loanRecord, targetBigNumberValue);
+            if (Math.abs(ccr - state.safeCCR) / state.safeCCR <= precision) {
+                break;
+            } else {
+                if (ccr > state.safeCCR) {
+                    high = targetBigNumberValue;
+                } else {
+                    low = targetBigNumberValue;
+                }
+            }
         }
-        const targetBigNumberValue = loanRecord.remainingDebt.sub(loanRecord.collateralAmount.mul(collateralTokenPrice).mul(100).div(oracleStore.sgcPrice).div(BigNumber.from(state.safeCCR)));
         return ethers.utils.formatEther(targetBigNumberValue);
     }
 
@@ -274,7 +297,23 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
         if (collateralToken === TokenType.xBTC) {
             collateralTokenPrice = oracleStore.btcPrice;
         }
-        return loanRecord.collateralAmount.mul(collateralTokenPrice).mul(10000).div(loanRecord.remainingDebt.sub(liquidateAmount)).div(oracleStore.sgcPrice).toNumber() / 100;
+        const remainingDebt = loanRecord.loanAmount
+            .add(loanRecord.interest)
+            .sub(loanRecord.alreadyPaidAmount)
+            .sub(loanRecord.liquidatedAmount)
+            .sub(liquidateAmount);
+        const remainingCollateralAmount = loanRecord.collateralAmount
+            .sub(loanRecord.soldCollateralAmount)
+            .sub(liquidateAmount
+                .mul(oracleStore.sgcPrice)
+                .div(collateralTokenPrice));
+        const targetValue = remainingCollateralAmount
+            .mul(collateralTokenPrice)
+            .mul(BigNumber.from("10000"))
+            .div(remainingDebt)
+            .div(oracleStore.sgcPrice)
+            .toNumber() / 100;
+        return targetValue;
     }
 
     // 3. on-chain logic
@@ -285,7 +324,12 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
                 loanStore.getBorrowers,
                 loanStore.getBorrowersLoanRecords
             );
-            state.filteredLoanRecords = state.handledLoanRecords;
+            if (state.lastFilter === "input") {
+                filterByInput();
+            }
+            if (state.lastFilter === "toggle") {
+                filterByToggle();
+            }
         } catch (error) {
             console.error(error);
             pendingStore.enqueue({
@@ -359,15 +403,18 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
             throw error;
         }
         try {
-            //   liquidateLoadingMap.value.set(loanId, true);
+            state.isLiquidateLoading = true;
+            state.liquidateLoadingMap.set(loanId, true);
             pendingStore.increment();
             const result = await approveTx.wait();
-            //   liquidateLoadingMap.value.set(loanId, false);
+            state.isLiquidateLoading = false;
+            state.liquidateLoadingMap.set(loanId, false);
             pendingStore.decrement();
             console.log("Approve result:", result);
         } catch (error) {
             console.error(error);
-            //   liquidateLoadingMap.value.set(loanId, false);
+            state.isLiquidateLoading = false;
+            state.liquidateLoadingMap.set(loanId, false);
             pendingStore.decrement();
             pendingStore.enqueue({
                 title: "Configuration",
@@ -400,10 +447,13 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
             throw error;
         }
         try {
-            // liquidateLoadingMap.value.set(loanId, true);
+            state.isLiquidateLoading = true;
+            state.liquidateLoadingMap.set(loanId, true);
             pendingStore.increment();
             result = await tx.wait();
-            // liquidateLoadingMap.value.set(loanId, false);
+            state.isLiquidateLoading = false;
+            state.liquidateLoadingMap.set(loanId, false);
+            state.showLiquidateModal = false;
             pendingStore.decrement();
             pendingStore.enqueue({
                 title: "Configuration",
@@ -413,7 +463,8 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
             console.log("liquidateLoan result:", result);
         } catch (error) {
             console.error(error);
-            // liquidateLoadingMap.value.set(loanId, false);
+            state.isLiquidateLoading = false;
+            state.liquidateLoadingMap.set(loanId, false);
             pendingStore.decrement();
             pendingStore.enqueue({
                 title: "Configuration",
