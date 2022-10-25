@@ -14,7 +14,7 @@ export const useNavbar = (commonStore: any, accountStore: any, pendingStore: any
 
     const copyAddressToClipboard = () => {
         let oInput = document.createElement("input");
-        oInput.value = pendingStore.getAccount;
+        oInput.value = accountStore.getAccount;
         document.body.appendChild(oInput);
         oInput.select();
         document.execCommand("Copy");

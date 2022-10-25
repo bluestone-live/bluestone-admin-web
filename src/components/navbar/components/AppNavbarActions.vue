@@ -14,7 +14,7 @@
             ? 'danger'
             : 'primary'
         "
-        @click="copyAddressToClipboard"
+        @click="copyAddressToClipboard()"
       >
         <template #default>
           <div v-if="!state.showPending">
@@ -59,7 +59,6 @@ export default defineComponent({
     watch(
       () => pendingStore.pendingCount,
       (newValue) => {
-        console.log("newValue=", newValue);
         if (newValue === 0) {
           state.showPending = false;
         } else {

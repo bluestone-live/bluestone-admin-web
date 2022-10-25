@@ -65,7 +65,6 @@ export const useCommonStore = defineStore('common', {
             const appsSdk = new initSdk();
             this.safeInfo = await appsSdk.safe.getInfo();
             this.ethersInstance = new ethers.providers.Web3Provider(new SafeAppProvider(this.safeInfo, appsSdk));
-            console.log("this.ethersInstance=", this.ethersInstance);
         },
 
         async initNetworkType() {
