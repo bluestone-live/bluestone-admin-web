@@ -23,7 +23,8 @@ export const useConfiguration = async (commonStore: any, whitelistStore: any, pe
         inputTermList: "",
         inputInterestRateList: "",
         inputGatewayAddress: "",
-        inputMinCollateralCoverageRatio: "",
+        inputMinCollateralCoverageRatioOfETH: "",
+        inputMinCollateralCoverageRatioOfXBTC: "",
         isSetInterestRateModelLoading: false,
         isSetGatewayAddressLoading: false,
         isSetMinCollateralCoverageRatioLoading: false,
@@ -153,13 +154,13 @@ export const useConfiguration = async (commonStore: any, whitelistStore: any, pe
                 commonStore.getProtocol.setLoanAndCollateralTokenPair(
                     commonStore.getTokens.SGC.address,
                     commonStore.getTokens.ETH.address,
-                    ethers.utils.parseUnits(String(parseFloat(state.inputMinCollateralCoverageRatio) / 100), "ether"),
+                    ethers.utils.parseUnits(String(parseFloat(state.inputMinCollateralCoverageRatioOfETH) / 100), "ether"),
                     ethers.utils.parseUnits("0.05", "ether")
                 ),
                 commonStore.getProtocol.setLoanAndCollateralTokenPair(
                     commonStore.getTokens.SGC.address,
                     commonStore.getTokens.xBTC.address,
-                    ethers.utils.parseUnits(String(parseFloat(state.inputMinCollateralCoverageRatio) / 100), "ether"),
+                    ethers.utils.parseUnits(String(parseFloat(state.inputMinCollateralCoverageRatioOfXBTC) / 100), "ether"),
                     ethers.utils.parseUnits("0.05", "ether")
                 ),
             ])
@@ -183,7 +184,7 @@ export const useConfiguration = async (commonStore: any, whitelistStore: any, pe
             console.log("setMinCollateralCoverageRatio result2: ", result2);
             pendingStore.enqueue({
                 title: "Configuration",
-                message: `Set MinCollateralCoverageRatio ${state.inputMinCollateralCoverageRatio}% for collateral token pairs success.`,
+                message: "Set MinCollateralCoverageRatio for collateral token pairs success.",
                 color: "success"
             });
             state.isSetMinCollateralCoverageRatioLoading = false;

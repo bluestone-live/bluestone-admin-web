@@ -179,8 +179,11 @@
         <va-card-content>
           <va-card stripe stripe-color="success" class="mb-4">
             <va-card-title>Current Min Collateral Coverage Ratio</va-card-title>
-            <va-card-content>
+            <va-card-content
+              style="display: flex; justify-content: space-between"
+            >
               <va-input
+                style="width: 45%"
                 class="mb-4"
                 label="ETH - SGC"
                 v-model="state.currentMinCollateralCoverageRatio.ETH"
@@ -192,6 +195,7 @@
                 </template>
               </va-input>
               <va-input
+                style="width: 45%"
                 class="mb-4"
                 label="xBTC - SGC"
                 v-model="state.currentMinCollateralCoverageRatio.xBTC"
@@ -223,7 +227,7 @@
             <va-card-content>
               <va-input
                 class="mb-4"
-                v-model="state.inputMinCollateralCoverageRatio"
+                v-model="state.inputMinCollateralCoverageRatioOfETH"
                 label="ETH - SGC"
                 :placeholder="state.currentMinCollateralCoverageRatio.ETH"
                 :disabled="state.isSetMinCollateralCoverageRatioLoading"
@@ -234,7 +238,7 @@
               </va-input>
               <va-input
                 class="mb-4"
-                v-model="state.inputMinCollateralCoverageRatio"
+                v-model="state.inputMinCollateralCoverageRatioOfXBTC"
                 label="xBTC - SGC"
                 :placeholder="state.currentMinCollateralCoverageRatio.xBTC"
                 :disabled="state.isSetMinCollateralCoverageRatioLoading"
