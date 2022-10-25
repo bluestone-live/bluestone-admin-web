@@ -183,7 +183,7 @@
               style="display: flex; justify-content: space-between"
             >
               <va-input
-                style="width: 45%"
+                style="width: 48%"
                 class="mb-4"
                 label="ETH - SGC"
                 v-model="state.currentMinCollateralCoverageRatio.ETH"
@@ -195,7 +195,7 @@
                 </template>
               </va-input>
               <va-input
-                style="width: 45%"
+                style="width: 48%"
                 class="mb-4"
                 label="xBTC - SGC"
                 v-model="state.currentMinCollateralCoverageRatio.xBTC"
