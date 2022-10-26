@@ -47,10 +47,6 @@ export const useDepositStore = defineStore('deposit', {
         },
 
         initSgcBalance() {
-            let a = BigNumber.from(0)
-            let b = BigNumber.from(1)
-            let c = a.add(b)
-            console.log(a, b, c)
             let totalBalance = BigNumber.from(0)
             this.sgcPools.forEach((pool) => {
                 totalBalance = totalBalance.add(pool.availableAmount)

@@ -24,7 +24,7 @@ export const useAccountStore = defineStore('account', {
     },
     async initAccounts() {
       this.account = await this.commonStore.safeInfo.safeAddress;
-      console.log("this.accounts=", this.account);
+      console.log("account=", this.account);
     },
   },
 })
