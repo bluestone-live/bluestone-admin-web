@@ -326,9 +326,10 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
             );
             if (state.lastFilter === "input") {
                 filterByInput();
-            }
-            if (state.lastFilter === "toggle") {
+            } else if (state.lastFilter === "toggle") {
                 filterByToggle();
+            } else {
+                state.filteredLoanRecords = state.handledLoanRecords;
             }
         } catch (error) {
             console.error(error);
