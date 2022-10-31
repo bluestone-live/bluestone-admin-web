@@ -37,6 +37,7 @@ export const useConfiguration = async (commonStore: any, whitelistStore: any, pe
 
     const initChart = () => {
         const chartDom = document.getElementById("interest-model-chart");
+        chartDom?.removeAttribute('_echarts_instance_');
         const myChart = echarts.init(chartDom!);
         myChart.setOption({
             title: {
