@@ -31,6 +31,11 @@ const routes: Array<RouteRecordRaw> = [
             component: () => import('@/pages/admin/whitelist/administrator/Admin.vue')
           },
           {
+            name: 'Keeper',
+            path: 'keeper',
+            component: () => import('@/pages/admin/whitelist/keeper/Keeper.vue')
+          },
+          {
             name: 'Lender',
             path: 'lender',
             component: () => import('@/pages/admin/whitelist/lender/Lender.vue')

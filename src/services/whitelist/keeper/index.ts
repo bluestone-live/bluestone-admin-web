@@ -70,7 +70,7 @@ export const useLenderWhitelist = async (commonStore: any, pendingStore: any, wh
             reloadTable();
             state.removeLoadingMap.set(address, false);
             pendingStore.enqueue({
-                title: "Whitelist: Lender",
+                title: "Whitelist: Keeper",
                 message: "Remove account [" +
                     utils.shortenAddress(address) +
                     "] from whitelist success.",
@@ -81,7 +81,7 @@ export const useLenderWhitelist = async (commonStore: any, pendingStore: any, wh
             pendingStore.decrement();
             state.removeLoadingMap.set(address, false);
             pendingStore.enqueue({
-                title: "Whitelist: Lender",
+                title: "Whitelist: Keeper",
                 message: `Remove account [${utils.shortenAddress(address)}] from whitelist failed. (${utils.filterRevertMsg((error as any).message)})`,
                 color: "danger"
             });
