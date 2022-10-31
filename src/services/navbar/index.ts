@@ -28,13 +28,12 @@ export const useNavbar = (commonStore: any, accountStore: any, pendingStore: any
 
     function checkNetwork() {
         if (
-            commonStore.networkType != NetworkType.Kovan &&
             commonStore.networkType != NetworkType.Goerli
         ) {
             state.isNetworkErr = true;
             pendingStore.enqueue({
                 title: "MetaMask",
-                message: "Please change Network to Kovan, Goerli testnet.",
+                message: "Please change Network to Goerli testnet.",
                 color: "danger",
             });
         }

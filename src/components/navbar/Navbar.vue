@@ -19,8 +19,7 @@
 
       <template v-slot:right>
         <Suspense>
-          <template #fallback>
-          </template>
+          <template #fallback> </template>
           <app-navbar-actions class="app-navbar__actions md5 lg4" />
         </Suspense>
       </template>
@@ -64,12 +63,6 @@ export default {
       (commonStore.getEthersProvider as any).provider.on("chainChanged", () => {
         location.reload();
       });
-      (commonStore.getEthersProvider as any).provider.on(
-        "disconnect",
-        (code: number, reason: string) => {
-          commonStore.setWallet(WalletSelector.Disconnect);
-        }
-      );
     });
 
     return {
