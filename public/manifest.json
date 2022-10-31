@@ -1,7 +1,7 @@
 {
     "short_name": "Bluestone",
     "name": "Bluestone Admin Platform",
-    "description": "Describe your Safe App here",
+    "description": "Bluestone management platform for administrators.",
     "icons": [
         {
             "src": "logo.svg",
