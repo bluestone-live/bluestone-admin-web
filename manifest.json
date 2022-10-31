@@ -1,7 +1,7 @@
 {
     "name": "Bluestone Admin Platform",
     "description": "Bluestone management platform for administrators.",
-    "iconPath": "favicon.ico",
+    "iconPath": "./public/logo.svg",
     "providedBy": {
         "name": "Bluestone",
         "url": "https://app.bluestone.dev"
