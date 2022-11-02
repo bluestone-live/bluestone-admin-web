@@ -10,7 +10,18 @@ Conditions:
 Resources:
   DeployBucket:
     Type: AWS::S3::Bucket
-    Properties: {}
+    Properties:
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - 'X-Requested-With'
+              - 'content-type'
+              - 'Authorization'
+            AllowedMethods:
+              - GET
+            AllowedOrigins:
+              - '*'
+            MaxAge: 3600
 
   DeployBucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -38,9 +49,11 @@ Resources:
           AllowedMethods:
             - GET
             - HEAD
+            - OPTIONS
           CachedMethods:
             - GET
             - HEAD
+            - OPTIONS
           Compress: true
           DefaultTTL: 86400
           ForwardedValues:
@@ -49,6 +62,9 @@ Resources:
           MinTTL: 0
           TargetOriginId: !Ref DeployBucket
           ViewerProtocolPolicy: redirect-to-https
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # Name: CachingOptimized
+          OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf # Name: CORS-S3Origin
+          ResponseHeadersPolicyId: 5cc3b908-e619-4b99-88e5-2cf7f45965bd # Name: CORS-With-Preflight
         DefaultRootObject: index.html
         Enabled: true
         HttpVersion: http2
