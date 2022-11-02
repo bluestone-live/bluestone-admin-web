@@ -23,7 +23,10 @@
               state.openSetInterestRateModel ? "Clear" : "Create"
             }}</va-button
           >
-          <va-card v-if="state.openSetInterestRateModel">
+          <va-card
+            v-if="state.openSetInterestRateModel"
+            :disabled="!state.isOwner"
+          >
             <va-card-title>New Proposal</va-card-title>
             <va-card-content>
               <va-input
@@ -68,7 +71,7 @@
               </va-input>
               <va-button
                 color="primary"
-                @click="setInterestRateParameters"
+                @click="setInterestRates"
                 :loading="state.isSetInterestRateModelLoading"
                 >Submit</va-button
               >
@@ -151,7 +154,10 @@
             outline
             >{{ state.openSetGatewayAddress ? "Clear" : "Create" }}</va-button
           >
-          <va-card v-if="state.openSetGatewayAddress">
+          <va-card
+            v-if="state.openSetGatewayAddress"
+            :disabled="!state.isOwner"
+          >
             <va-card-title>New Proposal</va-card-title>
             <va-card-content>
               <va-input
@@ -179,8 +185,11 @@
         <va-card-content>
           <va-card stripe stripe-color="success" class="mb-4">
             <va-card-title>Current Min Collateral Coverage Ratio</va-card-title>
-            <va-card-content>
+            <va-card-content
+              style="display: flex; justify-content: space-between"
+            >
               <va-input
+                style="width: 48%"
                 class="mb-4"
                 label="ETH - SGC"
                 v-model="state.currentMinCollateralCoverageRatio.ETH"
@@ -192,6 +201,7 @@
                 </template>
               </va-input>
               <va-input
+                style="width: 48%"
                 class="mb-4"
                 label="xBTC - SGC"
                 v-model="state.currentMinCollateralCoverageRatio.xBTC"
@@ -218,37 +228,58 @@
               state.openSetMinCollateralCoverageRatio ? "Clear" : "Create"
             }}</va-button
           >
-          <va-card v-if="state.openSetMinCollateralCoverageRatio">
+          <va-card
+            v-if="state.openSetMinCollateralCoverageRatio"
+            :disabled="!state.isOwner"
+          >
             <va-card-title>New Proposal</va-card-title>
             <va-card-content>
               <va-input
                 class="mb-4"
-                v-model="state.inputMinCollateralCoverageRatio"
+                v-model="state.inputMinCollateralCoverageRatioOfETH"
                 label="ETH - SGC"
                 :placeholder="state.currentMinCollateralCoverageRatio.ETH"
-                :disabled="state.isSetMinCollateralCoverageRatioLoading"
+                :disabled="state.isSetETHMinCollateralCoverageRatioLoading"
               >
                 <template #appendInner>
                   <span>%</span>
+                </template>
+                <template #append>
+                  <va-button
+                    color="primary"
+                    class="ml-3"
+                    @click="setMinCollateralCoverageRatioForETH"
+                    :loading="state.isSetETHMinCollateralCoverageRatioLoading"
+                    >Submit</va-button
+                  >
                 </template>
               </va-input>
               <va-input
                 class="mb-4"
-                v-model="state.inputMinCollateralCoverageRatio"
+                v-model="state.inputMinCollateralCoverageRatioOfXBTC"
                 label="xBTC - SGC"
                 :placeholder="state.currentMinCollateralCoverageRatio.xBTC"
-                :disabled="state.isSetMinCollateralCoverageRatioLoading"
+                :disabled="state.isSetXBTCMinCollateralCoverageRatioLoading"
               >
                 <template #appendInner>
                   <span>%</span>
                 </template>
+                <template #append>
+                  <va-button
+                    color="primary"
+                    class="ml-3"
+                    @click="setMinCollateralCoverageRatioForXBTC"
+                    :loading="state.isSetXBTCMinCollateralCoverageRatioLoading"
+                    >Submit</va-button
+                  >
+                </template>
               </va-input>
-              <va-button
+              <!-- <va-button
                 color="primary"
                 @click="setMinCollateralCoverageRatio"
                 :loading="state.isSetMinCollateralCoverageRatioLoading"
                 >Submit</va-button
-              >
+              > -->
             </va-card-content>
           </va-card>
         </va-card-content>
@@ -260,7 +291,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, watch } from "vue";
 import { useCommonStore } from "@/store/Common";
-import { useWhitelistStore } from "@/store/Whitelist";
+import { useAccountStore } from "@/store/Account";
 import { usePendingStore } from "@/store/Pending";
 import { useConfiguration } from "@/services/configuration";
 
@@ -274,17 +305,18 @@ export default defineComponent({
 
     const commonStore = useCommonStore();
     const pendingStore = usePendingStore();
-    const whitelistStore = useWhitelistStore();
-    if (!whitelistStore.isInited) {
-      await whitelistStore.init();
+    const accountStore = useAccountStore();
+    if (!accountStore.isInited) {
+      await accountStore.init();
     }
     let {
       state,
       initChart,
-      setInterestRateParameters,
+      setInterestRates,
       setGatewayAddress,
-      setMinCollateralCoverageRatio,
-    } = await useConfiguration(commonStore, whitelistStore, pendingStore);
+      setMinCollateralCoverageRatioForETH,
+      setMinCollateralCoverageRatioForXBTC
+    } = await useConfiguration(commonStore, accountStore, pendingStore);
 
     watch(
       () => state.chartNeedRefresh,
@@ -298,9 +330,10 @@ export default defineComponent({
 
     return {
       state,
-      setInterestRateParameters,
+      setInterestRates,
       setGatewayAddress,
-      setMinCollateralCoverageRatio,
+      setMinCollateralCoverageRatioForETH,
+      setMinCollateralCoverageRatioForXBTC
     };
   },
 });

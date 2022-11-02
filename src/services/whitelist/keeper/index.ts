@@ -1,7 +1,7 @@
 import utils from "@/utils";
 import { reactive } from "vue";
 
-export const useLenderWhitelist = async (pendingStore: any, whitelistStore: any, accountStore: any) => {
+export const useKeeperWhitelist = async (pendingStore: any, whitelistStore: any, accountStore: any) => {
     const state = reactive({
         isOwner: accountStore.isOwner,
         columns: [
@@ -11,17 +11,17 @@ export const useLenderWhitelist = async (pendingStore: any, whitelistStore: any,
         ],
         whitelist: [] as any,
         filter: "",
-        filteredCount: whitelistStore.whitelistedLenders.length,
-        newLenderAddress: "",
+        filteredCount: whitelistStore.whitelistedKeepers.length,
+        newKeeperAddress: "",
         isAddLoading: false,
         isTableLoading: false,
         removeLoadingMap: new Map(),
     })
 
-    whitelistStore.whitelistedLenders.forEach((lenderAddress: string) => {
-        state.removeLoadingMap.set(lenderAddress, false);
+    whitelistStore.whitelistedKeepers.forEach((address: string) => {
+        state.removeLoadingMap.set(address, false);
         state.whitelist.push({
-            address: lenderAddress
+            address: address
         });
     });
 
@@ -29,11 +29,11 @@ export const useLenderWhitelist = async (pendingStore: any, whitelistStore: any,
         try {
             state.isTableLoading = true;
             let tempWhitelist = [] as any;
-            await whitelistStore.initWhitelistedLenders();
-            whitelistStore.whitelistedLenders.forEach((lenderAddress: string) => {
-                state.removeLoadingMap.set(lenderAddress, false);
+            await whitelistStore.initWhitelistedKeepers();
+            whitelistStore.whitelistedKeepers.forEach((address: string) => {
+                state.removeLoadingMap.set(address, false);
                 tempWhitelist.push({
-                    address: lenderAddress
+                    address: address
                 });
             });
             state.whitelist = tempWhitelist;
@@ -42,7 +42,7 @@ export const useLenderWhitelist = async (pendingStore: any, whitelistStore: any,
             state.isTableLoading = false;
             console.error(error);
             pendingStore.enqueue({
-                title: "Whitelist: Lender",
+                title: "Whitelist: Keeper",
                 message: "Refresh table failed. Please refresh page manually.",
                 color: "warning"
             });
@@ -53,7 +53,7 @@ export const useLenderWhitelist = async (pendingStore: any, whitelistStore: any,
         let tx;
         let result;
         try {
-            tx = await whitelistStore.getWhitelistInstance.removeLenderWhitelisted(
+            tx = await whitelistStore.getWhitelistInstance.removeKeeperWhitelisted(
                 address
             );
         } catch (error) {
@@ -69,7 +69,7 @@ export const useLenderWhitelist = async (pendingStore: any, whitelistStore: any,
             reloadTable();
             state.removeLoadingMap.set(address, false);
             pendingStore.enqueue({
-                title: "Whitelist: Lender",
+                title: "Whitelist: Keeper",
                 message: "Remove account [" +
                     utils.shortenAddress(address) +
                     "] from whitelist success.",
@@ -80,7 +80,7 @@ export const useLenderWhitelist = async (pendingStore: any, whitelistStore: any,
             pendingStore.decrement();
             state.removeLoadingMap.set(address, false);
             pendingStore.enqueue({
-                title: "Whitelist: Lender",
+                title: "Whitelist: Keeper",
                 message: `Remove account [${utils.shortenAddress(address)}] from whitelist failed. (${utils.filterRevertMsg((error as any).message)})`,
                 color: "danger"
             });
@@ -91,13 +91,13 @@ export const useLenderWhitelist = async (pendingStore: any, whitelistStore: any,
         let tx;
         let result;
         try {
-            tx = await whitelistStore.getWhitelistInstance.addLenderWhitelisted(
+            tx = await whitelistStore.getWhitelistInstance.addKeeperWhitelisted(
                 address
             );
             state.isAddLoading = true;
             pendingStore.increment();
             state.isAddLoading = false;
-            state.newLenderAddress = "";
+            state.newKeeperAddress = "";
             console.log(tx);
         } catch (error) {
             console.error(error);
@@ -109,7 +109,7 @@ export const useLenderWhitelist = async (pendingStore: any, whitelistStore: any,
             console.log("add result: ", result);
             reloadTable();
             pendingStore.enqueue({
-                title: "Whitelist: Lender",
+                title: "Whitelist: Keeper",
                 message: "Add account [" +
                     utils.shortenAddress(address) +
                     "] to whitelist success.",
@@ -119,7 +119,7 @@ export const useLenderWhitelist = async (pendingStore: any, whitelistStore: any,
             console.error(error);
             pendingStore.decrement();
             pendingStore.enqueue({
-                title: "Whitelist: Lender",
+                title: "Whitelist: Keeper",
                 message: `Add account [${utils.shortenAddress(address)}] to whitelist failed. (${utils.filterRevertMsg((error as any).message)})`,
                 color: "danger"
             });

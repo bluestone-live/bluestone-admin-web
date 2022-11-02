@@ -35,6 +35,7 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
             "priority_high",
         ],
 
+        isKeeper: whitelistStore.isKeeper,
         whitelistedBorrowers: whitelistStore.whitelistedBorrowers,
 
         borrowerValueForFilter: "",   // filter loaner records by input
@@ -326,9 +327,10 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
             );
             if (state.lastFilter === "input") {
                 filterByInput();
-            }
-            if (state.lastFilter === "toggle") {
+            } else if (state.lastFilter === "toggle") {
                 filterByToggle();
+            } else {
+                state.filteredLoanRecords = state.handledLoanRecords;
             }
         } catch (error) {
             console.error(error);

@@ -15,6 +15,7 @@
         "dashboard": "Dashboard",
         "whitelist": "Whitelist",
         "administrator": "Administrator",
+        "keeper": "Keeper",
         "lender": "Lender",
         "borrower": "Borrower",
         "loanlist": "Loan List",
@@ -47,6 +48,12 @@
             "newTitle": "Add New Administrator",
             "newButton": "Add To Whitelist",
             "addedTitle": "Administrators Whitelist",
+            "filteredCount": "Number of filtered items:"
+        },
+        "keeper":{
+            "newTitle": "Add New Keeper",
+            "newButton": "Add To Whitelist",
+            "addedTitle": "Keepers Whitelist",
             "filteredCount": "Number of filtered items:"
         },
         "lender":{

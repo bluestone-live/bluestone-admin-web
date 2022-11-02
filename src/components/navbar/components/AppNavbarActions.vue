@@ -1,34 +1,32 @@
 <template>
   <div class="app-navbar-actions">
-    <va-dropdown fixed position="bottom">
-      <template #anchor>
-        <img
-          class="selected-dropdown-icons mr-3"
-          :src="dropdownMap.get(selectedWallet)"
-        />
-      </template>
-      <va-dropdown-content class="pl-4 pr-4 pt-2 pb-2">
-        <div
-          class="dropdown-items mt-3 mb-2"
-          v-for="item in dropdownMap"
-          @click="selectWallet(item[0])"
-          :key="item[1]"
-        >
-          <img class="mr-2" :src="item[1]" />
-          <span>{{ item[0] }}</span>
-        </div>
-      </va-dropdown-content>
-    </va-dropdown>
-
-    <va-badge right :text="badgePendingCount" color="warning" class="mr-4">
+    <va-badge
+      right
+      :text="state.badgePendingCount"
+      color="warning"
+      class="mr-4"
+    >
       <va-button
-        v-if="isWalletConnect"
-        :color="showPending ? 'success' : isNetworkErr ? 'danger' : 'primary'"
+        :color="
+          state.showPending
+            ? 'success'
+            : state.isNetworkErr
+            ? 'danger'
+            : state.isOwner
+            ? 'dark'
+            : 'primary'
+        "
+        @click="copyAddressToClipboard()"
       >
         <template #default>
-          <div v-if="!showPending">
-            <va-icon class="mr-1" name="settings"></va-icon>
-            {{ accountAddress }}
+          <div v-if="!state.showPending">
+            <va-icon
+              v-if="state.isOwner"
+              class="mr-1"
+              name="settings"
+            ></va-icon>
+            <va-icon v-else class="mr-1" name="manage_accounts"></va-icon>
+            {{ state.accountAddress }}
           </div>
           <div v-else>
             <va-icon
@@ -40,119 +38,46 @@
           </div>
         </template>
       </va-button>
-      <va-button v-else @click="connectWallet" color="danger">
-        <template #default>
-          <va-icon class="mr-1" name="wallet"></va-icon>
-          {{ accountAddress }}
-        </template>
-      </va-button>
     </va-badge>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "vue";
+import { defineComponent, watch } from "vue";
 import { usePendingStore } from "@/store/Pending";
 import { useAccountStore } from "@/store/Account";
 import { useCommonStore } from "@/store/Common";
-import { NetworkType, WalletSelector } from "@/services/types";
-import utils from "@/utils/index";
+import { useNavbar } from "@/services/navbar";
 export default defineComponent({
   name: "app-navbar-actions",
   async setup() {
     const commonStore = useCommonStore();
     const pendingStore = usePendingStore();
     const accountStore = useAccountStore();
-
     if (!accountStore.isInited) {
       await accountStore.init();
     }
-
-    let isWalletConnect = ref(
-      commonStore.wallet == WalletSelector.Disconnect ? false : true
+    let { state, copyAddressToClipboard } = useNavbar(
+      commonStore,
+      accountStore,
+      pendingStore
     );
-    let accountAddress = ref(utils.shortenAddress(accountStore.getAccount));
-
-    const dropdownMap = new Map<WalletSelector, any>();
-    dropdownMap.set(
-      WalletSelector.MetaMask,
-      new URL("../../../assets/wallet/metamask.svg", import.meta.url).href
-    );
-    dropdownMap.set(
-      WalletSelector.WalletConnect,
-      new URL("../../../assets/wallet/walletconnect.svg", import.meta.url).href
-    );
-    dropdownMap.set(
-      WalletSelector.Disconnect,
-      new URL("../../../assets/wallet/disconnect.svg", import.meta.url).href
-    );
-
-    let selectedWallet = ref(commonStore.wallet);
-
-    let iconName = ref("settings");
-    let badgePendingCount = ref(0);
-    let showPending = ref(false);
-    let isNetworkErr = ref(false);
 
     watch(
-      () => commonStore.wallet,
-      (cur) => {
-        if (commonStore.wallet == WalletSelector.Disconnect) {
-          isWalletConnect.value = false;
-          accountAddress.value = "Connect Wallet";
+      () => pendingStore.pendingCount,
+      (newValue) => {
+        if (newValue === 0) {
+          state.showPending = false;
         } else {
-          selectedWallet.value = cur;
-          accountAddress.value = utils.shortenAddress(accountStore.getAccount);
-          isWalletConnect.value = true;
+          state.showPending = true;
         }
+        state.badgePendingCount = newValue;
       }
     );
 
-    pendingStore.$subscribe(() => {
-      if (pendingStore.pendingCount === 0) {
-        showPending.value = false;
-      } else {
-        showPending.value = true;
-      }
-      badgePendingCount.value = pendingStore.pendingCount;
-    });
-
-    async function connectWallet() {
-      await accountStore.reconnectWallet();
-    }
-
-    async function selectWallet(wallet: WalletSelector) {
-      if (wallet != WalletSelector.Disconnect) {
-        commonStore.setWallet(wallet);
-        location.reload();
-      } else {
-        await accountStore.disconnectWallet();
-      }
-    }
-
-    if (
-      commonStore.networkType != NetworkType.Kovan &&
-      commonStore.networkType != NetworkType.Goerli
-    ) {
-      isNetworkErr.value = true;
-      pendingStore.enqueue({
-        title: "MetaMask",
-        message: "Please change Network to Kovan, Goerli testnet.",
-        color: "danger",
-      });
-    }
-
     return {
-      iconName,
-      selectedWallet,
-      dropdownMap,
-      showPending,
-      isWalletConnect,
-      accountAddress,
-      isNetworkErr,
-      badgePendingCount,
-      connectWallet,
-      selectWallet,
+      state,
+      copyAddressToClipboard,
     };
   },
 });

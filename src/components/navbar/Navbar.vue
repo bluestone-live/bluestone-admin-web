@@ -19,8 +19,7 @@
 
       <template v-slot:right>
         <Suspense>
-          <template #fallback>
-          </template>
+          <template #fallback> </template>
           <app-navbar-actions class="app-navbar__actions md5 lg4" />
         </Suspense>
       </template>
@@ -31,7 +30,7 @@
 <script lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { useCommonStore } from "@/store/Common";
-import { useNavbarStore } from "@/store/Navbar";
+import { useSidebarStore } from "@/store/Sidebar";
 import { useColors } from "vuestic-ui";
 import VuesticLogo from "@/components/vuestic-logo.vue";
 import VaIconMenuCollapsed from "@/components/icons/VaIconMenuCollapsed.vue";
@@ -48,7 +47,7 @@ export default {
   setup() {
     const { getColors } = useColors();
     const colors = computed(() => getColors());
-    const sidebarStore = useNavbarStore();
+    const sidebarStore = useSidebarStore();
     const commonStore = useCommonStore();
     const isSidebarMinimized = computed({
       get: () => sidebarStore.sidebarMinimized,
@@ -64,12 +63,6 @@ export default {
       (commonStore.getEthersProvider as any).provider.on("chainChanged", () => {
         location.reload();
       });
-      (commonStore.getEthersProvider as any).provider.on(
-        "disconnect",
-        (code: number, reason: string) => {
-          commonStore.setWallet(WalletSelector.Disconnect);
-        }
-      );
     });
 
     return {

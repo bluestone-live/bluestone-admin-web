@@ -1,23 +1,22 @@
 import { defineStore } from 'pinia'
 import { useCommonStore } from "./Common"
-import { WalletSelector } from '@/services/types'
 export const useAccountStore = defineStore('account', {
   state: () => ({
     isInited: false,
     commonStore: useCommonStore(),
-    preWallet: WalletSelector.MetaMask,
-    accounts: [] as string[],
+    account: "",
+    isOwner: false,
   }),
   getters: {
     getAccount(): string {
-      return this.accounts[0]
+      return this.account;
     },
   },
   actions: {
     async init() {
       try {
-        this.initPreWallet()
         await this.initAccounts()
+        await this.initOwnership()
         this.isInited = true
         console.log("[Account]: Account Store init success.")
       } catch (error) {
@@ -25,33 +24,13 @@ export const useAccountStore = defineStore('account', {
         console.error(error)
       }
     },
-    initPreWallet() {
-      this.preWallet = this.commonStore.wallet as WalletSelector;
-    },
     async initAccounts() {
-      if (this.commonStore.wallet == WalletSelector.WalletConnect) {
-        this.accounts = await this.commonStore.getWallectConnectProvider.enable();
-        this.commonStore.setWallet(WalletSelector.WalletConnect)
-      } else if (this.commonStore.wallet == WalletSelector.MetaMask) {
-        this.accounts = await this.commonStore.getEthersProvider.send("eth_requestAccounts", []);
-        this.commonStore.setWallet(WalletSelector.MetaMask)
-      }
+      this.account = await this.commonStore.safeInfo.safeAddress
+      console.log("account=", this.account)
     },
-    async disconnectWallet() {
-      if(this.commonStore.wallet == WalletSelector.WalletConnect) {
-        await this.commonStore.getWallectConnectProvider.disconnect();
-      } 
-      this.preWallet = this.commonStore.wallet as WalletSelector;
-      this.commonStore.setWallet(WalletSelector.Disconnect);
-    },
-    async reconnectWallet() {
-      if (this.preWallet == WalletSelector.WalletConnect) {
-        this.accounts = await this.commonStore.getWallectConnectProvider.enable();
-        this.commonStore.setWallet(WalletSelector.WalletConnect)
-      } else if (this.preWallet == WalletSelector.MetaMask) {
-        this.accounts = await this.commonStore.getEthersProvider.send("eth_requestAccounts", []);
-        this.commonStore.setWallet(WalletSelector.MetaMask)
-      }
+    async initOwnership() {
+      const owner = await this.commonStore.getProtocol.owner()
+      this.isOwner = this.account.toLowerCase() === owner.toLowerCase()
     }
   },
 })

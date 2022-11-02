@@ -1,6 +1,6 @@
 <template>
   <div class="flex xs12 md12 xl12">
-    <va-card class="mb-4" :disabled="!state.isAdministrator">
+    <va-card class="mb-4" :disabled="!state.isOwner">
       <va-card-title>
         <h1>{{ $t("whitelist.lender.newTitle") }}</h1>
       </va-card-title>
@@ -23,7 +23,7 @@
       class="d-flex"
       stripe
       stripe-color="info"
-      :disabled="!state.isAdministrator"
+      :disabled="!state.isOwner"
     >
       <va-card-title>
         <h1>{{ $t("whitelist.lender.addedTitle") }}</h1>
@@ -78,7 +78,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useCommonStore } from "@/store/Common";
 import { useAccountStore } from "@/store/Account";
 import { useWhitelistStore } from "@/store/Whitelist";
 import { usePendingStore } from "@/store/Pending";
@@ -87,7 +86,6 @@ import { useLenderWhitelist } from "@/services/whitelist/lender";
 export default defineComponent({
   name: "LenderWhitelist",
   async setup(props, ctx) {
-    const commonStore = useCommonStore();
     const accountStore = useAccountStore();
     const pendingStore = usePendingStore();
     const whitelistStore = useWhitelistStore();
@@ -96,7 +94,6 @@ export default defineComponent({
     }
 
     let { state, removeWhitelist, addWhitelist } = await useLenderWhitelist(
-      commonStore,
       pendingStore,
       whitelistStore,
       accountStore

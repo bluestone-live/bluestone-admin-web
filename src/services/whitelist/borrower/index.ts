@@ -1,9 +1,9 @@
 import utils from "@/utils";
 import { reactive } from "vue";
 
-export const useBorrowerWhitelist = async (commonStore: any, accountStore: any, pendingStore: any, whitelistStore: any, loanStore: any) => {
+export const useBorrowerWhitelist = async (accountStore: any, pendingStore: any, whitelistStore: any, loanStore: any) => {
     const state = reactive({
-        isAdministrator: false,
+        isOwner: accountStore.isOwner,
         columns: [
             { key: "id" },
             { key: "address" },
@@ -19,7 +19,6 @@ export const useBorrowerWhitelist = async (commonStore: any, accountStore: any, 
         removeLoadingMap: new Map(),
     })
 
-    state.isAdministrator = await commonStore.getProtocol.isAdministrator(accountStore.getAccount);
     whitelistStore.whitelistedBorrowers.forEach((borrowerAddress: string) => {
         let borrowerStatus =
             loanStore.getActiveBorrowers.indexOf(borrowerAddress) >= 0 ? "active" : "inactive";

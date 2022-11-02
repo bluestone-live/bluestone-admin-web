@@ -1,6 +1,6 @@
 import { defineStore } from "pinia"
 
-export const useNavbarStore = defineStore('navbar', {
+export const useSidebarStore = defineStore('navbar', {
     state: () => ({
         sidebarMinimized: false,
     }),

@@ -6,14 +6,16 @@ import protocolDeclareFile from "@/contracts/Protocol.json"
 import mappingInterestRateModelDeclareFile from "@/contracts/MappingInterestRateModel.json"
 import erc20DeclareFile from "@/contracts/ERC20Mock.json"
 import { WalletSelector, NetworkType, INetworkFile } from "@/services/types";
-import WalletConnectProvider from "@walletconnect/web3-provider";
+import initSdk from '@gnosis.pm/safe-apps-sdk';
+import { SafeAppProvider } from '@gnosis.pm/safe-apps-provider';
 
 export const useCommonStore = defineStore('common', {
     state: () => ({
         isInited: false,
         wallet: WalletSelector.Disconnect,
         walletInited: false,
-        provider: {} as any,
+        // provider: {} as any,
+        safeInfo: {} as any,
         ethersInstance: {} as providers.Web3Provider,
         networkType: NetworkType.None,
         networkFile: {} as INetworkFile,
@@ -25,9 +27,9 @@ export const useCommonStore = defineStore('common', {
         tokens: {} as INetworkFile["tokens"],
     }),
     getters: {
-        getWallectConnectProvider(state) {
-            return toRaw(state.provider) 
-        },
+        // getWallectConnectProvider(state) {
+        //     return toRaw(state.provider)
+        // },
         getEthersProvider(state) {
             return toRaw(state.ethersInstance)
         },
@@ -59,44 +61,10 @@ export const useCommonStore = defineStore('common', {
             }
         },
 
-        initWallet() {
-            let walletString = window.localStorage.getItem("wallet")
-            switch(walletString) {
-                case WalletSelector.MetaMask:
-                    this.wallet = WalletSelector.MetaMask;
-                    break;
-                case WalletSelector.WalletConnect:
-                    this.wallet = WalletSelector.WalletConnect;
-                    break;
-                default:
-                    // this.wallet = WalletSelector.Disconnect;
-                    break;
-            }
-            this.walletInited = true;
-        },
-
-        setWallet(selectedWallet: WalletSelector) {
-            this.wallet = selectedWallet as any
-            window.localStorage.setItem("wallet", selectedWallet as string);
-            console.log("[Common]: Storage Wallet setted: ", this.wallet)
-        },
-
         async initEthersInstance() {
-            if (this.wallet == WalletSelector.MetaMask) {
-                if ((window as any).ethereum) {
-                    this.ethersInstance = new ethers.providers.Web3Provider((window as any).ethereum)
-                } else {
-                    throw new Error(
-                        'Ethers Instance init error: Require global web3 provider.'
-                    )
-                }
-            } else if (this.wallet == WalletSelector.WalletConnect) {
-                this.provider = new WalletConnectProvider({
-                    infuraId: "76eca7933f9a4b73a2438632bfd0180b",
-                })
-                await this.provider.enable()
-                this.ethersInstance = new ethers.providers.Web3Provider(this.provider)
-            }
+            const appsSdk = new initSdk();
+            this.safeInfo = await appsSdk.safe.getInfo();
+            this.ethersInstance = new ethers.providers.Web3Provider(new SafeAppProvider(this.safeInfo, appsSdk));
         },
 
         async initNetworkType() {
@@ -119,7 +87,7 @@ export const useCommonStore = defineStore('common', {
                 mappingInterestRateModelDeclareFile.abi,
                 (this.getEthersProvider as any).getSigner()
             )
-            
+
             this.tokens = this.networkFile.tokens
         },
 

@@ -2,20 +2,20 @@
   <div class="flex xs12 md12 xl12">
     <va-card class="mb-4" :disabled="!state.isOwner">
       <va-card-title>
-        <h1>{{ $t("whitelist.borrower.newTitle") }}</h1>
+        <h1>{{ $t("whitelist.keeper.newTitle") }}</h1>
       </va-card-title>
       <va-card-content>
         <va-input
           class="mb-4"
-          v-model="state.newBorrowerAddress"
-          label="Borrower Address"
+          v-model="state.newKeeperAddress"
+          label="Keeper Address"
           placeholder="0x..."
           :disabled="state.isAddLoading"
         />
         <va-button
-          @click="addWhitelist(state.newBorrowerAddress)"
+          @click="addWhitelist(state.newKeeperAddress)"
           :loading="state.isAddLoading"
-          >{{ $t("whitelist.borrower.newButton") }}</va-button
+          >{{ $t("whitelist.keeper.newButton") }}</va-button
         >
       </va-card-content>
     </va-card>
@@ -26,7 +26,7 @@
       :disabled="!state.isOwner"
     >
       <va-card-title>
-        <h1>{{ $t("whitelist.borrower.addedTitle") }}</h1>
+        <h1>{{ $t("whitelist.keeper.addedTitle") }}</h1>
       </va-card-title>
       <va-card-content>
         <div class="row">
@@ -51,16 +51,6 @@
           <template #cell(address)="{ value }">
             {{ value }}
           </template>
-          <template #cell(status)="{ value }">
-            <va-chip
-              square
-              outline
-              size="small"
-              :color="value == 'active' ? 'success' : 'danger'"
-              :icon="value == 'active' ? 'credit_score' : 'credit_card_off'"
-              >{{ value }}</va-chip
-            >
-          </template>
           <template #cell(option)="{ rowIndex }">
             <va-button
               size="small"
@@ -69,14 +59,15 @@
                 state.removeLoadingMap.get(state.whitelist[rowIndex].address)
               "
               @click="removeWhitelist(state.whitelist[rowIndex].address)"
-              >Remove</va-button
             >
+              Remove
+            </va-button>
           </template>
         </va-data-table>
 
         <va-alert class="mt-3" color="info" outline>
           <span>
-            {{ $t("whitelist.borrower.filteredCount") }}
+            {{ $t("whitelist.keeper.filteredCount") }}
             <va-chip>{{ state.filteredCount }}</va-chip>
           </span>
         </va-alert>
@@ -87,32 +78,25 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useCommonStore } from "@/store/Common";
-import { useLoanStore } from "@/store/Loan";
 import { useAccountStore } from "@/store/Account";
 import { useWhitelistStore } from "@/store/Whitelist";
 import { usePendingStore } from "@/store/Pending";
-import { useBorrowerWhitelist } from "@/services/whitelist/borrower";
+import { useKeeperWhitelist } from "@/services/whitelist/keeper";
 
 export default defineComponent({
-  name: "BorrowerWhitelist",
+  name: "KeeperWhitelist",
   async setup(props, ctx) {
-    const pendingStore = usePendingStore();
     const accountStore = useAccountStore();
+    const pendingStore = usePendingStore();
     const whitelistStore = useWhitelistStore();
-    const loanStore = useLoanStore();
     if (!whitelistStore.isInited) {
       await whitelistStore.init();
     }
-    if (!loanStore.isInited) {
-      await loanStore.init();
-    }
 
-    let { state, removeWhitelist, addWhitelist } = await useBorrowerWhitelist(
-      accountStore,
+    let { state, removeWhitelist, addWhitelist } = await useKeeperWhitelist(
       pendingStore,
       whitelistStore,
-      loanStore
+      accountStore
     );
 
     return {

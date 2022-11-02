@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { useNavbarStore } from "@/store/Navbar";
+import { useSidebarStore } from "@/store/Sidebar";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { onBeforeRouteUpdate } from "vue-router";
 import Sidebar from "@/components/sidebar/Sidebar.vue";
@@ -33,7 +33,7 @@ export default {
   },
 
   setup() {
-    const sidebarStore = useNavbarStore();
+    const sidebarStore = useSidebarStore();
     const mobileBreakPointPX = 640;
     const tabletBreakPointPX = 768;
 

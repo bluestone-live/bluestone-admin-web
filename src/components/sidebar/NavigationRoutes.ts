@@ -18,9 +18,13 @@ export default {
         icon: 'vuestic-iconset-forms',
       },
       children: [
+        // {
+        //   name: "Administrator",
+        //   displayName: 'menu.administrator',
+        // },
         {
-          name: "Administrator",
-          displayName: 'menu.administrator',
+          name: "Keeper",
+          displayName: 'menu.keeper',
         },
         {
           name: 'Lender',
