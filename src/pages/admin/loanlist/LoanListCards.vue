@@ -218,7 +218,7 @@
                   :key="'separator' + keyRecord"
                 />
               </template>
-              <div class="loanDetail-buttons">
+              <div v-if="state.isKeeper" class="loanDetail-buttons">
                 <span>
                   <va-button
                     class="mr-4 mb-2"

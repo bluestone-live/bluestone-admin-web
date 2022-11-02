@@ -4,9 +4,9 @@ import { BigNumber, ethers } from "ethers";
 import utils from "@/utils";
 import { TokenType } from "../types";
 
-export const useConfiguration = async (commonStore: any, whitelistStore: any, pendingStore: any) => {
+export const useConfiguration = async (commonStore: any, accountStore: any, pendingStore: any) => {
     const state = reactive({
-        administrators: whitelistStore.administrators,
+        isOwner: accountStore.isOwner,
         openSetGatewayAddress: false,
         openSetInterestRateModel: false,
         openSetMinCollateralCoverageRatio: false,
@@ -27,11 +27,12 @@ export const useConfiguration = async (commonStore: any, whitelistStore: any, pe
         inputMinCollateralCoverageRatioOfXBTC: "",
         isSetInterestRateModelLoading: false,
         isSetGatewayAddressLoading: false,
-        isSetMinCollateralCoverageRatioLoading: false,
+        isSetETHMinCollateralCoverageRatioLoading: false,
+        isSetXBTCMinCollateralCoverageRatioLoading: false,
     })
 
     await Promise.all([
-        initInterestRateModelParams(),
+        initInterestRates(),
         initCurrentMinCollateralRatio(),
     ])
 
@@ -94,12 +95,12 @@ export const useConfiguration = async (commonStore: any, whitelistStore: any, pe
         });
     }
 
-    const setInterestRateParameters = async () => {
-        const terms = state.inputTermList.toString().replace(/\s*/g,"").split(",").map((term) => BigNumber.from(term));
-        const interestRates = state.inputInterestRateList.toString().replace(/\s*/g,"").split(",").map((interestRate) => ethers.utils.parseUnits(interestRate, "ether"));
+    const setInterestRates = async () => {
+        const terms = state.inputTermList.toString().replace(/\s*/g, "").split(",").map((term) => BigNumber.from(term));
+        const interestRates = state.inputInterestRateList.toString().replace(/\s*/g, "").split(",").map((interestRate) => ethers.utils.parseUnits(interestRate, "ether"));
         let tx, result;
         try {
-            tx = await commonStore.getInterestRateModel.setLoanParameters(
+            tx = await commonStore.getInterestRateModel.setRates(
                 commonStore.getTokens.SGC.address,
                 terms,
                 interestRates,
@@ -108,7 +109,7 @@ export const useConfiguration = async (commonStore: any, whitelistStore: any, pe
             console.error(error);
             pendingStore.enqueue({
                 title: "Configuration",
-                message: `Set parameters of InterestRateModel failed. (${utils.filterRevertMsg((error as any).message)})`,
+                message: `Set interest rates of InterestRateModel failed. (${utils.filterRevertMsg((error as any).message)})`,
                 color: "danger"
             });
             return;
@@ -120,7 +121,7 @@ export const useConfiguration = async (commonStore: any, whitelistStore: any, pe
             console.log("setInterestRateParameters result: ", result);
             pendingStore.enqueue({
                 title: "Configuration",
-                message: `Set InterestRateParameters [${state.inputTermList}] => [${state.inputInterestRateList}] success.`,
+                message: `Set interest rates [${state.inputTermList}] => [${state.inputInterestRateList}] success.`,
                 color: "success"
             });
             state.isSetInterestRateModelLoading = false;
@@ -129,15 +130,15 @@ export const useConfiguration = async (commonStore: any, whitelistStore: any, pe
             console.error(error);
             pendingStore.enqueue({
                 title: "Configuration",
-                message: `Set parameters of InterestRateModel failed. (${utils.filterRevertMsg((error as any).message)})`,
+                message: `Set interest rates of InterestRateModel failed. (${utils.filterRevertMsg((error as any).message)})`,
                 color: "danger"
             });
             state.isSetInterestRateModelLoading = false;
             pendingStore.decrement();
             return
-        } 
+        }
         try {
-            await initInterestRateModelParams();
+            await initInterestRates();
             state.chartNeedRefresh = true;
         } catch (error) {
             console.error(error);
@@ -148,70 +149,106 @@ export const useConfiguration = async (commonStore: any, whitelistStore: any, pe
         state.currentGatewayAddress = state.inputGatewayAddress;
     }
 
-    const setMinCollateralCoverageRatio = async () => {
-        let tx1, tx2, result1, result2;
+    const setMinCollateralCoverageRatioForETH = async () => {
+        let tx, result;
         try {
-            [tx1, tx2] = await Promise.all([
-                commonStore.getProtocol.setLoanAndCollateralTokenPair(
+            tx = await commonStore.getProtocol.setLoanAndCollateralTokenPair(
                     commonStore.getTokens.SGC.address,
                     commonStore.getTokens.ETH.address,
                     ethers.utils.parseUnits(String(parseFloat(state.inputMinCollateralCoverageRatioOfETH) / 100), "ether"),
                     ethers.utils.parseUnits("0.05", "ether")
-                ),
-                commonStore.getProtocol.setLoanAndCollateralTokenPair(
-                    commonStore.getTokens.SGC.address,
-                    commonStore.getTokens.xBTC.address,
-                    ethers.utils.parseUnits(String(parseFloat(state.inputMinCollateralCoverageRatioOfXBTC) / 100), "ether"),
-                    ethers.utils.parseUnits("0.05", "ether")
-                ),
-            ])
+                );
         } catch (error) {
             console.error(error);
             pendingStore.enqueue({
                 title: "Configuration",
-                message: `Set Min CollateralCoverageRatio failed. (${utils.filterRevertMsg((error as any).message)})`,
+                message: `Set Min CollateralCoverageRatio for token pair ETH-SGC failed. (${utils.filterRevertMsg((error as any).message)})`,
                 color: "danger"
             });
             return;
         }
         try {
-            state.isSetMinCollateralCoverageRatioLoading = true;
+            state.isSetETHMinCollateralCoverageRatioLoading = true;
             pendingStore.increment();
-            [result1, result2] = await Promise.all([
-                tx1.wait(),
-                tx2.wait(),
-            ])
-            console.log("setMinCollateralCoverageRatio result1: ", result1);
-            console.log("setMinCollateralCoverageRatio result2: ", result2);
+            result = await tx.wait();
+            console.log("setMinCollateralCoverageRatioForETH result: ", result);
             pendingStore.enqueue({
                 title: "Configuration",
-                message: "Set MinCollateralCoverageRatio for collateral token pairs success.",
+                message: "Set MinCollateralCoverageRatio for token pair ETH-SGC success.",
                 color: "success"
             });
-            state.isSetMinCollateralCoverageRatioLoading = false;
+            state.isSetETHMinCollateralCoverageRatioLoading = false;
             pendingStore.decrement();
         } catch (error) {
             console.error(error);
             pendingStore.enqueue({
                 title: "Configuration",
-                message: `Set Min CollateralCoverageRatio failed. (${utils.filterRevertMsg((error as any).message)})`,
+                message: `Set Min CollateralCoverageRatio for token pair ETH-SGC failed. (${utils.filterRevertMsg((error as any).message)})`,
                 color: "danger"
             });
-            state.isSetMinCollateralCoverageRatioLoading = false;
+            state.isSetETHMinCollateralCoverageRatioLoading = false;
             pendingStore.decrement();
             return;
         }
         try {
             await initCurrentMinCollateralRatio();
-        } catch(error) {
+        } catch (error) {
             console.error(error);
         }
     }
 
-    async function initInterestRateModelParams() {
-        const rawParams = await commonStore.getInterestRateModel.getLoanParameters(commonStore.tokens.SGC.address);
-        const termList = rawParams.termList.map((term: BigNumber) => term.toNumber());
-        const interestRateList = rawParams.interestRateList.map((interestRate: BigNumber) => ethers.utils.formatEther(interestRate));
+    const setMinCollateralCoverageRatioForXBTC = async () => {
+        let tx, result;
+        try {
+            tx = await commonStore.getProtocol.setLoanAndCollateralTokenPair(
+                commonStore.getTokens.SGC.address,
+                commonStore.getTokens.xBTC.address,
+                ethers.utils.parseUnits(String(parseFloat(state.inputMinCollateralCoverageRatioOfXBTC) / 100), "ether"),
+                ethers.utils.parseUnits("0.05", "ether")
+            );
+        } catch (error) {
+            console.error(error);
+            pendingStore.enqueue({
+                title: "Configuration",
+                message: `Set Min CollateralCoverageRatio for token pair XBTC-SGC failed. (${utils.filterRevertMsg((error as any).message)})`,
+                color: "danger"
+            });
+            return;
+        }
+        try {
+            state.isSetXBTCMinCollateralCoverageRatioLoading = true;
+            pendingStore.increment();
+            result = await tx.wait();
+            console.log("setMinCollateralCoverageRatioForXBTC result: ", result);
+            pendingStore.enqueue({
+                title: "Configuration",
+                message: "Set MinCollateralCoverageRatio for token pair XBTC-SGC success.",
+                color: "success"
+            });
+            state.isSetXBTCMinCollateralCoverageRatioLoading = false;
+            pendingStore.decrement();
+        } catch (error) {
+            console.error(error);
+            pendingStore.enqueue({
+                title: "Configuration",
+                message: `Set Min CollateralCoverageRatio for token pair XBTC-SGC failed. (${utils.filterRevertMsg((error as any).message)})`,
+                color: "danger"
+            });
+            state.isSetXBTCMinCollateralCoverageRatioLoading = false;
+            pendingStore.decrement();
+            return;
+        }
+        try {
+            await initCurrentMinCollateralRatio();
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async function initInterestRates() {
+        const interestDetail = await commonStore.getInterestRateModel.getAllRates(commonStore.tokens.SGC.address);
+        const termList = interestDetail.termList.map((term: BigNumber) => term.toNumber());
+        const interestRateList = interestDetail.interestRateList.map((interestRate: BigNumber) => ethers.utils.formatEther(interestRate));
         state.currentInterestRateParams = { termList, interestRateList };
     }
 
@@ -234,9 +271,10 @@ export const useConfiguration = async (commonStore: any, whitelistStore: any, pe
     return {
         state,
         initChart,
-        setInterestRateParameters,
+        setInterestRates,
         setGatewayAddress,
-        setMinCollateralCoverageRatio,
+        setMinCollateralCoverageRatioForETH,
+        setMinCollateralCoverageRatioForXBTC
     }
 }
 

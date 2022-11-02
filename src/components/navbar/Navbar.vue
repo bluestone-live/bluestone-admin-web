@@ -30,7 +30,7 @@
 <script lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { useCommonStore } from "@/store/Common";
-import { useNavbarStore } from "@/store/Navbar";
+import { useSidebarStore } from "@/store/Sidebar";
 import { useColors } from "vuestic-ui";
 import VuesticLogo from "@/components/vuestic-logo.vue";
 import VaIconMenuCollapsed from "@/components/icons/VaIconMenuCollapsed.vue";
@@ -47,7 +47,7 @@ export default {
   setup() {
     const { getColors } = useColors();
     const colors = computed(() => getColors());
-    const sidebarStore = useNavbarStore();
+    const sidebarStore = useSidebarStore();
     const commonStore = useCommonStore();
     const isSidebarMinimized = computed({
       get: () => sidebarStore.sidebarMinimized,

@@ -35,6 +35,7 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
             "priority_high",
         ],
 
+        isKeeper: whitelistStore.isKeeper,
         whitelistedBorrowers: whitelistStore.whitelistedBorrowers,
 
         borrowerValueForFilter: "",   // filter loaner records by input

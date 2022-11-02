@@ -12,13 +12,20 @@
             ? 'success'
             : state.isNetworkErr
             ? 'danger'
+            : state.isOwner
+            ? 'dark'
             : 'primary'
         "
         @click="copyAddressToClipboard()"
       >
         <template #default>
           <div v-if="!state.showPending">
-            <va-icon class="mr-1" name="manage_accounts"></va-icon>
+            <va-icon
+              v-if="state.isOwner"
+              class="mr-1"
+              name="settings"
+            ></va-icon>
+            <va-icon v-else class="mr-1" name="manage_accounts"></va-icon>
             {{ state.accountAddress }}
           </div>
           <div v-else>

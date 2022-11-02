@@ -5,6 +5,7 @@ export const useAccountStore = defineStore('account', {
     isInited: false,
     commonStore: useCommonStore(),
     account: "",
+    isOwner: false,
   }),
   getters: {
     getAccount(): string {
@@ -15,6 +16,7 @@ export const useAccountStore = defineStore('account', {
     async init() {
       try {
         await this.initAccounts()
+        await this.initOwnership()
         this.isInited = true
         console.log("[Account]: Account Store init success.")
       } catch (error) {
@@ -23,8 +25,12 @@ export const useAccountStore = defineStore('account', {
       }
     },
     async initAccounts() {
-      this.account = await this.commonStore.safeInfo.safeAddress;
-      console.log("account=", this.account);
+      this.account = await this.commonStore.safeInfo.safeAddress
+      console.log("account=", this.account)
     },
+    async initOwnership() {
+      const owner = await this.commonStore.getProtocol.owner()
+      this.isOwner = this.account.toLowerCase() === owner.toLowerCase()
+    }
   },
 })

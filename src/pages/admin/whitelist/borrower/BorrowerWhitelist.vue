@@ -1,6 +1,6 @@
 <template>
   <div class="flex xs12 md12 xl12">
-    <va-card class="mb-4" :disabled="!state.isAdministrator">
+    <va-card class="mb-4" :disabled="!state.isOwner">
       <va-card-title>
         <h1>{{ $t("whitelist.borrower.newTitle") }}</h1>
       </va-card-title>
@@ -23,7 +23,7 @@
       class="d-flex"
       stripe
       stripe-color="info"
-      :disabled="!state.isAdministrator"
+      :disabled="!state.isOwner"
     >
       <va-card-title>
         <h1>{{ $t("whitelist.borrower.addedTitle") }}</h1>
@@ -97,7 +97,6 @@ import { useBorrowerWhitelist } from "@/services/whitelist/borrower";
 export default defineComponent({
   name: "BorrowerWhitelist",
   async setup(props, ctx) {
-    const commonStore = useCommonStore();
     const pendingStore = usePendingStore();
     const accountStore = useAccountStore();
     const whitelistStore = useWhitelistStore();
@@ -110,7 +109,6 @@ export default defineComponent({
     }
 
     let { state, removeWhitelist, addWhitelist } = await useBorrowerWhitelist(
-      commonStore,
       accountStore,
       pendingStore,
       whitelistStore,

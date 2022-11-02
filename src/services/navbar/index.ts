@@ -5,6 +5,7 @@ import { NetworkType } from "@/services/types";
 export const useNavbar = (commonStore: any, accountStore: any, pendingStore: any) => {
     const state = reactive({
         isNetworkErr: false,
+        isOwner: accountStore.isOwner,
         accountAddress: utils.shortenAddress(accountStore.getAccount),
         showPending: false,
         badgePendingCount: 0,

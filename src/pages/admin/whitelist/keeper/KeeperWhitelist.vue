@@ -1,19 +1,19 @@
 <template>
   <div class="flex xs12 md12 xl12">
-    <va-card class="mb-4" :disabled="!state.isAdministrator">
+    <va-card class="mb-4" :disabled="!state.isOwner">
       <va-card-title>
         <h1>{{ $t("whitelist.keeper.newTitle") }}</h1>
       </va-card-title>
       <va-card-content>
         <va-input
           class="mb-4"
-          v-model="state.newLenderAddress"
+          v-model="state.newKeeperAddress"
           label="Keeper Address"
           placeholder="0x..."
           :disabled="state.isAddLoading"
         />
         <va-button
-          @click="addWhitelist(state.newLenderAddress)"
+          @click="addWhitelist(state.newKeeperAddress)"
           :loading="state.isAddLoading"
           >{{ $t("whitelist.keeper.newButton") }}</va-button
         >
@@ -23,7 +23,7 @@
       class="d-flex"
       stripe
       stripe-color="info"
-      :disabled="!state.isAdministrator"
+      :disabled="!state.isOwner"
     >
       <va-card-title>
         <h1>{{ $t("whitelist.keeper.addedTitle") }}</h1>
@@ -78,16 +78,14 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useCommonStore } from "@/store/Common";
 import { useAccountStore } from "@/store/Account";
 import { useWhitelistStore } from "@/store/Whitelist";
 import { usePendingStore } from "@/store/Pending";
-import { useLenderWhitelist } from "@/services/whitelist/keeper";
+import { useKeeperWhitelist } from "@/services/whitelist/keeper";
 
 export default defineComponent({
   name: "KeeperWhitelist",
   async setup(props, ctx) {
-    const commonStore = useCommonStore();
     const accountStore = useAccountStore();
     const pendingStore = usePendingStore();
     const whitelistStore = useWhitelistStore();
@@ -95,8 +93,7 @@ export default defineComponent({
       await whitelistStore.init();
     }
 
-    let { state, removeWhitelist, addWhitelist } = await useLenderWhitelist(
-      commonStore,
+    let { state, removeWhitelist, addWhitelist } = await useKeeperWhitelist(
       pendingStore,
       whitelistStore,
       accountStore

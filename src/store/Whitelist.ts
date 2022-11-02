@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useCommonStore } from "./Common"
+import { useAccountStore } from "./Account"
 import { ethers, Contract } from 'ethers'
 import { toRaw } from "@vue/reactivity"
 import whitelistDeclareFile from "@/contracts/Whitelist.json"
@@ -8,9 +9,12 @@ import whitelistDeclareFile from "@/contracts/Whitelist.json"
 export const useWhitelistStore = defineStore('whitelist', {
     state: () => ({
         isInited: false,
+        isKeeper: false,
         commonState: useCommonStore(),
+        accountStore: useAccountStore(),
         whitelistInstance: {} as Contract,
-        administrators: [],
+        // administrators: [],
+        whitelistedKeepers: [],
         whitelistedLenders: [],
         whitelistedBorrowers: [],
     }),
@@ -24,10 +28,12 @@ export const useWhitelistStore = defineStore('whitelist', {
             try {
                 this.initWhitelistInstance()
                 await Promise.all([
-                    this.initAdministrators(),
+                    // this.initAdministrators(),
+                    this.initWhitelistedKeepers(),
                     this.initWhitelistedLenders(),
                     this.initWhitelistedBorrowers()
                 ])
+                this.initIsAccountKeeper()
                 this.isInited = true
                 console.log("[Whitelist]: Whitelist Store init success.")
             } catch (error) {
@@ -42,9 +48,13 @@ export const useWhitelistStore = defineStore('whitelist', {
                 this.commonState.getEthersProvider.getSigner()
             )
         },
-        async initAdministrators() {
-            const tempArr = await this.getWhitelistInstance.getAdministrators()
-            this.administrators = tempArr
+        // async initAdministrators() {
+        //     const tempArr = await this.getWhitelistInstance.getAdministrators()
+        //     this.administrators = tempArr
+        // },
+        async initWhitelistedKeepers() {
+            const tempArr = await this.getWhitelistInstance.getWhitelistedKeepers()
+            this.whitelistedKeepers = tempArr
         },
         async initWhitelistedLenders() {
             const tempArr = await this.getWhitelistInstance.getWhitelistedLenders()
@@ -54,5 +64,13 @@ export const useWhitelistStore = defineStore('whitelist', {
             const tempArr = await this.getWhitelistInstance.getWhitelistedBorrowers()
             this.whitelistedBorrowers = tempArr
         },
+        async initIsAccountKeeper() {
+            for (const address of (this.whitelistedKeepers as string[])) {
+                if (address.toLowerCase() === this.accountStore.getAccount.toLowerCase()) {
+                    this.isKeeper = true;
+                    break;
+                }
+            }
+        }
     }
 })
