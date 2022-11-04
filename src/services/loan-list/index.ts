@@ -306,8 +306,8 @@ export const useLoanList = (commonStore: any, accountStore: any, pendingStore: a
         const remainingCollateralAmount = loanRecord.collateralAmount
             .sub(loanRecord.soldCollateralAmount)
             .sub(liquidateAmount
-                .mul(BigNumber.from("95"))
-                .div(BigNumber.from("100"))     // liquidationDiscount = 0.05;
+                .mul(BigNumber.from("100"))
+                .div(BigNumber.from("95"))     // liquidationDiscount = 0.05;
                 .mul(oracleStore.sgcPrice)
                 .div(collateralTokenPrice));
         const targetValue = remainingCollateralAmount
