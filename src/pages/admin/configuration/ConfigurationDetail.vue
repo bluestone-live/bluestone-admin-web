@@ -20,7 +20,7 @@
             class="mt-4"
             outline
             >{{
-              state.openSetInterestRateModel ? "Clear" : "Create"
+              state.openSetInterestRateModel ? "Clear" : "Edit"
             }}</va-button
           >
           <va-card
@@ -152,7 +152,7 @@
             color="primary"
             class="mt-4"
             outline
-            >{{ state.openSetGatewayAddress ? "Clear" : "Create" }}</va-button
+            >{{ state.openSetGatewayAddress ? "Clear" : "Edit" }}</va-button
           >
           <va-card
             v-if="state.openSetGatewayAddress"
@@ -225,7 +225,7 @@
             class="mt-4"
             outline
             >{{
-              state.openSetMinCollateralCoverageRatio ? "Clear" : "Create"
+              state.openSetMinCollateralCoverageRatio ? "Clear" : "Edit"
             }}</va-button
           >
           <va-card
