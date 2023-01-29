@@ -42,7 +42,7 @@
 
     <div class="flex xs12 md12">
       <va-card>
-        <va-card-title>{{ $t("dashboard.pools.title") }}</va-card-title>
+        <va-card-title>{{ $t("dashboard.loans.title") }}</va-card-title>
         <va-card-content>
           <div class="row row-separated">
             <div
