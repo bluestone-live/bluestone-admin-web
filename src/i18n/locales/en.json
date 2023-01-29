@@ -44,32 +44,50 @@
         }
     },
     "whitelist": {
-        "administrator":{
+        "common": {
+            "newButton": "Add To Whitelist",
+            "remove": "Remove",
+            "filteredCount": "Number of filtered items:"
+        },
+        "administrator": {
             "newTitle": "Add New Administrator",
-            "newButton": "Add To Whitelist",
-            "addedTitle": "Administrators Whitelist",
-            "filteredCount": "Number of filtered items:"
+            "addedTitle": "Administrators Whitelist"
         },
-        "keeper":{
+        "keeper": {
             "newTitle": "Add New Keeper",
-            "newButton": "Add To Whitelist",
-            "addedTitle": "Keepers Whitelist",
-            "filteredCount": "Number of filtered items:"
+            "addedTitle": "Keepers Whitelist"
         },
-        "lender":{
+        "lender": {
             "newTitle": "Add New Lender",
-            "newButton": "Add To Whitelist",
-            "addedTitle": "Lenders Whitelist",
-            "filteredCount": "Number of filtered items:"
+            "addedTitle": "Lenders Whitelist"
         },
         "borrower": {
             "newTitle": "Add New Borrower",
-            "newButton": "Add To Whitelist",
-            "addedTitle": "Borrowers Whitelist",
-            "filteredCount": "Number of filtered items:"
+            "addedTitle": "Borrowers Whitelist"
         }
     },
     "loanList": {
-        "loanDetailTitle": "Loan Record"
+        "loanDetailTitle": "Loan Record",
+        "marginCall": "Margin Call",
+        "liquidate": "Liquidate",
+        "modal": {
+            "safe": "Safe",
+            "all": "All"
+        }
+    },
+    "configuration": {
+        "common": {
+            "newProposal": "New Proposal",
+            "current": "Current",
+            "submit": "Submit",
+            "clear": "Clear",
+            "edit": "Edit"
+        },
+        "interestRateModel": {
+            "title": "Interest Rate Model"
+        },
+        "minCollateralRatio": {
+            "title": "Minimum Collateral Coverage Ratio"
+        }
     }
 }

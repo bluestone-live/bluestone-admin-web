@@ -15,7 +15,7 @@
         <va-button
           @click="addWhitelist(state.newBorrowerAddress)"
           :loading="state.isAddLoading"
-          >{{ $t("whitelist.borrower.newButton") }}</va-button
+          >{{ $t("whitelist.common.newButton") }}</va-button
         >
       </va-card-content>
     </va-card>
@@ -69,14 +69,14 @@
                 state.removeLoadingMap.get(state.whitelist[rowIndex].address)
               "
               @click="removeWhitelist(state.whitelist[rowIndex].address)"
-              >Remove</va-button
+              >{{ $t("whitelist.common.remove") }}</va-button
             >
           </template>
         </va-data-table>
 
         <va-alert class="mt-3" color="info" outline>
           <span>
-            {{ $t("whitelist.borrower.filteredCount") }}
+            {{ $t("whitelist.common.filteredCount") }}
             <va-chip>{{ state.filteredCount }}</va-chip>
           </span>
         </va-alert>
