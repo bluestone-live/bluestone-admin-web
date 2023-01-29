@@ -57,7 +57,8 @@ export const useDepositStore = defineStore('deposit', {
         initTotalLoanOutstandingBalance() {
             let totalBalance = BigNumber.from(0)
             this.sgcPools.forEach((pool) => {
-                totalBalance = totalBalance.add(pool.depositAmount.sub(pool.availableAmount))
+                const loanOutstandingAmount = pool.depositAmount.sub(pool.availableAmount)
+                totalBalance = totalBalance.add(loanOutstandingAmount.gt(0) ? loanOutstandingAmount : 0)
             })
             this.totalLoanOutstandingBalance = totalBalance
         }
