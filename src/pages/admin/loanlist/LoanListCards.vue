@@ -50,7 +50,7 @@
                 size="small"
                 :disabled="Number(state.safeLiquidateAmount) === 0"
                 @click="state.inputLiquidateAmount = state.safeLiquidateAmount"
-                >Safe</va-button
+                >{{ $t("loanList.modal.safe") }}</va-button
               >
             </template>
             <template #append>
@@ -61,7 +61,7 @@
                 size="small"
                 color="danger"
                 @click="state.inputLiquidateAmount = state.maxLiquidateAmount"
-                >All</va-button
+                >{{ $t("loanList.modal.all") }}</va-button
               >
             </template>
           </va-input>
@@ -87,7 +87,7 @@
             )
           "
         >
-          Liquidate
+          {{ $t("loanList.liquidate") }}
         </va-button>
       </template>
     </va-modal>
@@ -225,7 +225,7 @@
                     :disabled="!loanRecord.isMarginCall"
                     @click="clickMarginCall()"
                     color="warning"
-                    >Margin Call</va-button
+                    >{{ $t("loanList.marginCall") }}</va-button
                   >
                   <va-button
                     class="mr-4 mb-2"
@@ -233,7 +233,7 @@
                     :loading="state.liquidateLoadingMap.get(loanRecord.loanId)"
                     @click="clickLiquidate(loanRecord.loanId)"
                     color="danger"
-                    >Liquidate</va-button
+                    >{{ $t("loanList.liquidate") }}</va-button
                   >
                 </span>
               </div>

@@ -2,10 +2,16 @@
   <div class="row row-equal">
     <div class="flex xs12 sm12">
       <va-card class="mb-4">
-        <va-card-title>Interest Rate Model</va-card-title>
+        <va-card-title>{{
+          $t("configuration.interestRateModel.title")
+        }}</va-card-title>
         <va-card-content>
           <va-card stripe stripe-color="success" class="mb-4">
-            <va-card-title>Current Interest Rate Model</va-card-title>
+            <va-card-title>{{
+              `${$t("configuration.common.current")} ${$t(
+                "configuration.interestRateModel.title"
+              )}`
+            }}</va-card-title>
             <va-card-content>
               <div id="interest-model-chart"></div>
             </va-card-content>
@@ -20,14 +26,18 @@
             class="mt-4"
             outline
             >{{
-              state.openSetInterestRateModel ? "Clear" : "Edit"
+              state.openSetInterestRateModel
+                ? $t("configuration.common.clear")
+                : $t("configuration.common.edit")
             }}</va-button
           >
           <va-card
             v-if="state.openSetInterestRateModel"
             :disabled="!state.isOwner"
           >
-            <va-card-title>New Proposal</va-card-title>
+            <va-card-title>{{
+              $t("configuration.common.newProposal")
+            }}</va-card-title>
             <va-card-content>
               <va-input
                 class="mb-4"
@@ -45,7 +55,7 @@
                         state.currentInterestRateParams.termList
                     "
                   >
-                    Current
+                    {{ $t("configuration.common.current") }}
                   </va-button>
                 </template>
               </va-input>
@@ -65,7 +75,7 @@
                         state.currentInterestRateParams.interestRateList
                     "
                   >
-                    Current
+                    {{ $t("configuration.common.current") }}
                   </va-button>
                 </template>
               </va-input>
@@ -73,7 +83,7 @@
                 color="primary"
                 @click="setInterestRates"
                 :loading="state.isSetInterestRateModelLoading"
-                >Submit</va-button
+                >{{ $t("configuration.common.submit") }}</va-button
               >
             </va-card-content>
           </va-card>
@@ -81,7 +91,7 @@
       </va-card>
     </div>
 
-    <div class="flex xs12 sm6">
+    <!-- <div class="flex xs12 sm6">
       <va-card class="mb-4">
         <va-card-title>Gateway</va-card-title>
         <va-card-content>
@@ -97,7 +107,7 @@
             </va-card-content>
           </va-card>
 
-          <!-- <va-card stripe stripe-color="warning">
+          <va-card stripe stripe-color="warning">
             <va-card-title>Proposal</va-card-title>
             <va-card-content>
               <va-input
@@ -145,20 +155,26 @@
               <va-button color="success">Approve</va-button>
               <va-button color="danger">Reject</va-button>
             </va-card-actions>
-          </va-card> -->
+          </va-card>
           <va-button
             @click="state.openSetGatewayAddress = !state.openSetGatewayAddress"
             :icon="state.openSetGatewayAddress ? 'clear' : 'create'"
             color="primary"
             class="mt-4"
             outline
-            >{{ state.openSetGatewayAddress ? "Clear" : "Edit" }}</va-button
+            >{{
+              state.openSetGatewayAddress
+                ? $t("configuration.common.clear")
+                : $t("configuration.common.edit")
+            }}</va-button
           >
           <va-card
             v-if="state.openSetGatewayAddress"
             :disabled="!state.isOwner"
           >
-            <va-card-title>New Proposal</va-card-title>
+            <va-card-title>{{
+              $t("configuration.common.newProposal")
+            }}</va-card-title>
             <va-card-content>
               <va-input
                 class="mb-4"
@@ -171,20 +187,26 @@
                 color="primary"
                 @click="setGatewayAddress"
                 :loading="state.isSetGatewayAddressLoading"
-                >Submit</va-button
+                >{{ $t("configuration.common.submit") }}</va-button
               >
             </va-card-content>
           </va-card>
         </va-card-content>
       </va-card>
-    </div>
+    </div> -->
 
     <div class="flex xs12 sm6">
       <va-card class="mb-4">
-        <va-card-title>Minimum Collateral Coverage Ratio</va-card-title>
+        <va-card-title>{{
+          $t("configuration.minCollateralRatio.title")
+        }}</va-card-title>
         <va-card-content>
           <va-card stripe stripe-color="success" class="mb-4">
-            <va-card-title>Current Min Collateral Coverage Ratio</va-card-title>
+            <va-card-title>{{
+              `${$t("configuration.common.current")} ${$t(
+                "configuration.minCollateralRatio.title"
+              )}`
+            }}</va-card-title>
             <va-card-content
               style="display: flex; justify-content: space-between"
             >
@@ -225,14 +247,18 @@
             class="mt-4"
             outline
             >{{
-              state.openSetMinCollateralCoverageRatio ? "Clear" : "Edit"
+              state.openSetMinCollateralCoverageRatio
+                ? $t("configuration.common.clear")
+                : $t("configuration.common.edit")
             }}</va-button
           >
           <va-card
             v-if="state.openSetMinCollateralCoverageRatio"
             :disabled="!state.isOwner"
           >
-            <va-card-title>New Proposal</va-card-title>
+            <va-card-title>{{
+              $t("configuration.common.newProposal")
+            }}</va-card-title>
             <va-card-content>
               <va-input
                 class="mb-4"
@@ -250,7 +276,7 @@
                     class="ml-3"
                     @click="setMinCollateralCoverageRatioForETH"
                     :loading="state.isSetETHMinCollateralCoverageRatioLoading"
-                    >Submit</va-button
+                    >{{ $t("configuration.common.submit") }}</va-button
                   >
                 </template>
               </va-input>
@@ -270,16 +296,10 @@
                     class="ml-3"
                     @click="setMinCollateralCoverageRatioForXBTC"
                     :loading="state.isSetXBTCMinCollateralCoverageRatioLoading"
-                    >Submit</va-button
+                    >{{ $t("configuration.common.submit") }}</va-button
                   >
                 </template>
               </va-input>
-              <!-- <va-button
-                color="primary"
-                @click="setMinCollateralCoverageRatio"
-                :loading="state.isSetMinCollateralCoverageRatioLoading"
-                >Submit</va-button
-              > -->
             </va-card-content>
           </va-card>
         </va-card-content>
@@ -315,7 +335,7 @@ export default defineComponent({
       setInterestRates,
       setGatewayAddress,
       setMinCollateralCoverageRatioForETH,
-      setMinCollateralCoverageRatioForXBTC
+      setMinCollateralCoverageRatioForXBTC,
     } = await useConfiguration(commonStore, accountStore, pendingStore);
 
     watch(
@@ -333,7 +353,7 @@ export default defineComponent({
       setInterestRates,
       setGatewayAddress,
       setMinCollateralCoverageRatioForETH,
-      setMinCollateralCoverageRatioForXBTC
+      setMinCollateralCoverageRatioForXBTC,
     };
   },
 });
