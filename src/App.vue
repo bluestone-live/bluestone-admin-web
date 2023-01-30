@@ -12,6 +12,7 @@ export default defineComponent({
     const pendingStore = usePendingStore();
     const instance = getCurrentInstance();
     const _this = instance?.appContext.config.globalProperties;
+    console.log("gnosis");
 
     const openNotification = (
       title: string,
