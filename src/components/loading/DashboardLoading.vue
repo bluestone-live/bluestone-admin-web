@@ -1,8 +1,8 @@
 <template>
   <div class="loading-spinner">
     <breeding-rhombus-spinner
-      :animation-duration="1000"
-      :size="300"
+      :animation-duration="2000"
+      :size="100"
       :color="'#6F92DA'"
     />
   </div>

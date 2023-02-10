@@ -44,6 +44,9 @@ export const useCommonStore = defineStore('common', {
         },
         getTokens(state) {
             return toRaw(state.tokens)
+        },
+        getSafeInfo(state) {
+            return toRaw(state.safeInfo)
         }
     },
     actions: {
@@ -62,14 +65,14 @@ export const useCommonStore = defineStore('common', {
         },
 
         async initEthersInstance() {
-            const appsSdk = new initSdk();
-            this.safeInfo = await appsSdk.safe.getInfo();
-            this.ethersInstance = new ethers.providers.Web3Provider(new SafeAppProvider(this.safeInfo, appsSdk));
+            const appsSdk = new initSdk()
+            this.safeInfo = await appsSdk.safe.getInfo()
+            this.ethersInstance = new ethers.providers.Web3Provider(new SafeAppProvider(this.safeInfo, appsSdk))
         },
 
         async initNetworkType() {
             const network = await ((this.getEthersProvider as any) as any).getNetwork()
-            this.networkType = network.chainId;
+            this.networkType = network.chainId
             console.log("network=", this.networkType)
         },
 
