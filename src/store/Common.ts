@@ -5,9 +5,9 @@ import { toRaw } from "@vue/reactivity"
 import protocolDeclareFile from "@/contracts/Protocol.json"
 import mappingInterestRateModelDeclareFile from "@/contracts/MappingInterestRateModel.json"
 import erc20DeclareFile from "@/contracts/ERC20Mock.json"
-import { WalletSelector, NetworkType, INetworkFile } from "@/services/types";
-import initSdk from '@gnosis.pm/safe-apps-sdk';
-import { SafeAppProvider } from '@gnosis.pm/safe-apps-provider';
+import { WalletSelector, NetworkType, INetworkFile } from "@/services/types"
+import initSdk from '@gnosis.pm/safe-apps-sdk'
+import { SafeAppProvider } from '@gnosis.pm/safe-apps-provider'
 
 export const useCommonStore = defineStore('common', {
     state: () => ({

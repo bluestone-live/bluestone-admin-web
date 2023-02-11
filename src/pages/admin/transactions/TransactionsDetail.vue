@@ -41,8 +41,22 @@
                         {{ transaction.decodedData.types[inputIdx] }}
                       </va-list-item-label>
                     </va-list-item-section>
-                    <va-list-item-label style="color: gray">
-                      {{ input }}
+
+                    <va-list-item-label>
+                      <va-list-item-section class="right-label-container">
+                        <va-list-item-label class="right-label-text">
+                          {{ input }}
+                        </va-list-item-label>
+                        <va-list-item-label caption>
+                          {{
+                            isTokenAddress(
+                              transaction.decodedData.names[inputIdx]
+                            )
+                              ? getTokenName(input)
+                              : ""
+                          }}
+                        </va-list-item-label>
+                      </va-list-item-section>
                     </va-list-item-label>
                   </va-list-item>
                 </template>
@@ -126,15 +140,14 @@ export default defineComponent({
     if (!transactionsStore.isInited) {
       await transactionsStore.init();
     }
-    let { state, traceToEtherscan } = await useTransactions(
-      commonStore,
-      accountStore,
-      transactionsStore
-    );
+    let { state, traceToEtherscan, isTokenAddress, getTokenName } =
+      await useTransactions(commonStore, accountStore, transactionsStore);
 
     return {
       state,
       traceToEtherscan,
+      isTokenAddress,
+      getTokenName,
     };
   },
 });
@@ -159,5 +172,12 @@ export default defineComponent({
 
 .float-right {
   float: right;
+}
+
+.right-label-container {
+  text-align: right;
+  > .right-label-text {
+    color: gray;
+  }
 }
 </style>

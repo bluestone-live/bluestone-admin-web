@@ -1,5 +1,7 @@
 import { reactive } from "vue";
 import { IDecodedTransactionData, ITransactionRecord, NetworkType } from "../types"
+import { BigNumber, ethers } from "ethers"
+import utils from "@/utils"
 
 export const useTransactions = async (commonStore: any, accountStore: any, transactionsStore: any) => {
     const state = reactive({
@@ -15,6 +17,18 @@ export const useTransactions = async (commonStore: any, accountStore: any, trans
             `https://${state.networkForEtherscan}etherscan.io/tx/${txHash}`,
             "_blank"
         )
+    }
+
+    const isTokenAddress = (key: string) => {
+        if (key === "tokenAddress" || key === "collateralTokenAddress" || key === "loanTokenAddress") {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    const getTokenName = (decodedAddress: string) => {
+        return utils.getTokenNameFromAddress(`0x${decodedAddress}`)
     }
 
     const _initNetworkForEtherscan = () => {
@@ -35,7 +49,17 @@ export const useTransactions = async (commonStore: any, accountStore: any, trans
     }
 
     const _parseTransactionData = (data: string) => {
-        return transactionsStore.decoder.decodeData(data)
+        const rawDecodedData = transactionsStore.decoder.decodeData(data)
+        if (rawDecodedData.method === "setRates") {
+            rawDecodedData.inputs[1] = rawDecodedData.inputs[1].map((term: BigNumber) => term.toNumber())
+            rawDecodedData.inputs[2] = rawDecodedData.inputs[2].map((interestRate: BigNumber) => parseFloat(ethers.utils.formatEther(interestRate)))
+        }
+        if (rawDecodedData.method === "setLoanAndCollateralTokenPair") {
+            rawDecodedData.inputs[2] = ethers.utils.formatEther(rawDecodedData.inputs[2])
+            rawDecodedData.inputs[3] = ethers.utils.formatEther(rawDecodedData.inputs[3])
+        }
+
+        return rawDecodedData
     }
 
     const _parseTransactions = () => {
@@ -65,7 +89,9 @@ export const useTransactions = async (commonStore: any, accountStore: any, trans
 
     return {
         state,
-        traceToEtherscan
+        traceToEtherscan,
+        isTokenAddress,
+        getTokenName
     }
 }
 

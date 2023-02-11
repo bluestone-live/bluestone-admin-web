@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia'
 import { useCommonStore } from "./Common"
 import { Contract } from 'ethers'
-import protocolDeclareFile from "@/contracts/Protocol.json"
-import mappingDeclareFile from "@/contracts/MappingInterestRateModel.json"
-import whitelistDeclareFile from "@/contracts/Whitelist.json"
 import axios from 'axios'
 import { NetworkType } from '@/services/types'
 import { toRaw } from 'vue'
+import protocolDeclareFile from "@/contracts/Protocol.json"
+import mappingDeclareFile from "@/contracts/MappingInterestRateModel.json"
+import whitelistDeclareFile from "@/contracts/Whitelist.json"
 const InputDataDecoder = require('ethereum-input-data-decoder')
 
 export const useTransactionsStore = defineStore('transactions', {
@@ -44,7 +44,9 @@ export const useTransactionsStore = defineStore('transactions', {
         },
 
         initDecoder() {
-            this.decoder = new InputDataDecoder([...protocolDeclareFile.abi, ...mappingDeclareFile.abi, ...whitelistDeclareFile.abi])
+            this.decoder = new InputDataDecoder(
+                [...protocolDeclareFile.abi, ...mappingDeclareFile.abi, ...whitelistDeclareFile.abi]
+            )
         },
 
         async initTransactions() {
@@ -58,7 +60,7 @@ export const useTransactionsStore = defineStore('transactions', {
                 const response = await axios.get(requestStr)
                 this.transactions = this._filterTransactions(response.data.results)
             } catch (error) {
-                console.error(error);
+                console.error(error)
             }
         },
 
@@ -76,7 +78,6 @@ export const useTransactionsStore = defineStore('transactions', {
         _filterTransactions(transactions: any[]) {
             const filteredTransactions = []
             for (let transaction of transactions) {
-                console.log("transaction=", transaction)
                 if (transaction.to.toLowerCase() === this.commonState.protocolAddress.toLowerCase() || transaction.to.toLowerCase() === this.commonState.interestRateModelAddress.toLowerCase()) {
                     filteredTransactions.push(transaction)
                 }
