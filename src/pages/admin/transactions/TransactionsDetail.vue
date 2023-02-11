@@ -108,7 +108,7 @@
             </va-list>
           </va-card-content>
 
-          <div v-if="transaction.isExecuted" class="float-right">
+          <div v-if="transaction.isExecuted" class="float-right mb-2">
             <va-icon
               name="open_in_new"
               @click="traceToEtherscan(transaction.transactionHash)"

@@ -80,7 +80,6 @@ export const useTransactions = async (commonStore: any, accountStore: any, trans
                 transactionHash: rawTransaction.transactionHash
             } as ITransactionRecord
         })
-        console.log("handledTransactions=", state.handledTransactions)
     }
 
     _parseTransactions()
