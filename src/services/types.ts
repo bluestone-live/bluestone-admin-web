@@ -109,7 +109,8 @@ interface ITransactionRecord {
     safeTxHash: string,
     submissionDate: string,
     to: string,
-    transactionHash: string | null
+    transactionHash: string | null,
+    isRejection: boolean
 }
 
 interface IDecodedTransactionData {

@@ -8,7 +8,13 @@
       <va-card
         class="mb-4"
         :stripe="transaction.isExecuted"
-        :stripe-color="transaction.isSuccessful ? 'gray' : 'danger'"
+        :stripe-color="
+          transaction.isRejection
+            ? 'warning'
+            : transaction.isSuccessful
+            ? 'gray'
+            : 'danger'
+        "
         :color="transaction.isExecuted ? 'background' : 'white'"
       >
         <va-card-title class="flex-container">
@@ -18,9 +24,15 @@
         <va-card-content>
           <va-card-content>
             <va-collapse
-              :header="transaction.decodedData.method"
+              :header="
+                transaction.isRejection
+                  ? `Reject Nonce ${transaction.nonce}`
+                  : transaction.decodedData.method
+              "
               :icon="
-                transaction.isExecuted
+                transaction.isRejection
+                  ? 'cancel'
+                  : transaction.isExecuted
                   ? transaction.isSuccessful
                     ? 'done_all'
                     : 'remove_done'
@@ -121,7 +133,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, onBeforeUnmount, watch } from "vue";
 import { useCommonStore } from "@/store/Common";
 import { useAccountStore } from "@/store/Account";
 import { useTransactionsStore } from "@/store/Transactions";
@@ -140,8 +152,30 @@ export default defineComponent({
     if (!transactionsStore.isInited) {
       await transactionsStore.init();
     }
-    let { state, traceToEtherscan, isTokenAddress, getTokenName } =
-      await useTransactions(commonStore, accountStore, transactionsStore);
+    let {
+      state,
+      traceToEtherscan,
+      isTokenAddress,
+      getTokenName,
+      parseTransactions,
+    } = await useTransactions(commonStore, accountStore, transactionsStore);
+
+    watch(
+      () => transactionsStore.needUpdate,
+      () => {
+        if (transactionsStore.needUpdate) {
+          console.log("need to update");
+          transactionsStore.initTransactions();
+          parseTransactions();
+        }
+      },
+      { deep: true }
+    );
+
+    onBeforeUnmount(() => {
+      clearInterval(transactionsStore.timer);
+      console.log("timer clear");
+    });
 
     return {
       state,

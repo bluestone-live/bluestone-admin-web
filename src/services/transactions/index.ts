@@ -62,7 +62,18 @@ export const useTransactions = async (commonStore: any, accountStore: any, trans
         return rawDecodedData
     }
 
-    const _parseTransactions = () => {
+    const _isRejection = (to: string, data: string) => {
+        if(
+            to.toLowerCase() === commonStore.safeInfo.safeAddress.toLowerCase()
+            && data === null
+        ) {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    const parseTransactions = () => {
         state.handledTransactions = transactionsStore.getRawTransactions.map((rawTransaction: any) => {
             return {
                 confirmations: rawTransaction.confirmations,
@@ -77,12 +88,13 @@ export const useTransactions = async (commonStore: any, accountStore: any, trans
                 safeTxHash: rawTransaction.safeTxHash,
                 submissionDate: rawTransaction.submissionDate,
                 to: rawTransaction.to,
-                transactionHash: rawTransaction.transactionHash
+                transactionHash: rawTransaction.transactionHash,
+                isRejection: _isRejection(rawTransaction.to, rawTransaction.data),
             } as ITransactionRecord
         })
     }
 
-    _parseTransactions()
+    parseTransactions()
 
     _initNetworkForEtherscan()
 
@@ -90,7 +102,8 @@ export const useTransactions = async (commonStore: any, accountStore: any, trans
         state,
         traceToEtherscan,
         isTokenAddress,
-        getTokenName
+        getTokenName,
+        parseTransactions
     }
 }
 

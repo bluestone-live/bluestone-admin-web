@@ -14,8 +14,12 @@ export const useTransactionsStore = defineStore('transactions', {
         isInited: false,
         commonState: useCommonStore(),
         safeInstance: {} as Contract,
+        networkNameForSafeAPI: "unknown",
         transactions: [] as any,
-        decoder: {} as any
+        executedTransactionsIndex: 0,
+        needUpdate: false,
+        decoder: {} as any,
+        timer: {} as any,
     }),
     getters: {
         getSafeAddress(state) {
@@ -34,7 +38,9 @@ export const useTransactionsStore = defineStore('transactions', {
         async init() {
             try {
                 this.initDecoder()
+                this.initNetworkNameForSafeAPI()
                 await this.initTransactions()
+                this.initTimer()
                 this.isInited = true
                 console.log("[Transactions]: Transactions Store init success.")
             } catch (error) {
@@ -49,36 +55,83 @@ export const useTransactionsStore = defineStore('transactions', {
             )
         },
 
-        async initTransactions() {
-            const networkName = this._getStandardNetworkNameInSafeAPI(this.commonState.networkType)
-            if (networkName === "unknown") {
-                console.error("unknown network")
-                return
+        initNetworkNameForSafeAPI() {
+            switch (this.commonState.networkType) {
+                case NetworkType.Main:
+                    this.networkNameForSafeAPI = "mainnet"
+                    break
+                case NetworkType.Goerli:
+                    this.networkNameForSafeAPI = "goerli"
+                    break
+                default:
+                    return 
             }
-            const requestStr = `https://safe-transaction-${networkName}.safe.global/api/v1/safes/${this.getSafeAddress}/multisig-transactions/`
+        },
+
+        _initExecutedTransactionsIndex() {
+            for (let i in this.transactions) {
+                if (!this.transactions[i].isExecuted) {
+                    this.executedTransactionsIndex = parseInt(i)
+                }
+            }
+        },
+
+        async initTransactions() {
+            console.log("initTransactions")
+
+            const requestStr = this._genSafeAPI()
             try {
                 const response = await axios.get(requestStr)
                 this.transactions = this._filterTransactions(response.data.results)
+                this._initExecutedTransactionsIndex()
+                this.needUpdate = false
             } catch (error) {
                 console.error(error)
             }
         },
 
-        _getStandardNetworkNameInSafeAPI(networkType: NetworkType) {
-            switch (networkType) {
-                case NetworkType.Main:
-                    return "main"
-                case NetworkType.Goerli:
-                    return "goerli"
-                default:
-                    return "unknown"
+        initTimer() {
+            this.timer = setInterval(
+                this.checkUpdate,
+                8000
+            )
+        },
+
+        async checkUpdate() {
+            const requestStr = this._genSafeAPI("?executed=false")
+
+            try {
+                const response = await axios.get(requestStr)
+                const executedTransactions = this._filterTransactions(response.data.results)
+                if (executedTransactions.length - 1 !== this.executedTransactionsIndex) {
+                    console.log(`${executedTransactions.length - 1} !== ${this.executedTransactionsIndex}`)
+                    console.log("length inequal")
+                    this.needUpdate = true
+                } else {
+                    for(let i in executedTransactions) {
+                        if(JSON.stringify(executedTransactions[i]) !== JSON.stringify(this.transactions[i])) {
+                            console.log("state changed")
+                            this.needUpdate = true
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error(error)
             }
+        },
+
+        _genSafeAPI(payload: string = "") {
+            return `https://safe-transaction-${this.networkNameForSafeAPI}.safe.global/api/v1/safes/${this.getSafeAddress}/multisig-transactions/${payload}`
         },
 
         _filterTransactions(transactions: any[]) {
             const filteredTransactions = []
             for (let transaction of transactions) {
-                if (transaction.to.toLowerCase() === this.commonState.protocolAddress.toLowerCase() || transaction.to.toLowerCase() === this.commonState.interestRateModelAddress.toLowerCase()) {
+                if (
+                    transaction.to.toLowerCase() === this.commonState.protocolAddress.toLowerCase() 
+                    || transaction.to.toLowerCase() === this.commonState.interestRateModelAddress.toLowerCase()
+                    || transaction.to.toLowerCase() === this.commonState.safeInfo.safeAddress.toLowerCase()
+                    ) {
                     filteredTransactions.push(transaction)
                 }
             }
