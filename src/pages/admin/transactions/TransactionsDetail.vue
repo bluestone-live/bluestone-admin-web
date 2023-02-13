@@ -161,20 +161,15 @@ export default defineComponent({
     } = await useTransactions(commonStore, accountStore, transactionsStore);
 
     watch(
-      () => transactionsStore.needUpdate,
+      () => transactionsStore.transactions,
       () => {
-        if (transactionsStore.needUpdate) {
-          console.log("need to update");
-          transactionsStore.initTransactions();
-          parseTransactions();
-        }
+        parseTransactions();
       },
       { deep: true }
     );
 
     onBeforeUnmount(() => {
       clearInterval(transactionsStore.timer);
-      console.log("timer clear");
     });
 
     return {

@@ -16,8 +16,6 @@ export const useTransactionsStore = defineStore('transactions', {
         safeInstance: {} as Contract,
         networkNameForSafeAPI: "unknown",
         transactions: [] as any,
-        executedTransactionsIndex: 0,
-        needUpdate: false,
         decoder: {} as any,
         timer: {} as any,
     }),
@@ -64,27 +62,15 @@ export const useTransactionsStore = defineStore('transactions', {
                     this.networkNameForSafeAPI = "goerli"
                     break
                 default:
-                    return 
-            }
-        },
-
-        _initExecutedTransactionsIndex() {
-            for (let i in this.transactions) {
-                if (!this.transactions[i].isExecuted) {
-                    this.executedTransactionsIndex = parseInt(i)
-                }
+                    return
             }
         },
 
         async initTransactions() {
-            console.log("initTransactions")
-
             const requestStr = this._genSafeAPI()
             try {
                 const response = await axios.get(requestStr)
                 this.transactions = this._filterTransactions(response.data.results)
-                this._initExecutedTransactionsIndex()
-                this.needUpdate = false
             } catch (error) {
                 console.error(error)
             }
@@ -98,20 +84,17 @@ export const useTransactionsStore = defineStore('transactions', {
         },
 
         async checkUpdate() {
-            const requestStr = this._genSafeAPI("?executed=false")
-
+            const requestStr = this._genSafeAPI()
             try {
                 const response = await axios.get(requestStr)
-                const executedTransactions = this._filterTransactions(response.data.results)
-                if (executedTransactions.length - 1 !== this.executedTransactionsIndex) {
-                    console.log(`${executedTransactions.length - 1} !== ${this.executedTransactionsIndex}`)
-                    console.log("length inequal")
-                    this.needUpdate = true
+                const newTransactions = this._filterTransactions(response.data.results)
+                if (newTransactions.length !== this.transactions.length) {
+                    this.transactions = newTransactions
                 } else {
-                    for(let i in executedTransactions) {
-                        if(JSON.stringify(executedTransactions[i]) !== JSON.stringify(this.transactions[i])) {
-                            console.log("state changed")
-                            this.needUpdate = true
+                    for (let i in newTransactions) {
+                        if (JSON.stringify(newTransactions[i]) !== JSON.stringify(this.transactions[i])) {
+                            this.transactions = newTransactions
+                            break
                         }
                     }
                 }
@@ -128,10 +111,10 @@ export const useTransactionsStore = defineStore('transactions', {
             const filteredTransactions = []
             for (let transaction of transactions) {
                 if (
-                    transaction.to.toLowerCase() === this.commonState.protocolAddress.toLowerCase() 
+                    transaction.to.toLowerCase() === this.commonState.protocolAddress.toLowerCase()
                     || transaction.to.toLowerCase() === this.commonState.interestRateModelAddress.toLowerCase()
                     || transaction.to.toLowerCase() === this.commonState.safeInfo.safeAddress.toLowerCase()
-                    ) {
+                ) {
                     filteredTransactions.push(transaction)
                 }
             }
