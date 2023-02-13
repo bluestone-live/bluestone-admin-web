@@ -62,10 +62,20 @@ export const useTransactions = async (commonStore: any, accountStore: any, trans
         return rawDecodedData
     }
 
-    const _isRejection = (to: string, data: string) => {
-        if(
-            to.toLowerCase() === commonStore.safeInfo.safeAddress.toLowerCase()
-            && data === null
+    const _isRejection = (transactionReject: any, transactionPre: any) => {
+        if (
+            transactionPre.nonce === transactionReject.nonce
+        ) {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    const _isSuspectRejection = (transaction: any) => {
+        if (
+            transaction.to.toLowerCase() === commonStore.safeInfo.safeAddress.toLowerCase()
+            && transaction.data === null
         ) {
             return true
         } else {
@@ -74,8 +84,39 @@ export const useTransactions = async (commonStore: any, accountStore: any, trans
     }
 
     const parseTransactions = () => {
-        state.handledTransactions = transactionsStore.getRawTransactions.map((rawTransaction: any) => {
-            return {
+        // state.handledTransactions = transactionsStore.getRawTransactions.map((rawTransaction: any, index: any) => {
+        //     return {
+        //         confirmations: rawTransaction.confirmations,
+        //         confirmationsRequired: rawTransaction.confirmationsRequired,
+        //         data: rawTransaction.data,
+        //         decodedData: _parseTransactionData(rawTransaction.data),
+        //         executionDate: rawTransaction.executionDate,
+        //         executor: rawTransaction.executor,
+        //         isExecuted: rawTransaction.isExecuted,
+        //         isSuccessful: rawTransaction.isSuccessful,
+        //         nonce: rawTransaction.nonce,
+        //         safeTxHash: rawTransaction.safeTxHash,
+        //         submissionDate: rawTransaction.submissionDate,
+        //         to: rawTransaction.to,
+        //         transactionHash: rawTransaction.transactionHash,
+        //         isRejection: _isRejection(rawTransaction.to, rawTransaction.data),
+        //     } as ITransactionRecord
+        // })
+        const tempArr: ITransactionRecord[] = [];
+        const rawTransactions = transactionsStore.getRawTransactions;
+        for (let index = 0; index < rawTransactions.length; index++) {
+            const rawTransaction = rawTransactions[index]
+            let rejectionTag: boolean
+            if (_isSuspectRejection(rawTransaction)) {
+                if (index < rawTransactions.length - 1 && _isRejection(rawTransactions[index + 1], rawTransaction)) {
+                    rejectionTag = true
+                } else {
+                    continue
+                }
+            } else {
+                rejectionTag = false
+            }
+            tempArr.push({
                 confirmations: rawTransaction.confirmations,
                 confirmationsRequired: rawTransaction.confirmationsRequired,
                 data: rawTransaction.data,
@@ -89,9 +130,11 @@ export const useTransactions = async (commonStore: any, accountStore: any, trans
                 submissionDate: rawTransaction.submissionDate,
                 to: rawTransaction.to,
                 transactionHash: rawTransaction.transactionHash,
-                isRejection: _isRejection(rawTransaction.to, rawTransaction.data),
-            } as ITransactionRecord
-        })
+                isRejection: rejectionTag,
+            })
+        }
+        state.handledTransactions = tempArr
+        console.log(state.handledTransactions)
     }
 
     parseTransactions()

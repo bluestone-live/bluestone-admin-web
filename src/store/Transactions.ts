@@ -7,6 +7,7 @@ import { toRaw } from 'vue'
 import protocolDeclareFile from "@/contracts/Protocol.json"
 import mappingDeclareFile from "@/contracts/MappingInterestRateModel.json"
 import whitelistDeclareFile from "@/contracts/Whitelist.json"
+import safeDeclareFile from "@/contracts/Safe.json"
 const InputDataDecoder = require('ethereum-input-data-decoder')
 
 export const useTransactionsStore = defineStore('transactions', {
@@ -49,7 +50,7 @@ export const useTransactionsStore = defineStore('transactions', {
 
         initDecoder() {
             this.decoder = new InputDataDecoder(
-                [...protocolDeclareFile.abi, ...mappingDeclareFile.abi, ...whitelistDeclareFile.abi]
+                [...protocolDeclareFile.abi, ...mappingDeclareFile.abi, ...whitelistDeclareFile.abi, ...safeDeclareFile.abi]
             )
         },
 
