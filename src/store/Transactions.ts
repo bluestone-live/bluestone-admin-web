@@ -55,7 +55,7 @@ export const useTransactionsStore = defineStore('transactions', {
                 console.error("unknown network")
                 return
             }
-            const requestStr = `https://safe-transaction-${networkName}.safe.global/api/v1/safes/${this.getSafeAddress}/all-transactions/?executed=false&queued=true&trusted=true`
+            const requestStr = `https://safe-transaction-${networkName}.safe.global/api/v1/safes/${this.getSafeAddress}/multisig-transactions/`
             try {
                 const response = await axios.get(requestStr)
                 this.transactions = this._filterTransactions(response.data.results)
