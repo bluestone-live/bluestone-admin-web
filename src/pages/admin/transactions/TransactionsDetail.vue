@@ -7,7 +7,7 @@
     >
       <va-card
         class="mb-4"
-        :stripe="transaction.isExecuted"
+        :stripe="transaction.isExecuted || transaction.isRejection"
         :stripe-color="
           transaction.isRejection
             ? 'warning'
