@@ -1,9 +1,9 @@
 <template>
-  <div class="row row-equal">
+  <div class="flex-center-container row row-equal">
     <div
       v-for="(transaction, index) in state.handledTransactions"
       :key="index"
-      class="flex xs12 sm6"
+      class="flex xs12 sm8"
     >
       <va-card
         class="mb-4"
@@ -197,6 +197,11 @@ export default defineComponent({
 .flex-container {
   display: flex;
   justify-content: space-between;
+}
+
+.flex-center-container {
+  display: flex;
+  justify-content: center;
 }
 
 .float-right {
