@@ -73,10 +73,54 @@
                   </va-list-item>
                 </template>
               </va-list>
+
+              <va-card-content>
+                <va-list class="data-list">
+                  <va-list-label>{{
+                    `Confirmations ${transaction.confirmations.length}/${transaction.confirmationsRequired}`
+                  }}</va-list-label>
+
+                  <va-list-item
+                    v-for="(confirmation, idx) in transaction.confirmations"
+                    :key="idx"
+                  >
+                    <va-list-item-section avatar>
+                      <va-avatar
+                        :color="idx === 0 ? 'dark' : 'primary'"
+                        :icon="idx === 0 ? 'emoji_people' : 'front_hand'"
+                        size="small"
+                      />
+                    </va-list-item-section>
+
+                    <va-list-item-section>
+                      <va-list-item-label>
+                        {{ confirmation.owner }}
+                      </va-list-item-label>
+                    </va-list-item-section>
+
+                    <va-list-item-section icon>
+                      <va-chip
+                        square
+                        outline
+                        size="small"
+                        color="success"
+                        icon="verified"
+                        >{{
+                          `Approved${
+                            transaction.executor === confirmation.owner
+                              ? " & Executed"
+                              : ""
+                          }`
+                        }}</va-chip
+                      >
+                    </va-list-item-section>
+                  </va-list-item>
+                </va-list>
+              </va-card-content>
             </va-collapse>
           </va-card-content>
 
-          <va-card-content>
+          <!-- <va-card-content>
             <va-list class="data-list">
               <va-list-label>{{
                 `Confirmations ${transaction.confirmations.length}/${transaction.confirmationsRequired}`
@@ -118,7 +162,7 @@
                 </va-list-item-section>
               </va-list-item>
             </va-list>
-          </va-card-content>
+          </va-card-content> -->
 
           <div v-if="transaction.isExecuted" class="float-right mb-2">
             <va-icon
