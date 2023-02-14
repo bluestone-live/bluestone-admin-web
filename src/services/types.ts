@@ -97,7 +97,7 @@ interface IConfirmation {
 }
 
 interface ITransactionRecord {
-    confirmations: Array<IConfirmation>;
+    confirmations: Array<IConfirmation>,
     confirmationsRequired: number,
     data: string,
     decodedData: IDecodedTransactionData,
@@ -110,7 +110,21 @@ interface ITransactionRecord {
     submissionDate: string,
     to: string,
     transactionHash: string | null,
-    isRejection: boolean
+    rejection: IRejectionRecord | null
+}
+
+interface IRejectionRecord {
+    confirmations: Array<IConfirmation>,
+    confirmationsRequired: number,
+    executionDate: string,
+    executor: string,
+    isExecuted: boolean,
+    isSuccessful: boolean | null,
+    nonce: number,
+    safeTxHash: string,
+    submissionDate: string,
+    to: string,
+    transactionHash: string | null,
 }
 
 interface IDecodedTransactionData {
@@ -121,4 +135,4 @@ interface IDecodedTransactionData {
 }
 
 export { WalletSelector, NetworkType, TokenType };
-export type { INetworkFile, IPool, ILoanRecord, IHandledLoanRecord, INotifyParams, ITransactionRecord, IDecodedTransactionData };
+export type { INetworkFile, IPool, ILoanRecord, IHandledLoanRecord, INotifyParams, ITransactionRecord, IRejectionRecord, IDecodedTransactionData };

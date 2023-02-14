@@ -1,5 +1,5 @@
 import { reactive } from "vue";
-import { IDecodedTransactionData, ITransactionRecord, NetworkType } from "../types"
+import { IDecodedTransactionData, IRejectionRecord, ITransactionRecord, NetworkType } from "../types"
 import { BigNumber, ethers } from "ethers"
 import utils from "@/utils"
 
@@ -84,38 +84,42 @@ export const useTransactions = async (commonStore: any, accountStore: any, trans
     }
 
     const parseTransactions = () => {
-        // state.handledTransactions = transactionsStore.getRawTransactions.map((rawTransaction: any, index: any) => {
-        //     return {
-        //         confirmations: rawTransaction.confirmations,
-        //         confirmationsRequired: rawTransaction.confirmationsRequired,
-        //         data: rawTransaction.data,
-        //         decodedData: _parseTransactionData(rawTransaction.data),
-        //         executionDate: rawTransaction.executionDate,
-        //         executor: rawTransaction.executor,
-        //         isExecuted: rawTransaction.isExecuted,
-        //         isSuccessful: rawTransaction.isSuccessful,
-        //         nonce: rawTransaction.nonce,
-        //         safeTxHash: rawTransaction.safeTxHash,
-        //         submissionDate: rawTransaction.submissionDate,
-        //         to: rawTransaction.to,
-        //         transactionHash: rawTransaction.transactionHash,
-        //         isRejection: _isRejection(rawTransaction.to, rawTransaction.data),
-        //     } as ITransactionRecord
-        // })
-        const tempArr: ITransactionRecord[] = [];
-        const rawTransactions = transactionsStore.getRawTransactions;
+        const tempArr: ITransactionRecord[] = []
+        const rawTransactions = transactionsStore.getRawTransactions
+        let rejectionTag: boolean = false
         for (let index = 0; index < rawTransactions.length; index++) {
             const rawTransaction = rawTransactions[index]
-            let rejectionTag: boolean
+
+            let rejection: IRejectionRecord | null
+            if (rejectionTag) {
+                const preRawTransaction = rawTransactions[index - 1]
+                rejection = {
+                    confirmations: preRawTransaction.confirmations,
+                    confirmationsRequired: preRawTransaction.confirmationsRequired,
+                    executionDate: preRawTransaction.executionDate,
+                    executor: preRawTransaction.executor,
+                    isExecuted: preRawTransaction.isExecuted,
+                    isSuccessful: preRawTransaction.isSuccessful,
+                    nonce: preRawTransaction.nonce,
+                    safeTxHash: preRawTransaction.safeTxHash,
+                    submissionDate: preRawTransaction.submissionDate,
+                    to: preRawTransaction.to,
+                    transactionHash: preRawTransaction.transactionHash,
+                }
+                rejectionTag = false
+            } else {
+                rejection = null
+            }
+
             if (_isSuspectRejection(rawTransaction)) {
                 if (index < rawTransactions.length - 1 && _isRejection(rawTransactions[index + 1], rawTransaction)) {
                     rejectionTag = true
-                } else {
-                    continue
                 }
+                continue
             } else {
                 rejectionTag = false
             }
+
             tempArr.push({
                 confirmations: rawTransaction.confirmations,
                 confirmationsRequired: rawTransaction.confirmationsRequired,
@@ -130,11 +134,68 @@ export const useTransactions = async (commonStore: any, accountStore: any, trans
                 submissionDate: rawTransaction.submissionDate,
                 to: rawTransaction.to,
                 transactionHash: rawTransaction.transactionHash,
-                isRejection: rejectionTag,
+                rejection: rejection
             })
         }
         state.handledTransactions = tempArr
-        console.log(state.handledTransactions)
+    }
+
+    const getStripeColor = (transaction: ITransactionRecord) => {
+        if(transaction.isExecuted) {
+            if(transaction.isSuccessful) {
+                return "gray"
+            } else {
+                return "danger"
+            }
+        } else {
+            if(transaction.rejection) {
+                if(transaction.rejection.isExecuted) {
+                    if(transaction.rejection.isSuccessful) {
+                        return "gray"
+                    } else {
+                        return "danger"
+                    }
+                } else {
+                    return "warning"
+                }
+            }
+        }
+    }
+
+    const getCollapseIcon = (transaction: ITransactionRecord) => {
+        if(transaction.isExecuted) {
+            if(transaction.isSuccessful) {
+                return "done_all"
+            } else {
+                return "error"
+            }
+        } else {
+            if(transaction.rejection) {
+                if(transaction.rejection.isExecuted) {
+                    if(transaction.rejection.isSuccessful) {
+                        return "remove_done"
+                    } else {
+                        return "error"
+                    }
+                } else {
+                    return "cancel"
+                }
+            } else {
+                return "keyboard_double_arrow_right"
+            }
+        }
+    }
+
+    const getCardColor = (transaction: ITransactionRecord) => {
+        if(transaction.isExecuted) {
+            return "background"
+        } else {
+            if(transaction.rejection?.isExecuted) {
+                return "background"
+            } else {
+                return "white"
+            }
+        }
     }
 
     parseTransactions()
@@ -146,7 +207,10 @@ export const useTransactions = async (commonStore: any, accountStore: any, trans
         traceToEtherscan,
         isTokenAddress,
         getTokenName,
-        parseTransactions
+        parseTransactions,
+        getStripeColor,
+        getCollapseIcon,
+        getCardColor
     }
 }
 
