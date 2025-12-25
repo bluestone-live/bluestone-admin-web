@@ -30,12 +30,6 @@ const utils = {
             case NetworkType.Main:
                 currentNetwork = "main"
                 break
-            case NetworkType.Kovan:
-                currentNetwork = "kovan"
-                break
-            case NetworkType.Rinkeby:
-                currentNetwork = "rinkeby"
-                break
             case NetworkType.Goerli:
                 currentNetwork = "goerli"
                 break

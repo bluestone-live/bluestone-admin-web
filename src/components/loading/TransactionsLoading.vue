@@ -1,6 +1,6 @@
 <template>
   <div class="loading-spinner">
-    <fingerprint-spinner
+    <fulfilling-square-spinner
       :animation-duration="2000"
       :size="100"
       :color="'#6F92DA'"
@@ -10,11 +10,11 @@
 
 <script lang="ts">
 import { defineComponent } from "@vue/runtime-core";
-import { FingerprintSpinner } from "epic-spinners";
+import { FulfillingSquareSpinner } from "epic-spinners";
 export default defineComponent({
   name: "ConfigurationLoading",
   components: {
-    FingerprintSpinner,
+    FulfillingSquareSpinner,
   },
   setup() {
     return {};

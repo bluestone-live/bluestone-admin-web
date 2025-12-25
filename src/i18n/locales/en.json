@@ -19,7 +19,8 @@
         "lender": "Lender",
         "borrower": "Borrower",
         "loanlist": "Loan List",
-        "configuration": "Configuration"
+        "configuration": "Configuration",
+        "transactions": "Transactions"
     },
     "auth": {
         "title": "Please Select a Wallet"

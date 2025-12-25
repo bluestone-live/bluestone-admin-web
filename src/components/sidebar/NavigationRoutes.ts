@@ -49,6 +49,13 @@ export default {
       meta: {
         icon: 'vuestic-iconset-settings',
       },
+    },
+    {
+      name: 'Transactions',
+      displayName: 'menu.transactions',
+      meta: {
+        icon: 'vuestic-iconset-files',
+      },
     }
   ],
 }

@@ -56,6 +56,11 @@ const routes: Array<RouteRecordRaw> = [
         name: 'Configuration',
         path: 'configuration',
         component: () => import('@/pages/admin/configuration/Configuration.vue')
+      },
+      {
+        name: 'Transactions',
+        path: 'transactions',
+        component: () => import('@/pages/admin/transactions/Transactions.vue')
       }
     ]
   },

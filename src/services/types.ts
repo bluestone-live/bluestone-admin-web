@@ -11,10 +11,8 @@ enum NetworkType {
     None,
 
     Main = 1,
-    Ropsten = 3,
-    Rinkeby = 4,
     Goerli = 5,
-    Kovan = 42
+    Sepolia = 11155111
 }
 
 enum TokenType {
@@ -90,5 +88,51 @@ interface IHandledLoanRecord {
     dueAt: string;
 }
 
+interface IConfirmation {
+    owner: string,
+    signature: string,
+    signatureType: string,
+    submissionDate: string,
+    transactionHash: string | null
+}
+
+interface ITransactionRecord {
+    confirmations: Array<IConfirmation>,
+    confirmationsRequired: number,
+    data: string,
+    decodedData: IDecodedTransactionData,
+    executionDate: string,
+    executor: string,
+    isExecuted: boolean,
+    isSuccessful: boolean | null,
+    nonce: number,
+    safeTxHash: string,
+    submissionDate: string,
+    to: string,
+    transactionHash: string | null,
+    rejection: IRejectionRecord | null
+}
+
+interface IRejectionRecord {
+    confirmations: Array<IConfirmation>,
+    confirmationsRequired: number,
+    executionDate: string,
+    executor: string,
+    isExecuted: boolean,
+    isSuccessful: boolean | null,
+    nonce: number,
+    safeTxHash: string,
+    submissionDate: string,
+    to: string,
+    transactionHash: string | null,
+}
+
+interface IDecodedTransactionData {
+    method: string,
+    inputs: string[],
+    names: string[],
+    types: string[]
+}
+
 export { WalletSelector, NetworkType, TokenType };
-export type { INetworkFile, IPool, ILoanRecord, IHandledLoanRecord, INotifyParams };
+export type { INetworkFile, IPool, ILoanRecord, IHandledLoanRecord, INotifyParams, ITransactionRecord, IRejectionRecord, IDecodedTransactionData };
